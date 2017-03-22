@@ -16,6 +16,7 @@ namespace Nop.Admin.Models.Catalog
             AvailableVendors = new List<SelectListItem>();
             AvailableProductTypes = new List<SelectListItem>();
             AvailablePublishedOptions = new List<SelectListItem>();
+            AvailableStockOptions = new List<SelectListItem>();//NOP 3.81
         }
 
         [NopResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
@@ -51,5 +52,20 @@ namespace Nop.Admin.Models.Catalog
         public IList<SelectListItem> AvailableVendors { get; set; }
         public IList<SelectListItem> AvailableProductTypes { get; set; }
         public IList<SelectListItem> AvailablePublishedOptions { get; set; }
+
+        //NOP 3.81
+        [NopResourceDisplayName("Admin.Catalog.Products.List.SearchStock")]
+        public int SearchStockId { get; set; }
+        public IList<SelectListItem> AvailableStockOptions { get; set; }
+        [NopResourceDisplayName("Admin.Catalog.Products.List.GoDirectlyToGtin")]
+        [AllowHtml]
+        public string GoDirectlyToGtin { get; set; }
+        [NopResourceDisplayName("Admin.Catalog.Products.List.GoDirectlyToBarcode")]
+        [AllowHtml]
+        public string GoDirectlyToBarcode { get; set; }
+        [NopResourceDisplayName("Admin.Catalog.Products.List.SearchIntegrationCode")]
+        [AllowHtml]
+        public string SearchIntegrationCode { get; set; }
+        //NOP 3.81
     }
 }

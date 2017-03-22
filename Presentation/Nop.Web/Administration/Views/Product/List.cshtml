@@ -127,6 +127,25 @@
                                         @Html.NopDropDownList("SearchVendorId", Model.AvailableVendors)
                                     </div>
                                 </div>
+                                <!--NOP 3.81-->
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SearchStockId)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopDropDownList("SearchStockId", Model.AvailableStockOptions)
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SearchIntegrationCode)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopEditorFor(model => model.SearchIntegrationCode)
+                                    </div>
+                                </div>
+                                <!--NOP 3.81-->
                             </div>
                             <div class="col-md-7">
                                 <div class="form-group" @(Model.AvailableStores.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
@@ -170,6 +189,38 @@
                                             @Html.NopEditorFor(model => model.GoDirectlyToSku)
                                             <span class="input-group-btn">
                                                 <button type="submit" id="go-to-product-by-sku" name="go-to-product-by-sku" class="btn btn-info btn-flat">
+                                                    @T("Admin.Common.Go")
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--NOP 3.81-->
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.GoDirectlyToGtin)
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-group input-group-short">
+                                            @Html.NopEditorFor(model => model.GoDirectlyToGtin)
+                                            <span class="input-group-btn">
+                                                <button type="submit" id="go-to-product-by-gtin" name="go-to-product-by-gtin" class="btn btn-info btn-flat">
+                                                    @T("Admin.Common.Go")
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--NOP 3.81-->
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.GoDirectlyToBarcode)
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="input-group input-group-short">
+                                            @Html.NopEditorFor(model => model.GoDirectlyToBarcode)
+                                            <span class="input-group-btn">
+                                                <button type="submit" id="go-to-product-by-barcode" name="go-to-product-by-barcode" class="btn btn-info btn-flat">
                                                     @T("Admin.Common.Go")
                                                 </button>
                                             </span>
@@ -318,6 +369,20 @@
                             return false;
                         }
                     });
+                    //NOP 3.81
+                    $("#@Html.FieldIdFor(model => model.GoDirectlyToGtin)").keydown(function (event) {
+                        if (event.keyCode === 13) {
+                            $("#go-to-product-by-gtin").click();
+                            return false;
+                        }
+                    });
+                    //NOP 3.81
+                    $("#@Html.FieldIdFor(model => model.GoDirectlyToBarcode)").keydown(function (event) {
+                        if (event.keyCode === 13) {
+                            $("#go-to-product-by-barcode").click();
+                            return false;
+                        }
+                    });
                     //delete selected
                     $('#delete-selected').click(function(e) {
                         e.preventDefault();
@@ -382,7 +447,9 @@
                         SearchWarehouseId: $('#SearchWarehouseId').val(),
                         SearchVendorId: $('#SearchVendorId').val(),
                         SearchProductTypeId: $('#SearchProductTypeId').val(),
-                        SearchPublishedId: $('#SearchPublishedId').val()
+                        SearchPublishedId: $('#SearchPublishedId').val(),
+                        SearchStockId: $('#SearchStockId').val(),//NOP 3.81
+                        SearchIntegrationCode: $('#@Html.FieldIdFor(model => model.SearchIntegrationCode)').val(),//NOP 3.81
                     };
                     addAntiForgeryToken(data);
                     return data;

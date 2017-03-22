@@ -128,7 +128,9 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null);
+            bool? overridePublished = null,
+            bool? overrideStock = null,//NOP 3.81
+            string integrationCode = null);//NOP 3.81);
 
         /// <summary>
         /// Search products
@@ -190,7 +192,9 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null, 
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null);
+            bool? overridePublished = null,
+            bool? overrideStock = null,//NOP 3.81
+            string integrationCode = null);//NOP 3.81);
 
         /// <summary>
         /// Gets products by product attribute
@@ -245,6 +249,38 @@ namespace Nop.Services.Catalog
         /// <param name="sku">SKU</param>
         /// <returns>Product</returns>
         Product GetProductBySku(string sku);
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a product by GTIN
+        /// </summary>
+        /// <param name="gtin">GTIN</param>
+        /// <returns>Product</returns>
+        Product GetProductsByGtin(string gtin);
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a products by GTIN array
+        /// </summary>
+        /// <param name="gtinArray">GTIN array</param>
+        /// <returns>Products</returns>
+        IList<Product> GetProductsByGtin(string[] gtinArray);
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a product by Barcode
+        /// </summary>
+        /// <param name="barcode">Barcode</param>
+        /// <returns>Product</returns>
+        Product GetProductsByBarcode(string barcode);
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a products by Barcode array
+        /// </summary>
+        /// <param name="barcodeArray">Barcode array</param>
+        /// <returns>Products</returns>
+        IList<Product> GetProductsByBarcode(string[] barcodeArray);
 
         /// <summary>
         /// Gets a products by SKU array

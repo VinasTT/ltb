@@ -131,6 +131,16 @@ namespace Nop.Admin.Models.Catalog
         [AllowHtml]
         public virtual string Gtin { get; set; }
 
+        //NOP 3.81
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.Barcode")]
+        [AllowHtml]
+        public virtual string Barcode { get; set; }
+        
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.IntegrationCode")]
+        [AllowHtml]
+        public virtual string IntegrationCode { get; set; }
+        //NOP 3.81
+
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.IsGiftCard")]
         public bool IsGiftCard { get; set; }
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.GiftCardType")]

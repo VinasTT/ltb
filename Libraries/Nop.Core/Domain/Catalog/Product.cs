@@ -486,8 +486,17 @@ namespace Nop.Core.Domain.Catalog
         /// </summary>
         public DateTime UpdatedOnUtc { get; set; }
 
+        /// NOP 3.81
+        /// <summary>
+        /// Gets or sets the integration code
+        /// </summary>
+        public string IntegrationCode { get; set; }
 
-
+        /// NOP 3.81
+        /// <summary>
+        /// Gets or sets the barcode
+        /// </summary>
+        public string Barcode { get; set; }
 
 
 

@@ -414,7 +414,9 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null)
+            bool? overridePublished = null,
+            bool? overrideStock = null,//NOP 3.81
+            string integrationCode = null)//NOP 3.81
         {
             IList<int> filterableSpecificationAttributeOptionIds;
             return SearchProducts(out filterableSpecificationAttributeOptionIds, false,
@@ -423,7 +425,8 @@ namespace Nop.Services.Catalog
                 productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts,
                 priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku,
                 searchProductTags, languageId, filteredSpecs, 
-                orderBy, showHidden, overridePublished);
+                orderBy, showHidden, overridePublished,
+                overrideStock, integrationCode);//NOP 3.81
         }
 
         /// <summary>
@@ -486,7 +489,9 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null)
+            bool? overridePublished = null,
+            bool? overrideStock = null,//NOP 3.81
+            string integrationCode = null)//NOP 3.81
         {
             filterableSpecificationAttributeOptionIds = new List<int>();
 
@@ -676,6 +681,18 @@ namespace Nop.Services.Catalog
                 pOverridePublished.Value = overridePublished != null ? (object)overridePublished.Value : DBNull.Value;
                 pOverridePublished.DbType = DbType.Boolean;
 
+                //NOP 3.81
+                var pOverrideStock = _dataProvider.GetParameter();
+                pOverrideStock.ParameterName = "OverrideStock";
+                pOverrideStock.Value = overrideStock != null ? (object)overrideStock.Value : DBNull.Value;
+                pOverrideStock.DbType = DbType.Boolean;
+
+                //NOP 3.81
+                var pIntegrationCode = _dataProvider.GetParameter();
+                pIntegrationCode.ParameterName = "IntegrationCode";
+                pIntegrationCode.Value = integrationCode != null ? (object)integrationCode : DBNull.Value;
+                pIntegrationCode.DbType = DbType.String;
+
                 var pLoadFilterableSpecificationAttributeOptionIds = _dataProvider.GetParameter();
                 pLoadFilterableSpecificationAttributeOptionIds.ParameterName = "LoadFilterableSpecificationAttributeOptionIds";
                 pLoadFilterableSpecificationAttributeOptionIds.Value = loadFilterableSpecificationAttributeOptionIds;
@@ -722,6 +739,8 @@ namespace Nop.Services.Catalog
                     pPageSize,
                     pShowHidden,
                     pOverridePublished,
+                    pOverrideStock,//NOP 3.81
+                    pIntegrationCode,//NOP 3.81
                     pLoadFilterableSpecificationAttributeOptionIds,
                     pFilterableSpecificationAttributeOptionIds,
                     pTotalRecords);
@@ -767,6 +786,25 @@ namespace Nop.Services.Catalog
                 {
                     //unpublished only
                     query = query.Where(p => !p.Published);
+                }
+                //NOP 3.81
+                if (!overrideStock.HasValue)
+                {
+                    //process according to "showHidden"
+                    if (!showHidden)
+                    {
+                        query = query.Where(p => p.StockQuantity > 0);
+                    }
+                }
+                else if (overrideStock.Value)
+                {
+                    //in stock only
+                    query = query.Where(p => p.StockQuantity > 0);
+                }
+                else if (!overrideStock.Value)
+                {
+                    //out of stock only
+                    query = query.Where(p => p.StockQuantity == 0);
                 }
                 if (visibleIndividuallyOnly)
                 {
@@ -835,7 +873,11 @@ namespace Nop.Services.Catalog
                         (!p.AvailableStartDateTimeUtc.HasValue || p.AvailableStartDateTimeUtc.Value < nowUtc) &&
                         (!p.AvailableEndDateTimeUtc.HasValue || p.AvailableEndDateTimeUtc.Value > nowUtc));
                 }
-
+                //NOP 3.81
+                if (!String.IsNullOrWhiteSpace(integrationCode))
+                {
+                    query = query.Where(p => p.IntegrationCode == integrationCode);
+                }
                 //searching by keyword
                 if (!String.IsNullOrWhiteSpace(keywords))
                 {
@@ -1187,6 +1229,80 @@ namespace Nop.Services.Catalog
                          select c;
             query = query.OrderBy(c => c.ProductId);
             return new PagedList<ProductAttributeCombination>(query, pageIndex, pageSize);
+        }
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a products by GTIN array
+        /// </summary>
+        /// <param name="gtinArray">GTIN array</param>
+        /// <returns>Products</returns>
+        public IList<Product> GetProductsByGtin(string[] gtinArray)
+        {
+            if (gtinArray == null)
+                throw new ArgumentNullException("skuArray");
+
+            var query = _productRepository.Table;
+            return query.Where(p => gtinArray.Contains(p.Gtin)).ToList();
+        }
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a product by GTIN
+        /// </summary>
+        /// <param name="gtin">GTIN</param>
+        /// <returns>Product</returns>
+        public virtual Product GetProductsByGtin(string gtin)
+        {
+            if (String.IsNullOrEmpty(gtin))
+                return null;
+
+            gtin = gtin.Trim();
+
+            var query = from p in _productRepository.Table
+                        orderby p.Id
+                        where !p.Deleted &&
+                        p.Gtin == gtin
+                        select p;
+            var product = query.FirstOrDefault();
+            return product;
+        }
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a products by Barcode array
+        /// </summary>
+        /// <param name="barcodeArray">Barcode array</param>
+        /// <returns>Products</returns>
+        public IList<Product> GetProductsByBarcode(string[] barcodeArray)
+        {
+            if (barcodeArray == null)
+                throw new ArgumentNullException("skuArray");
+
+            var query = _productRepository.Table;
+            return query.Where(p => barcodeArray.Contains(p.Barcode)).ToList();
+        }
+
+        /// NOP 3.81
+        /// <summary>
+        /// Gets a product by Barcode
+        /// </summary>
+        /// <param name="barcode">Barcode</param>
+        /// <returns>Product</returns>
+        public virtual Product GetProductsByBarcode(string barcode)
+        {
+            if (String.IsNullOrEmpty(barcode))
+                return null;
+
+            barcode = barcode.Trim();
+
+            var query = from p in _productRepository.Table
+                        orderby p.Id
+                        where !p.Deleted &&
+                        p.Barcode == barcode
+                        select p;
+            var product = query.FirstOrDefault();
+            return product;
         }
 
         /// <summary>

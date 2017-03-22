@@ -971,6 +971,15 @@ namespace Nop.Admin.Controllers
             model.AvailablePublishedOptions.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Catalog.Products.List.SearchPublished.All"), Value = "0" });
             model.AvailablePublishedOptions.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Catalog.Products.List.SearchPublished.PublishedOnly"), Value = "1" });
             model.AvailablePublishedOptions.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly"), Value = "2" });
+            
+            //NOP 3.81
+            //"stock" property
+            //0 - all (according to "ShowHidden" parameter)
+            //1 - in stock only
+            //2 - out of stock only
+            model.AvailableStockOptions.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Catalog.Products.List.SearchStock.All"), Value = "0" });
+            model.AvailableStockOptions.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Catalog.Products.List.SearchStock.InStock"), Value = "1" });
+            model.AvailableStockOptions.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Catalog.Products.List.SearchStock.OutOfStock"), Value = "2" });
 
             return View(model);
         }
@@ -1001,6 +1010,13 @@ namespace Nop.Admin.Controllers
             else if (model.SearchPublishedId == 2)
                 overridePublished = false;
 
+            //NOP 3.81
+            bool? overrideStock = null;
+            if (model.SearchStockId == 1)
+                overrideStock = true;
+            else if (model.SearchStockId == 2)
+                overrideStock = false;
+
             var products = _productService.SearchProducts(
                 categoryIds: categoryIds,
                 manufacturerId: model.SearchManufacturerId,
@@ -1012,7 +1028,9 @@ namespace Nop.Admin.Controllers
                 pageIndex: command.Page - 1,
                 pageSize: command.PageSize,
                 showHidden: true,
-                overridePublished: overridePublished
+                overridePublished: overridePublished,
+                overrideStock: overrideStock,//NOP 3.81
+                integrationCode: model.SearchIntegrationCode //NOP 3.81
             );
             var gridModel = new DataSourceResult();
             gridModel.Data = products.Select(x =>
@@ -1039,6 +1057,60 @@ namespace Nop.Admin.Controllers
             gridModel.Total = products.TotalCount;
 
             return Json(gridModel);
+        }
+
+        //NOP 3.81
+        [HttpPost, ActionName("List")]
+        [FormValueRequired("go-to-product-by-gtin")]
+        public ActionResult GoToGtin(ProductListModel model)
+        {
+            string gtin = model.GoDirectlyToGtin;
+
+            //try to load a product entity
+            var product = _productService.GetProductsByGtin(gtin);
+
+            //if not found, then try to load a product attribute combination
+            if (product == null)
+            {
+                var combination = _productAttributeService.GetProductAttributeCombinationBySku(gtin);
+                if (combination != null)
+                {
+                    product = combination.Product;
+                }
+            }
+
+            if (product != null)
+                return RedirectToAction("Edit", "Product", new { id = product.Id });
+
+            //not found
+            return List();
+        }
+
+        //NOP 3.81
+        [HttpPost, ActionName("List")]
+        [FormValueRequired("go-to-product-by-barcode")]
+        public ActionResult GoToBarcode(ProductListModel model)
+        {
+            string barcode = model.GoDirectlyToBarcode;
+
+            //try to load a product entity
+            var product = _productService.GetProductsByBarcode(barcode);
+
+            //if not found, then try to load a product attribute combination
+            if (product == null)
+            {
+                var combination = _productAttributeService.GetProductAttributeCombinationBySku(barcode);
+                if (combination != null)
+                {
+                    product = combination.Product;
+                }
+            }
+
+            if (product != null)
+                return RedirectToAction("Edit", "Product", new { id = product.Id });
+
+            //not found
+            return List();
         }
 
         [HttpPost, ActionName("List")]

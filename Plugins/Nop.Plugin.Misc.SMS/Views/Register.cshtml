@@ -1,0 +1,410 @@
+﻿@model SMSModel
+@using Nop.Web.Models.Customer;
+@using Nop.Plugin.Misc.SMS.Models;
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework; 
+@using Nop.Web.Framework.Security.Captcha;
+@using Nop.Web.Framework.Security.Honeypot;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Register").Text);
+    //page class
+    Html.AppendPageCssClassParts("html-registration-page");
+}
+@if (Model.RegisterModel.CountryEnabled && Model.RegisterModel.StateProvinceEnabled)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#@Html.FieldIdFor(model => Model.RegisterModel.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+                var ddlStates = $("#@Html.FieldIdFor(model => Model.RegisterModel.StateProvinceId)");
+                var statesProgress = $("#states-loading-progress");
+                statesProgress.show();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                    data: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                        statesProgress.hide();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve states.');
+                        statesProgress.hide();
+                    }
+                });
+            });
+        });
+    </script>
+}
+@using (Html.BeginForm("RegisterPOST", "SMS", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="page registration-page">
+        <div class="page-title">
+            <h1>@T("Account.Register")</h1>
+        </div>
+        <div class="page-body">
+            @{
+                var validationSummary = Html.ValidationSummary(true);
+            }
+            @if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+            {
+                <div class="message-error">@validationSummary</div>
+            }
+            @Html.Partial("_ExternalAuthentication.AssociateMessage")
+            <div class="fieldset">
+                <div class="title">
+                    <strong>@T("Account.YourPersonalDetails")</strong>
+                </div>
+                <div class="form-fields">
+
+                    @Html.EditorFor(model => model.RegisterModel)
+                    @Html.EditorFor(model => model.SmsRecordModel)
+                    @if (Model.RegisterModel.GenderEnabled)
+                    {
+                        <div class="inputs">
+                            <label>@T("Account.Fields.Gender"):</label>
+                            <div class="gender">
+                                <span class="male">
+                                    @Html.RadioButton("Gender", "M", (Model.RegisterModel.Gender == "M"), new { id = "gender-male" })
+                                    <label class="forcheckbox" for="gender-male">@T("Account.Fields.Gender.Male")</label>
+                                </span>
+                                <span class="female">
+                                    @Html.RadioButton("Gender", "F", (Model.RegisterModel.Gender == "F"), new { id = "gender-female" })
+                                    <label class="forcheckbox" for="gender-female">@T("Account.Fields.Gender.Female")</label>
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.RegisterModel.FirstName, new { }, ":")
+                        @Html.EditorFor(model => Model.RegisterModel.FirstName)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.RegisterModel.FirstName)
+                    </div>
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.RegisterModel.LastName, new { }, ":")
+                        @Html.EditorFor(model => Model.RegisterModel.LastName)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.RegisterModel.LastName)
+                    </div>
+                    @if (Model.RegisterModel.DateOfBirthEnabled)
+                    {
+                        <div class="inputs date-of-birth">
+                            <label>@T("Account.Fields.DateOfBirth"):</label>
+                            @Html.DatePickerDropDowns(Html.FieldNameFor(x => x.RegisterModel.DateOfBirthDay),
+                                Html.FieldNameFor(x => x.RegisterModel.DateOfBirthMonth),
+                                Html.FieldNameFor(x => x.RegisterModel.DateOfBirthYear),
+                                DateTime.Now.Year - 110,
+                                DateTime.Now.Year,
+                                Model.RegisterModel.DateOfBirthDay,
+                                Model.RegisterModel.DateOfBirthMonth,
+                                Model.RegisterModel.DateOfBirthYear)
+                            @if (Model.RegisterModel.DateOfBirthRequired)
+                            {
+                                @Html.RequiredHint()
+                            }
+                            @Html.ValidationMessageFor(model => Model.RegisterModel.DateOfBirthDay)
+                            @Html.ValidationMessageFor(model => Model.RegisterModel.DateOfBirthMonth)
+                            @Html.ValidationMessageFor(model => Model.RegisterModel.DateOfBirthYear)
+                        </div>
+                    }
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.RegisterModel.Email, new { }, ":")
+                        @Html.EditorFor(model => Model.RegisterModel.Email)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.RegisterModel.Email)
+                    </div>
+                    @if (Model.RegisterModel.EnteringEmailTwice)
+                    {
+                        <div class="inputs">
+                            @Html.LabelFor(model => Model.RegisterModel.ConfirmEmail, new { }, ":")
+                            @Html.EditorFor(model => Model.RegisterModel.ConfirmEmail)
+                            @Html.RequiredHint()
+                            @Html.ValidationMessageFor(model => Model.RegisterModel.ConfirmEmail)
+                        </div>
+                    }
+
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.SmsRecordModel.PhoneNumber, new { }, ":")
+                        @Html.EditorFor(model => Model.SmsRecordModel.PhoneNumber)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.SmsRecordModel.PhoneNumber)
+                    </div>
+
+                    @if (Model.RegisterModel.UsernamesEnabled)
+                    {
+                        <div class="inputs">
+                            @Html.LabelFor(model => Model.RegisterModel.Username, new { }, ":")
+                            @Html.EditorFor(model => Model.RegisterModel.Username)
+                            @Html.RequiredHint()
+                            @Html.ValidationMessageFor(model => Model.RegisterModel.Username)
+                            @if (Model.RegisterModel.CheckUsernameAvailabilityEnabled)
+                            {
+                                @Html.Partial("_CheckUsernameAvailability")
+                            }
+                        </div>
+
+                    }
+                </div>
+            </div>
+            @if (Model.RegisterModel.CompanyEnabled || Model.RegisterModel.DisplayVatNumber)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.CompanyDetails")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @if (Model.RegisterModel.CompanyEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.Company, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.Company)
+                                @if (Model.RegisterModel.CompanyRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.Company)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.DisplayVatNumber)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.VatNumber, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.VatNumber)
+                                <span class="vat-note"><em>@T("Account.Fields.VatNumber.Note")</em></span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.RegisterModel.StreetAddressEnabled || Model.RegisterModel.StreetAddress2Enabled || Model.RegisterModel.ZipPostalCodeEnabled
+            || Model.RegisterModel.CityEnabled || Model.RegisterModel.CountryEnabled)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.YourAddress")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @if (Model.RegisterModel.StreetAddressEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.StreetAddress, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.StreetAddress)
+                                @if (Model.RegisterModel.StreetAddressRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.StreetAddress)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.StreetAddress2Enabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.StreetAddress2, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.StreetAddress2)
+                                @if (Model.RegisterModel.StreetAddress2Required)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.StreetAddress2)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.ZipPostalCodeEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.ZipPostalCode, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.ZipPostalCode)
+                                @if (Model.RegisterModel.ZipPostalCodeRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.ZipPostalCode)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.CityEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.City, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.City)
+                                @if (Model.RegisterModel.CityRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.City)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.CountryEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.CountryId, new { }, ":")
+                                @Html.DropDownList("CountryId", Model.RegisterModel.AvailableCountries)
+                                @if (Model.RegisterModel.CountryRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.CountryId)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.CountryEnabled && Model.RegisterModel.StateProvinceEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.StateProvinceId, new { }, ":")
+                                @Html.DropDownList("StateProvinceId", Model.RegisterModel.AvailableStates)
+                                @if (Model.RegisterModel.StateProvinceRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.StateProvinceId)
+                                <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.RegisterModel.PhoneEnabled || Model.RegisterModel.FaxEnabled)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.YourContactInformation")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @if (Model.RegisterModel.PhoneEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.Phone, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.Phone)
+                                @if (Model.RegisterModel.PhoneRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.Phone)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.FaxEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.Fax, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.Fax)
+                                @if (Model.RegisterModel.FaxRequired)
+                                {
+                                    @Html.RequiredHint()
+                                }
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.Fax)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.RegisterModel.NewsletterEnabled || Model.RegisterModel.CustomerAttributes.Count > 0)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.Options")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @if (Model.RegisterModel.NewsletterEnabled)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.Newsletter, new { }, ":")
+                                @Html.EditorFor(model => Model.RegisterModel.Newsletter)
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.Newsletter)
+                            </div>
+                        }
+                        @if (Model.RegisterModel.CustomerAttributes.Count > 0)
+                        {
+                            @Html.Partial("_CustomerAttributes", Model.RegisterModel.CustomerAttributes)
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.RegisterModel.AllowCustomersToSetTimeZone)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.Preferences")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @if (Model.RegisterModel.AllowCustomersToSetTimeZone)
+                        {
+                            <div class="inputs">
+                                @Html.LabelFor(model => Model.RegisterModel.TimeZoneId, new { }, ":")
+                                @Html.DropDownList("TimeZoneId", Model.RegisterModel.AvailableTimeZones)
+                                @Html.ValidationMessageFor(model => Model.RegisterModel.TimeZoneId)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            <div class="fieldset">
+                <div class="title">
+                    <strong>@T("Account.YourPassword")</strong>
+                </div>
+                <div class="form-fields">
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.RegisterModel.Password, new { }, ":")
+                        @Html.EditorFor(model => Model.RegisterModel.Password)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.RegisterModel.Password)
+                    </div>
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.RegisterModel.ConfirmPassword, new { }, ":")
+                        @Html.EditorFor(model => Model.RegisterModel.ConfirmPassword)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.RegisterModel.ConfirmPassword)
+                    </div>
+                    @if (Model.RegisterModel.DisplayCaptcha)
+                    {
+                        <div class="captcha-box">
+                            @Html.Raw(Html.GenerateCaptcha())
+                        </div>
+                    }
+                    @if (Model.RegisterModel.HoneypotEnabled)
+                    {
+                        @Html.Raw(Html.GenerateHoneypotInput())
+                    }
+                </div>
+            </div>
+            @if (Model.RegisterModel.AcceptPrivacyPolicyEnabled)
+            {
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $('#register-button').click(function () {
+                            if ($('#accept-privacy-policy').is(':checked')) {
+                                //do some stuff
+                                return true;
+                            }
+                            else {
+                                //just show validation errors, dont post
+                                alert('@Html.Raw(HttpUtility.JavaScriptStringEncode(T("Account.Fields.AcceptPrivacyPolicy.Required").Text))');
+                                return false;
+                            }
+                        });
+                    });
+                </script>
+                <div class="accept-privacy-policy">
+                    <input id="accept-privacy-policy" type="checkbox" name="accept-privacy-policy" />
+                    <label for="accept-privacy-policy">@T("Account.Fields.AcceptPrivacyPolicy")</label>
+                    <span class="read" id="read-privacyinfo">@T("Account.Fields.AcceptPrivacyPolicy.Read")</span>
+                    <script>
+                        $(document).ready(function() {
+                            $('#read-privacyinfo').on('click', function (e) {
+                                displayPopupContentFromUrl('@Url.RouteUrl("TopicPopup", new { SystemName = "privacyinfo" })', '@T("Account.Fields.AcceptPrivacyPolicy")');
+                            });
+                        });
+                    </script>
+                </div>
+            }
+            <div class="buttons">
+                <input type="submit" id="register-button" class="button-1 register-next-step-button" value="@T("Account.Register.Button")" name="register-button" />
+            </div>
+        </div>
+    </div>
+}

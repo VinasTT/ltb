@@ -1,0 +1,101 @@
+﻿@using Nop.Plugin.Misc.SMS.Models;
+@using Nop.Web.Framework;
+@model SMSModel
+@Html.Action("StoreScopeConfiguration", "Setting", new { area = "Admin" })
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="content-header clearfix">
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="form-horizontal">
+            @Html.ValidationSummary(false)
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.ProviderName)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.ProviderName)
+                                @Html.ValidationMessageFor(model => model.ProviderName)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.Active)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.Active)
+                                @Html.ValidationMessageFor(model => model.Active)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.PhoneNumber)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.PhoneNumber)
+                                @Html.ValidationMessageFor(model => model.PhoneNumber)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.UserName)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.UserName)
+                                @Html.ValidationMessageFor(model => model.UserName)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.Password)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.Password)
+                                @Html.ValidationMessageFor(model => model.Password)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.AccountSid)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.AccountSid)
+                                @Html.ValidationMessageFor(model => model.AccountSid)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.AuthToken)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.AuthToken)
+                                @Html.ValidationMessageFor(model => model.AuthToken)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.MessageTemplate)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.MessageTemplate)
+                                @Html.ValidationMessageFor(model => model.MessageTemplate)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

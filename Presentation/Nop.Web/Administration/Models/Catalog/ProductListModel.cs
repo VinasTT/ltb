@@ -67,5 +67,10 @@ namespace Nop.Admin.Models.Catalog
         [AllowHtml]
         public string SearchIntegrationCode { get; set; }
         //NOP 3.81
+
+        //NOP 3.82
+        [NopResourceDisplayName("Admin.Catalog.Products.List.SelectedFilters")]
+        [AllowHtml]
+        public string SelectedFilters { get; set; }
     }
 }

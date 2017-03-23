@@ -130,7 +130,10 @@ namespace Nop.Services.Catalog
             bool showHidden = false,
             bool? overridePublished = null,
             bool? overrideStock = null,//NOP 3.81
-            string integrationCode = null);//NOP 3.81);
+            string integrationCode = null,//NOP 3.81
+            bool? overrideStockless = null,//NOP 3.82
+            bool? overrideNewProducts = null,//NOP 3.82
+            bool? overridePictureless = null);//NOP 3.82
 
         /// <summary>
         /// Search products
@@ -194,7 +197,10 @@ namespace Nop.Services.Catalog
             bool showHidden = false,
             bool? overridePublished = null,
             bool? overrideStock = null,//NOP 3.81
-            string integrationCode = null);//NOP 3.81);
+            string integrationCode = null,//NOP 3.81
+            bool? overrideStockless = null,//NOP 3.82
+            bool? overrideNewProducts = null,//NOP 3.82
+            bool? overridePictureless = null);//NOP 3.82
 
         /// <summary>
         /// Gets products by product attribute

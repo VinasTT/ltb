@@ -415,8 +415,11 @@ namespace Nop.Services.Catalog
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
             bool? overridePublished = null,
-            bool? overrideStock = null,//NOP 3.81
-            string integrationCode = null)//NOP 3.81
+            bool? overrideStock = null, //NOP 3.81
+            string integrationCode = null, //NOP 3.81
+            bool? overrideStockless = null, //NOP 3.82
+            bool? overrideNewProducts = null, //NOP 3.82
+            bool? overridePictureless = null) //NOP 3.82
         {
             IList<int> filterableSpecificationAttributeOptionIds;
             return SearchProducts(out filterableSpecificationAttributeOptionIds, false,
@@ -424,9 +427,10 @@ namespace Nop.Services.Catalog
                 storeId, vendorId, warehouseId,
                 productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts,
                 priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku,
-                searchProductTags, languageId, filteredSpecs, 
+                searchProductTags, languageId, filteredSpecs,
                 orderBy, showHidden, overridePublished,
-                overrideStock, integrationCode);//NOP 3.81
+                overrideStock, integrationCode, //NOP 3.81
+                overrideStockless, overrideNewProducts, overridePictureless); //NOP 3.82
         }
 
         /// <summary>
@@ -490,8 +494,11 @@ namespace Nop.Services.Catalog
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
             bool? overridePublished = null,
-            bool? overrideStock = null,//NOP 3.81
-            string integrationCode = null)//NOP 3.81
+            bool? overrideStock = null, //NOP 3.81
+            string integrationCode = null, //NOP 3.81
+            bool? overrideStockless = null, //NOP 3.82
+            bool? overrideNewProducts = null, //NOP 3.82
+            bool? overridePictureless = null) //NOP 3.82
         {
             filterableSpecificationAttributeOptionIds = new List<int>();
 
@@ -693,6 +700,24 @@ namespace Nop.Services.Catalog
                 pIntegrationCode.Value = integrationCode != null ? (object)integrationCode : DBNull.Value;
                 pIntegrationCode.DbType = DbType.String;
 
+                //NOP 3.82
+                var pOverrideStockless = _dataProvider.GetParameter();
+                pOverrideStockless.ParameterName = "OverrideStockless";
+                pOverrideStockless.Value = overrideStockless != null ? (object)overrideStockless.Value : DBNull.Value;
+                pOverrideStockless.DbType = DbType.Boolean;
+
+                //NOP 3.82
+                var pOverrideNewProducts = _dataProvider.GetParameter();
+                pOverrideNewProducts.ParameterName = "OverrideNewProducts";
+                pOverrideNewProducts.Value = overrideNewProducts != null ? (object)overrideNewProducts.Value : DBNull.Value;
+                pOverrideNewProducts.DbType = DbType.Boolean;
+
+                //NOP 3.82
+                var pOverridePictureless = _dataProvider.GetParameter();
+                pOverridePictureless.ParameterName = "OverridePictureless";
+                pOverridePictureless.Value = overridePictureless != null ? (object)overridePictureless.Value : DBNull.Value;
+                pOverridePictureless.DbType = DbType.Boolean;
+
                 var pLoadFilterableSpecificationAttributeOptionIds = _dataProvider.GetParameter();
                 pLoadFilterableSpecificationAttributeOptionIds.ParameterName = "LoadFilterableSpecificationAttributeOptionIds";
                 pLoadFilterableSpecificationAttributeOptionIds.Value = loadFilterableSpecificationAttributeOptionIds;
@@ -741,6 +766,9 @@ namespace Nop.Services.Catalog
                     pOverridePublished,
                     pOverrideStock,//NOP 3.81
                     pIntegrationCode,//NOP 3.81
+                    pOverrideStockless, //NOP 3.82
+                    pOverrideNewProducts, //NOP 3.82
+                    pOverridePictureless, //NOP 3.82
                     pLoadFilterableSpecificationAttributeOptionIds,
                     pFilterableSpecificationAttributeOptionIds,
                     pTotalRecords);

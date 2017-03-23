@@ -5,6 +5,7 @@ using Nop.Core.Caching;
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
+using Nop.Services.Catalog;
 
 namespace Nop.Admin.Infrastructure
 {
@@ -21,6 +22,8 @@ namespace Nop.Admin.Infrastructure
         /// <param name="config">Config</param>
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
+
+            builder.RegisterType<AdminFilterService>().As<IAdminFilterService>().InstancePerLifetimeScope(); //NOP 3.82
             //we cache presentation models between requests
             builder.RegisterType<HomeController>()
                 .WithParameter(ResolvedParameter.ForNamed<ICacheManager>("nop_cache_static"));

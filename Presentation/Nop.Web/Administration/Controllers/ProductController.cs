@@ -90,7 +90,7 @@ namespace Nop.Admin.Controllers
         private readonly IDownloadService _downloadService;
         private readonly ISettingService _settingService;
         private readonly VendorSettings _vendorSettings;
-
+        private readonly IAdminFilterService _adminFilterService;//NOP 3.82
         #endregion
 
         #region Constructors
@@ -136,7 +136,8 @@ namespace Nop.Admin.Controllers
             IProductAttributeParser productAttributeParser,
             IDownloadService downloadService,
             ISettingService settingService,
-            VendorSettings vendorSettings)
+            VendorSettings vendorSettings,
+            IAdminFilterService adminFilterService) //NOP 3.82
         {
             this._productService = productService;
             this._productTemplateService = productTemplateService;
@@ -180,6 +181,7 @@ namespace Nop.Admin.Controllers
             this._downloadService = downloadService;
             this._settingService = settingService;
             this._vendorSettings = vendorSettings;
+            this._adminFilterService = adminFilterService;//NOP 3.82
         }
 
         #endregion 
@@ -1017,6 +1019,32 @@ namespace Nop.Admin.Controllers
             else if (model.SearchStockId == 2)
                 overrideStock = false;
 
+            //NOP 3.82
+            string filters = model.SelectedFilters;
+            bool? overrideStockless = false;
+
+            if (!String.IsNullOrEmpty(filters)){
+                if (filters.Contains(AdminFilterModel.StocklessProducts))
+                    overrideStockless = true;
+            }
+
+            bool? overrideNewProducts = false;
+
+            if (!String.IsNullOrEmpty(filters))
+            {
+                if (filters.Contains(AdminFilterModel.NewProducts))
+                    overrideNewProducts = true;
+            }
+
+            bool? overridePictureless = false;
+
+            if (!String.IsNullOrEmpty(filters))
+            {
+                if (filters.Contains(AdminFilterModel.PicturelessProducts))
+                    overridePictureless = true;
+            }
+
+
             var products = _productService.SearchProducts(
                 categoryIds: categoryIds,
                 manufacturerId: model.SearchManufacturerId,
@@ -1030,7 +1058,10 @@ namespace Nop.Admin.Controllers
                 showHidden: true,
                 overridePublished: overridePublished,
                 overrideStock: overrideStock,//NOP 3.81
-                integrationCode: model.SearchIntegrationCode //NOP 3.81
+                integrationCode: model.SearchIntegrationCode, //NOP 3.81
+                overrideStockless: overrideStockless, //NOP 3.82
+                overrideNewProducts: overrideNewProducts, //NOP 3.82
+                overridePictureless: overridePictureless //NOP 3.82
             );
             var gridModel = new DataSourceResult();
             gridModel.Data = products.Select(x =>
@@ -1057,6 +1088,14 @@ namespace Nop.Admin.Controllers
             gridModel.Total = products.TotalCount;
 
             return Json(gridModel);
+        }
+
+        //NOP 3.82
+        [HttpGet]
+        public JsonResult FetchFilters()
+        {
+            var filters = _adminFilterService.GetAllFilters();
+            return Json(filters, JsonRequestBehavior.AllowGet);
         }
 
         //NOP 3.81

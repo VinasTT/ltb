@@ -173,12 +173,14 @@
     <Compile Include="Blogs\BlogExtensions.cs" />
     <Compile Include="Blogs\IBlogService.cs" />
     <Compile Include="Caching\ClearCacheTask.cs" />
+    <Compile Include="Catalog\AdminFilterService.cs" />
     <Compile Include="Catalog\BackInStockSubscriptionService.cs" />
     <Compile Include="Catalog\Cache\PriceCacheEventConsumer.cs" />
     <Compile Include="Catalog\CategoryService.cs" />
     <Compile Include="Catalog\CategoryExtensions.cs" />
     <Compile Include="Catalog\CompareProductsService.cs" />
     <Compile Include="Catalog\CategoryTemplateService.cs" />
+    <Compile Include="Catalog\IAdminFilterService.cs" />
     <Compile Include="Catalog\IBackInStockSubscriptionService.cs" />
     <Compile Include="Catalog\IManufacturerTemplateService.cs" />
     <Compile Include="Catalog\RoundingHelper.cs" />

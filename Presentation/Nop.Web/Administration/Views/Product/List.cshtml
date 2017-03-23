@@ -242,6 +242,82 @@
 
                 <div class="panel panel-default">
                     <div class="panel-body">
+                        <!--NOP 3.82-->
+                        <div class="row" >
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SelectedFilters)
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="ui-widget">
+                                            @Html.NopEditorFor(model => model.SelectedFilters)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            $( function() {
+
+                                var url = '@Url.Action("FetchFilters", "Product")'; // Don't hard code your url's!
+
+                                var filterNames = [];
+                               
+
+                                $.getJSON(url, function(response) {
+                                        $.each(response, function(index, item) {
+                                            filterNames.push(item.Name);
+                                        });
+                                }).fail( function(d, textStatus, error) {
+                                        console.error("getJSON failed, status: " + textStatus + ", error: "+error)
+                                });
+
+                                function split( val ) {
+                                    return val.split( /,\s*/ );
+                                }
+                                function extractLast( term ) {
+                                    return split( term ).pop();
+                                }
+
+                                $( "#SelectedFilters" )
+                                  // don't navigate away from the field on tab when selecting an item
+                                  .on( "keydown", function( event ) {
+                                      if ( event.keyCode === $.ui.keyCode.TAB &&
+                                          $( this ).autocomplete( "instance" ).menu.active ) {
+                                          event.preventDefault();
+                                          
+                                      }
+                                  })
+                                  .autocomplete({
+                                      minLength: 0,
+                                      source: function( request, response ) {
+                                          // delegate back to autocomplete, but extract the last term
+                                          response( $.ui.autocomplete.filter(
+                                            filterNames, extractLast( request.term ) ) );
+                                      },
+                                      focus: function() {
+                                          // prevent value inserted on focus
+                                          return false;
+                                      },
+                                      select: function( event, ui ) {
+                                          var terms = split( this.value );
+                                          // remove the current input
+                                          terms.pop();
+                                          // add the selected item
+                                          terms.push( ui.item.value );
+                                          // add placeholder to get the comma-and-space at the end
+                                          terms.push( "" );
+                                          this.value = terms.join( ", " );
+                                          $("#search-products").click();
+                                          return false;
+                                      }
+                                  });
+                            } );
+                        </script>
+                        <!--NOP 3.82-->
+
                         <div id="products-grid"></div>
 
                         <script>
@@ -450,6 +526,7 @@
                         SearchPublishedId: $('#SearchPublishedId').val(),
                         SearchStockId: $('#SearchStockId').val(),//NOP 3.81
                         SearchIntegrationCode: $('#@Html.FieldIdFor(model => model.SearchIntegrationCode)').val(),//NOP 3.81
+                        SelectedFilters: $('#@Html.FieldIdFor(model => model.SelectedFilters)').val(),//NOP 3.81
                     };
                     addAntiForgeryToken(data);
                     return data;

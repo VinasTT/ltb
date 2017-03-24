@@ -16,7 +16,16 @@ namespace Nop.Plugin.Misc.SMS.Models
 
         [NopResourceDisplayName("Plugins.Misc.SMS.Active")]
         public bool Active { get; set; }
+        //NOP 3.821
+        [NopResourceDisplayName("Plugins.Misc.SMS.BaseURL")]
+        public string BaseURL { get; set; }
 
+        [NopResourceDisplayName("Plugins.Misc.SMS.Resource")]
+        public string Resource { get; set; }
+
+        [NopResourceDisplayName("Plugins.Misc.SMS.CountryCode")]
+        public string CountryCode { get; set; }
+        //NOP 3.821
 
         [NopResourceDisplayName("Plugins.Misc.SMS.PhoneNumber")]
         public string PhoneNumber { get; set; }
@@ -40,20 +49,6 @@ namespace Nop.Plugin.Misc.SMS.Models
         [NopResourceDisplayName("Plugins.Misc.SMS.MessageTemplate")]
         public string MessageTemplate { get; set; }
 
-        /*
-        public class SMSRecordModel : BaseNopModel
-        {
-
-            public virtual int CustomerId { get; set; }
-
-            [NopResourceDisplayName("Plugins.Misc.SMS.SMSRecord.PhoneNumber")]
-            public virtual int PhoneNumber { get; set; }
-
-            [NopResourceDisplayName("Plugins.Misc.SMS.SMSRecord.ActivationCode")]
-            public virtual int ActivationCode { get; set; }
-
-        }
-        */
         public SMSRecord SmsRecordModel { get; set; }
         public RegisterModel RegisterModel { get; set; }
 

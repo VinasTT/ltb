@@ -6,9 +6,13 @@
 }*/
 
 
-   .video-title {
+.video-title {
        font-size: 12px;
-   }
+       /*NOP 3.821*/
+       margin-top: 10px; 
+       margin-bottom: 5px;
+       /*NOP 3.821*/
+}
 
 @media all and (max-width: 1000px) {
   

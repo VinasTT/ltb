@@ -52,6 +52,9 @@
       <HintPath>..\..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -104,7 +107,9 @@
   <ItemGroup>
     <Compile Include="Controllers\SMSControllers.cs" />
     <Compile Include="DependencyRegistrar.cs" />
+    <Compile Include="Models\SMSMessageModel.cs" />
     <Compile Include="Models\SMSModel.cs" />
+    <Compile Include="Models\SMSResponseModel.cs" />
     <Compile Include="Models\SMSSettings.cs" />
     <Compile Include="Models\SMSRecord.cs" />
     <Compile Include="Models\SMSRecordMap.cs" />
@@ -165,6 +170,7 @@
     <Content Include="Views\AccountActivation.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="app.config" />
     <None Include="Views\web.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

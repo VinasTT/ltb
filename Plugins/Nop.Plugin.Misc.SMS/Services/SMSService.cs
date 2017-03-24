@@ -7,6 +7,7 @@ using Nop.Core.Domain.Messages;
 using Nop.Services.Messages;
 using Nop.Services.Stores;
 using Nop.Core;
+using RestSharp;
 
 namespace Nop.Plugin.Misc.SMS.Services
 {
@@ -65,17 +66,53 @@ namespace Nop.Plugin.Misc.SMS.Services
 
             var messageTemplate = model.MessageTemplate + " " + model.SmsRecordModel.ActivationCode;
             var fromNumber = model.PhoneNumber;
-            var toNumber = model.SmsRecordModel.PhoneNumber;
+            var toNumber = model.CountryCode + model.SmsRecordModel.PhoneNumber;
             var toName = model.RegisterModel.FirstName + " " + model.RegisterModel.LastName;
-            return SendSMS(messageTemplate,fromNumber,toNumber,toName);
+            var userName = model.UserName;
+            var password = model.Password;
+            var baseURL = model.BaseURL;//NOP 3.821
+            var resource = model.Resource;//NOP 3.821
+            return SendSMS(messageTemplate,fromNumber,toNumber,toName,
+                userName,password,baseURL,resource);//NOP 3.821
          
         }
 
 
-        public bool SendSMS(string messageTemplate,string fromNumber,string toNumber,string toName)
+        public bool SendSMS(string messageTemplate,string fromNumber,string toNumber,string toName,
+            string userName,string password, string baseURL, string resource) //NOP 3.821
         {
-            //sms api code
-            return true;
+            //NOP 3.821
+            var uP = userName + ":" + password;
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(uP);
+            var encodedUP = System.Convert.ToBase64String(plainTextBytes);
+
+            var client = new RestClient(baseURL);
+            var request = new RestRequest(resource, Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            // easily add HTTP Headers
+            request.AddHeader("Authorization", "Basic " + encodedUP);
+            request.AddHeader("Content-Type", "application/json");
+
+            request.AddBody(new SMSMessageModel
+            {
+                from = fromNumber,
+                to = toNumber,
+                text = messageTemplate
+            });
+
+
+            // execute the request
+            var response = client.Execute<SMSResponseModel>(request);
+            var content = response.Data; 
+
+            foreach (var item in content.messages)
+            {
+                if (item.status.name == "PENDING_ENROUTE")
+                    return true;
+            }
+            
+            return false;
+            //NOP 3.821
         }
 
 

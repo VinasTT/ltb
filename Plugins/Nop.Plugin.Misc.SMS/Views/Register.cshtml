@@ -58,15 +58,14 @@
             {
                 <div class="message-error">@validationSummary</div>
             }
-            @Html.Partial("_ExternalAuthentication.AssociateMessage")
+            <!--NOP 3.821 - removed model.registermodel changed html.partial url-->
+            @Html.Partial("~/Plugins/Misc.SMS/Views/Shared/_ExternalAuthentication.AssociateMessage.cshtml")
+            <!--NOP 3.821-->
             <div class="fieldset">
                 <div class="title">
                     <strong>@T("Account.YourPersonalDetails")</strong>
                 </div>
                 <div class="form-fields">
-
-                    @Html.EditorFor(model => model.RegisterModel)
-                    @Html.EditorFor(model => model.SmsRecordModel)
                     @if (Model.RegisterModel.GenderEnabled)
                     {
                         <div class="inputs">

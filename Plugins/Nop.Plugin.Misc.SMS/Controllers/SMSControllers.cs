@@ -210,6 +210,9 @@ namespace Nop.Plugin.Misc.SMS.Controllers
             var model = new SMSModel();
             model.ProviderName = _smsSettings.ProviderName;
             model.Active = _smsSettings.Active;
+            model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
+            model.Resource = _smsSettings.Resource;//NOP 3.821
+            model.CountryCode = _smsSettings.CountryCode;//NOP 3.821
             model.PhoneNumber = _smsSettings.PhoneNumber;
             model.UserName = _smsSettings.UserName;
             model.Password = _smsSettings.Password;
@@ -233,6 +236,9 @@ namespace Nop.Plugin.Misc.SMS.Controllers
 
             //save settings
             _smsSettings.Active = model.Active;
+            _smsSettings.BaseURL = model.BaseURL;//NOP 3.821
+            _smsSettings.Resource = model.Resource;//NOP 3.821
+            _smsSettings.CountryCode = model.CountryCode;//NOP 3.821
             _smsSettings.PhoneNumber = model.PhoneNumber;
             _smsSettings.UserName = model.UserName;
             _smsSettings.Password = model.Password;
@@ -459,7 +465,12 @@ namespace Nop.Plugin.Misc.SMS.Controllers
 
                     if (_smsSettings.Active)
                     {
-
+                        model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
+                        model.Resource = _smsSettings.Resource;//NOP 3.821
+                        model.CountryCode = _smsSettings.CountryCode;//NOP 3.821
+                        model.UserName = _smsSettings.UserName;//NOP 3.821
+                        model.Password = _smsSettings.Password;//NOP 3.821
+                        model.MessageTemplate = _smsSettings.MessageTemplate;//NOP 3.821
                         model.SmsRecordModel.CustomerId = _customerService.GetCustomerByEmail(model.RegisterModel.Email).Id;
                         model.SmsRecordModel.ActivationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
                         _smsService.InsertSMSRecord(model.SmsRecordModel);

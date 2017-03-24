@@ -20,6 +20,13 @@ namespace Nop.Plugin.Misc.SMS.Models
         /// </summary>
         public bool Active { get; set; }
 
+        //NOP 3.821
+        public string BaseURL { get; set; }
+
+        public string Resource { get; set; }
+
+        public string CountryCode { get; set; }
+        //NOP 3.821
         /// <summary>
         /// Gets or sets a value to phonumber sms will be sent
         /// </summary>
@@ -46,5 +53,6 @@ namespace Nop.Plugin.Misc.SMS.Models
         public string AuthToken { get; set; }
 
         public string MessageTemplate { get; set; }
+
     }
 }

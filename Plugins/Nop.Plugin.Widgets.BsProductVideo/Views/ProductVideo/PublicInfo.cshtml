@@ -12,9 +12,11 @@
 @foreach (var embedVideo in Model.EmbedVideoRecordModels)
 {
     <div class="video-holder">
-        <a class="video-thumb" style="width:40px;height:40px;">
+        <!--NOP 3.821-->
+        <a class="video-thumb" style="width:40px;height:40px;border:none;">
             <img  style="display:block;" data-embedvideoid="@embedVideo.Id" src="@embedVideo.VideoThumbUrl" alt="VideoThumpLink" data-embedvideohtmlcode="@embedVideo.EmbedVideoHtmlCode" />
         </a>
+        <!--NOP 3.821-->
         </div>
     <div class="video-output video-@embedVideo.Id"></div>
     <div id="embedvideo_@embedVideo.Id" class="embeded-video" style="display:none">
@@ -25,16 +27,17 @@
    {
        <text>
            <script>
+               //NOP 3.821 - removed </br> 
                if ($(".picture-thumbs").length > 0) {
-                   $(".picture-thumbs").append("<br/><br/><div class='video-title'>@T("Plugin.Widgets.BsProductVideo.ProductTitle")</div><br/>");
+                   $(".picture-thumbs").append("<div class='video-title'>@T("Plugin.Widgets.BsProductVideo.ProductTitle")</div>");
                    $(".picture-thumbs").append($(".video-holder > a"));
                } else {
                    //$(".picture").insertAfter("<div class='picture-thumbs'></div>")
                    $("<div class='picture-thumbs'></div>").insertAfter(".picture");
-                   $(".picture-thumbs").append("<br/><br/><div class='video-title'>@T("Plugin.Widgets.BsProductVideo.ProductTitle")</div><br/>");
+                   $(".picture-thumbs").append("<div class='video-title'>@T("Plugin.Widgets.BsProductVideo.ProductTitle")</div>");
                    $(".picture-thumbs").append($(".video-holder > a"));
                }
-
+               //NOP 3.821
 
                $('.video-thumb').click(function() {
                    var testsrc = "";

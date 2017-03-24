@@ -18,6 +18,7 @@ namespace Nop.Plugin.Misc.SMS.Services
 
         bool SendRegistrationSMS(SMSModel model);
 
-        bool SendSMS(string messageTemplate, string fromNumber, string toNumber, string toName);
+        bool SendSMS(string messageTemplate, string fromNumber, string toNumber, string toName,
+            string userName, string password, string baseURL, string resource); //NOP 3.821
     }
 }

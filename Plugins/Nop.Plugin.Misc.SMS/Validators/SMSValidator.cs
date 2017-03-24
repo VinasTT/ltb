@@ -20,7 +20,7 @@ namespace Nop.Plugin.Misc.SMS.Validators
             CustomerSettings customerSettings)
         {
             RuleFor(x => x.PhoneNumber).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Phone.Required"))
-                .Matches(@"^(0(\d{3})(\d{3})(\d{2})(\d{2}))$")
+                .Matches(@"^((\d{3})(\d{3})(\d{2})(\d{2}))$")
                 .WithMessage(localizationService.GetResource("Plugins.Misc.SMS.PhoneNumberFormat"));
            
            

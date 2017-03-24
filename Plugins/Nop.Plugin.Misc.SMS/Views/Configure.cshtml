@@ -38,6 +38,35 @@
                                 @Html.ValidationMessageFor(model => model.Active)
                             </div>
                         </div>
+                        <!--NOP 3.821-->
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.BaseURL)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.BaseURL)
+                                @Html.ValidationMessageFor(model => model.BaseURL)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.Resource)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.Resource)
+                                @Html.ValidationMessageFor(model => model.Resource)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3">
+                                @Html.NopLabelFor(model => model.CountryCode)
+                            </div>
+                            <div class="col-md-9">
+                                @Html.NopEditorFor(model => model.CountryCode)
+                                @Html.ValidationMessageFor(model => model.CountryCode)
+                            </div>
+                        </div>
+                        <!--NOP 3.821-->
                         <div class="form-group">
                             <div class="col-md-3">
                                 @Html.NopLabelFor(model => model.PhoneNumber)

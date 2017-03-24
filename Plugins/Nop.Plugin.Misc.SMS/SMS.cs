@@ -48,10 +48,13 @@ namespace Nop.Plugin.Misc.SMS
             {
                 ProviderName = "Twilio",
                 Active = true,
-                PhoneNumber = "05327801742",
-                UserName = "ltbadmin",
-                Password = "test",
-                AccountSid = "ACcace8ef80331044824b975feabebc5a7",
+                BaseURL = "https://api.infobip.com", //NOP 3.821
+                Resource = "sms/1/text/single", //NOP 3.821
+                CountryCode = "90", //NOP 3.821
+                PhoneNumber = "5327801742",
+                UserName = "caktekstil",
+                Password = "t6x7me8xyz",
+                AccountSid = "your_account_sid",
                 AuthToken = "your_auth_token",
                 MessageTemplate = "Your activation code is"
             };
@@ -61,13 +64,16 @@ namespace Nop.Plugin.Misc.SMS
 
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.ProviderName", "Provide Name");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.Active", "Active");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.BaseURL", "API Url"); //NOP 3.821
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.Resource", "API Endpoint"); //NOP 3.821
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.CountryCode", "CountryCode"); //NOP 3.821
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PhoneNumber", "Phone Number to send sms from");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.UserName", "UserName");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.Password", "Password");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.AccountSid", "AccountSid");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.AuthToken", "AuthToken");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.MessageTemplate", "MessageTemplate");
-            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PhoneNumberFormat", "Please specify phone number in format 0XXXXXXXXXX");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PhoneNumberFormat", "Please specify phone number in format XXXXXXXXXX");
 
             PluginManager.MarkPluginAsInstalled(this.PluginDescriptor.SystemName);
             base.Install();
@@ -87,6 +93,9 @@ namespace Nop.Plugin.Misc.SMS
             //locales
             this.DeletePluginLocaleResource("Plugins.Misc.SMS.ProviderName");
             this.DeletePluginLocaleResource("Plugins.Misc.SMS.Active");
+            this.DeletePluginLocaleResource("Plugins.Misc.SMS.BaseURL"); //NOP 3.821
+            this.DeletePluginLocaleResource("Plugins.Misc.SMS.Resource"); //NOP 3.821
+            this.DeletePluginLocaleResource("Plugins.Misc.SMS.CountryCode"); //NOP 3.821
             this.DeletePluginLocaleResource("Plugins.Misc.SMS.UserName");
             this.DeletePluginLocaleResource("Plugins.Misc.SMS.Password");
             this.DeletePluginLocaleResource("Plugins.Misc.SMS.PhoneNumber");

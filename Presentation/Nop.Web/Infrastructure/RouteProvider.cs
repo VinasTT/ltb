@@ -25,6 +25,27 @@ namespace Nop.Web.Infrastructure
                             new { controller = "Widget", action = "WidgetsByZone" },
                             new[] { "Nop.Web.Controllers" });
 
+
+            //NOP 3.822
+            //adminproduct reviews
+            var route = routes.MapLocalizedRoute("ProductAdminReview",
+                            "Admin/ProductReview/List/{productId}",
+                            new { controller = "ProductReview", action = "List" , productId = UrlParameter.Optional, area = "Admin"},
+                            new { productId = @"\d+" },
+                            new[] { "Nop.Admin.Controllers" });
+            routes.Remove(route);
+            routes.Insert(0, route);
+
+            route = routes.MapLocalizedRoute("ProductAdminOrder",
+                            "Admin/Order/List/{productId}",
+                            new { controller = "Order", action = "List", productId = UrlParameter.Optional, area = "Admin" },
+                            new { productId = @"\d+" },
+                            new[] { "Nop.Admin.Controllers" });
+            routes.Remove(route);
+            routes.Insert(0, route);
+
+            //NOP 3.822
+
             //login
             routes.MapLocalizedRoute("Login",
                             "login/",

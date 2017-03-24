@@ -402,6 +402,17 @@
                                             template: '# if(Published) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
                                         }, {
                                             field: "Id",
+                                            title: "@T("Admin.Catalog.Products.Fields.Review")",
+                                            width: 100,
+                                            template: '<a href="/Admin/ProductReview/List/#=Id#">@T("Admin.Common.Go")</a>'
+                                        },{
+                                            field: "Id",
+                                            title: "@T("Admin.Catalog.Products.Fields.Order")",
+                                            width: 100,
+                                            template: '<a href="/Admin/Order/List/#=Id#">@T("Admin.Common.Go")</a>'
+                                        //NOP 3.822
+                                        },{
+                                            field: "Id",
                                             title: "@T("Admin.Common.Edit")",
                                             width: 100,
                                             template: '<a href="Edit/#=Id#">@T("Admin.Common.Edit")</a>'

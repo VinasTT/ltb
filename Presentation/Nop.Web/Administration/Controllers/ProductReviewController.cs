@@ -90,7 +90,7 @@ namespace Nop.Admin.Controllers
             return RedirectToAction("List");
         }
 
-        public ActionResult List()
+        public ActionResult List(int? productId)//NOP 3.822 - int? productId
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProductReviews))
                 return AccessDeniedView();
@@ -100,6 +100,8 @@ namespace Nop.Admin.Controllers
             var stores = _storeService.GetAllStores().Select(st => new SelectListItem() { Text = st.Name, Value = st.Id.ToString() });
             foreach (var selectListItem in stores)
                 model.AvailableStores.Add(selectListItem);
+
+            ViewBag.ProductId = productId; //NOP 3.822
             return View(model);
         }
 

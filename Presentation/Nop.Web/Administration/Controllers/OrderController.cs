@@ -991,7 +991,8 @@ namespace Nop.Admin.Controllers
         public ActionResult List(
             [ModelBinder(typeof(CommaSeparatedModelBinder))] List<string> orderStatusIds = null,
             [ModelBinder(typeof(CommaSeparatedModelBinder))] List<string> paymentStatusIds = null,
-            [ModelBinder(typeof(CommaSeparatedModelBinder))] List<string> shippingStatusIds = null)
+            [ModelBinder(typeof(CommaSeparatedModelBinder))] List<string> shippingStatusIds = null,
+            int? productId = null) //NOP 3.822
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
                 return AccessDeniedView();
@@ -1059,6 +1060,7 @@ namespace Nop.Admin.Controllers
             //a vendor should have access only to orders with his products
             model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
 
+            ViewBag.ProductId = productId; //NOP 3.822
             return View(model);
         }
 

@@ -127,6 +127,7 @@
                                         @Html.TextBoxFor(model => model.ProductId, new { autocomplete = "off", style = "display:none;" })
                                         <script type="text/javascript">
                                             $(document).ready(function() {
+                                                $('#@Html.FieldIdFor(model => model.ProductId)').val('@ViewBag.ProductId'); //NOP 3.822
                                                 $('#search-product-name').autocomplete({
                                                     delay: 500,
                                                     minLength: 3,
@@ -272,7 +273,7 @@
                                         type: "json",
                                         transport: {
                                             read: {
-                                                url: "@Html.Raw(Url.Action("OrderList", "Order"))",
+                                                url: "@Html.Raw(Url.Action("OrderList", "Order", new { Area = "Admin" }))", //NOP 3.822 - added area admin
                                                 type: "POST",
                                                 dataType: "json",
                                                 data: additionalData
@@ -390,7 +391,7 @@
                                             field: "Id",
                                             title: "@T("Admin.Common.View")",
                                             width: 50,
-                                            template: '<a href="Edit/#=Id#">@T("Admin.Common.View")</a>'
+                                            template: '<a href="/Admin/Order/Edit/#=Id#">@T("Admin.Common.View")</a>' //NOP 3.822 - full path
                                         }
                                     ]
                                 } );

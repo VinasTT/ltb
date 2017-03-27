@@ -42,3 +42,4 @@ SevenSpikes.Nop.Plugins.SaleOfTheDay
 SevenSpikes.Nop.Plugins.SocialFeed
 SevenSpikes.Theme.Uptown
 Misc.SMS
+Payments.MenPOS

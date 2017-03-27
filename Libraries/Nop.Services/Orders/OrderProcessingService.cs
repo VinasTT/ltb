@@ -1088,6 +1088,23 @@ namespace Nop.Services.Orders
 
         #region Methods
 
+        //NOP 3.823
+        public virtual bool CanCancelOrderForCustomer(Order order)
+        {
+            if (order == null)
+                throw new ArgumentNullException("order");
+
+            if (order.OrderStatus == OrderStatus.Cancelled || order.OrderStatus == OrderStatus.Complete)
+                return false;
+
+            //if (order.PaymentStatus == PaymentStatus.Paid)
+            //    return false;
+            //can add more rule like customer can cancel its product only if it is with 10 days.
+
+            return true;
+        }
+
+
         /// <summary>
         /// Checks order status
         /// </summary>

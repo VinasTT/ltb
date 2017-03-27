@@ -141,7 +141,8 @@ namespace Nop.Web.Controllers
                     OrderStatus = order.OrderStatus.GetLocalizedEnum(_localizationService, _workContext),
                     PaymentStatus = order.PaymentStatus.GetLocalizedEnum(_localizationService, _workContext),
                     ShippingStatus = order.ShippingStatus.GetLocalizedEnum(_localizationService, _workContext),
-                    IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(order)
+                    IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(order),
+                    CanCancelOrder = _orderProcessingService.CanCancelOrderForCustomer(order), //NOP 3.823
                 };
                 var orderTotalInCustomerCurrency = _currencyService.ConvertCurrency(order.OrderTotal, order.CurrencyRate);
                 orderModel.OrderTotal = _priceFormatter.FormatPrice(orderTotalInCustomerCurrency, true, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
@@ -570,6 +571,21 @@ namespace Nop.Web.Controllers
             {
                 return RedirectToRoute("CustomerOrders");
             }
+        }
+
+        //NOP 3.823
+        public ActionResult Cancel(int orderId)
+        {
+            var order = _orderService.GetOrderById(orderId);
+            if (order == null || order.Deleted || _workContext.CurrentCustomer.Id != order.CustomerId)
+                return new HttpUnauthorizedResult();
+
+            //Add some more validation check
+            if (_orderProcessingService.CanCancelOrder(order))
+            {
+                _orderProcessingService.CancelOrder(order, true);
+            }
+            return RedirectToRoute("CustomerOrders");
         }
 
         //My account / Reward points

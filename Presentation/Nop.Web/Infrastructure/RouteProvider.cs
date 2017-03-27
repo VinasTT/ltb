@@ -46,6 +46,14 @@ namespace Nop.Web.Infrastructure
 
             //NOP 3.822
 
+
+            //NOP 3.823
+            routes.MapLocalizedRoute("CancelOrder",
+                            "cancelorder/{orderId}",
+                            new { controller = "Order", action = "Cancel" },
+                            new { orderId = @"\d+" },
+                            new[] { "Nop.Web.Controllers" });
+
             //login
             routes.MapLocalizedRoute("Login",
                             "login/",

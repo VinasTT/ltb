@@ -132,6 +132,13 @@
                             <input type="button" value="@T("Account.CustomerOrders.ReturnItems")" class="button-2 return-items-button" onclick="setLocation('@Url.RouteUrl("ReturnRequest", new { orderId = order.Id })')" />
                         }
                         <input type="button" value="@T("Account.CustomerOrders.OrderDetails")" class="button-2 order-details-button" onclick="setLocation('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')" />
+                        
+                        <!--NOP 3.823-->
+                        @if (order.CanCancelOrder)
+                        {
+                            <input type="button" value="Cancel" class="button-2 delete-address-button" onclick="setLocation('@Url.RouteUrl("CancelOrder", new { orderId = order.Id })')" />
+                        }
+                    
                     </div>
                 </div>
                 }

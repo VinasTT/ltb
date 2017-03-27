@@ -11,6 +11,8 @@ namespace Nop.Services.Orders
     /// </summary>
     public partial interface IOrderProcessingService
     {
+        //NOP 3.823
+        bool CanCancelOrderForCustomer(Order order);
         /// <summary>
         /// Checks order status
         /// </summary>

@@ -56,8 +56,8 @@ namespace Nop.Web.Infrastructure
 
             //BUGFIX 3.803
             routes.MapLocalizedRoute("ValidatePhone",
-                            "validatephone/",
-                            new { controller = "SMSNotification", action = "ValidatePhone" },
+                            "validatephone/{phoneNumber}",
+                            new { controller = "SMSNotification", action = "ValidatePhone", phoneNumber = UrlParameter.Optional }, //NOP 3.825
                             new[] { "Nop.Web.Controllers" });
 
             //login

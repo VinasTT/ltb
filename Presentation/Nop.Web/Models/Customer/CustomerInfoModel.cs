@@ -150,6 +150,8 @@ namespace Nop.Web.Models.Customer
 
         public IList<CustomerAttributeModel> CustomerAttributes { get; set; }
 
+        public SMSNotificationRecordModel SMSNotificationRecordModel { get; set; } //NOP 3.825
+
         #region Nested classes
 
         public partial class AssociatedExternalAuthModel : BaseNopEntityModel

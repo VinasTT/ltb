@@ -6,13 +6,15 @@
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
 
     //title
-    Html.AddTitleParts(T("PageTitle.AccountActivation").Text);
+    <!--NOP 3.825-->
+    Html.AddTitleParts(T("PageTitle.ValidatePhone").Text);
     //page class
     Html.AppendPageCssClassParts("html-account-activation-page");
 }
 <div class="page account-activation-page">
     <div class="page-title">
-        <h1>@T("Account.AccountActivation")</h1>
+        <!--NOP 3.825-->
+        <h1>@T("Account.ValidatePhone.Validated.Header")</h1>
     </div>
     <div class="page-body">
         <div class="result">

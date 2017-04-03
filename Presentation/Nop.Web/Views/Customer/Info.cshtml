@@ -140,6 +140,14 @@
                         </div>
                         }
                     }
+                    <!--NOP 3.825-->
+                    <div class="inputs">
+                        @Html.LabelFor(model => model.SMSNotificationRecordModel.PhoneNumber, new { }, ":")
+                        @Html.EditorFor(model => model.SMSNotificationRecordModel.PhoneNumber)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => model.SMSNotificationRecordModel.PhoneNumber)
+                    </div>
+                    <!--NOP 3.825-->
                 </div>
             </div>
             if (Model.CompanyEnabled || Model.DisplayVatNumber)

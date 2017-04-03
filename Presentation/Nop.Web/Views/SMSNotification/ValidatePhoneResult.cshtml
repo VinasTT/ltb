@@ -7,7 +7,8 @@
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
 
     //title
-    Html.AddTitleParts(T("PageTitle.Register").Text);
+     <!--NOP 3.825-->
+    Html.AddTitleParts(T("PageTitle.ValidatePhone").Text);
     //page class
     Html.AppendPageCssClassParts("html-registration-result-page");
 }
@@ -16,11 +17,13 @@
     @Html.AntiForgeryToken()
     <div class="page registration-result-page">
         <div class="page-title">
-            <h1>@T("Account.Register")</h1>
+            <!--NOP 3.825-->
+            <h1>@T("Account.ValidatePhone.Approve")</h1>
         </div>
         <div class="page-body">
             <div class="result">
-                Please approve your SMS code
+                <!--NOP 3.825-->
+                @T("Account.ValidatePhone.PleaseApprove")
             </div>
             <div class="result">
                 <input type="text" name="token" id="token" />

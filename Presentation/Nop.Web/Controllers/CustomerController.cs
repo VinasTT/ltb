@@ -92,6 +92,9 @@ namespace Nop.Web.Controllers
         private readonly CatalogSettings _catalogSettings;
         private readonly VendorSettings _vendorSettings;
 
+        private readonly ISMSNotificationService _smsNotificationService; //NOP 3.825
+        private readonly SMSNotificationSettings _smsNotificationSettings; //NOP 3.825
+
         #endregion
 
         #region Ctor
@@ -139,7 +142,9 @@ namespace Nop.Web.Controllers
             ExternalAuthenticationSettings externalAuthenticationSettings,
             StoreInformationSettings storeInformationSettings,
             CatalogSettings catalogSettings, 
-            VendorSettings vendorSettings)
+            VendorSettings vendorSettings,
+            ISMSNotificationService smsNotificationService, //NOP 3.825
+            SMSNotificationSettings smsNotificationSettings) //NOP 3.825
         {
             this._authenticationService = authenticationService;
             this._dateTimeHelper = dateTimeHelper;
@@ -185,6 +190,8 @@ namespace Nop.Web.Controllers
             this._storeInformationSettings = storeInformationSettings;
             this._catalogSettings = catalogSettings;
             this._vendorSettings = vendorSettings;
+            this._smsNotificationService = smsNotificationService; //NOP 3.825
+            this._smsNotificationSettings = smsNotificationSettings; //NOP 3.825
         }
 
         #endregion
@@ -443,6 +450,15 @@ namespace Nop.Web.Controllers
                     ExternalIdentifier = ear.ExternalIdentifier,
                     AuthMethodName = authMethod.GetLocalizedFriendlyName(_localizationService, _workContext.WorkingLanguage.Id)
                 });
+            }
+
+            //NOP 3.825
+            if (_smsNotificationSettings.Active)
+            {
+                var smsNotificationRecord = _smsNotificationService.GetByCustomerId(customer.Id);
+                var smsNotificationRecordModel = new SMSNotificationRecordModel();
+                smsNotificationRecordModel.PhoneNumber = smsNotificationRecord.PhoneNumber;
+                model.SMSNotificationRecordModel = smsNotificationRecordModel;
             }
 
             //custom customer attributes
@@ -1515,6 +1531,21 @@ namespace Nop.Web.Controllers
                     //save customer attributes
                     _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, SystemCustomerAttributeNames.CustomCustomerAttributes, customerAttributesXml);
 
+                    //NOP 3.825
+                    if (_smsNotificationSettings.Active)
+                    {
+                        var currentPhoneNumber = _smsNotificationService.GetPhoneNumber(customer.Id);
+                        if (currentPhoneNumber != model.SMSNotificationRecordModel.PhoneNumber)
+                        {
+                            return RedirectToRoute(new
+                            {
+                                controller = "SMSNotification",
+                                action = "ValidatePhone",
+                                phoneNumber = model.SMSNotificationRecordModel.PhoneNumber
+                            });
+                        }
+                    }
+                    //NOP 3.825
                     return RedirectToRoute("CustomerInfo");
                 }
             }

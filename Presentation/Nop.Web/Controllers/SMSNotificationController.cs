@@ -31,9 +31,10 @@ namespace Nop.Web.Controllers
             this._localizationService = localizationService;
         }
         // GET: SMSNotification
-        public ActionResult ValidatePhone()
+        public ActionResult ValidatePhone(string phoneNumber = null) //NOP 3.825
         {
             var model = new SMSNotificationRecordModel();
+            model.PhoneNumber = phoneNumber;
             return View(model);
         }
 
@@ -42,13 +43,35 @@ namespace Nop.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var smsNotificationRecord = new SMSNotificationRecord();
-                smsNotificationRecord.CustomerId = _workContext.CurrentCustomer.Id;
-                smsNotificationRecord.ActivationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
-                smsNotificationRecord.PhoneNumber = model.PhoneNumber;
-                smsNotificationRecord.Active = false;
-                _smsNotificationService.InsertSMSRecord(smsNotificationRecord);
-                if (_smsNotificationService.SendSMS(_smsNotificationSettings.RegisterMessage + " " + smsNotificationRecord.ActivationCode, 
+                //NOP 3.825
+                var customerId = _workContext.CurrentCustomer.Id;
+                var activationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
+                var phoneNumber = model.PhoneNumber;
+                var active = false;
+                
+                var currentPhoneNumber = _smsNotificationService.GetPhoneNumber(_workContext.CurrentCustomer.Id);
+
+                if (currentPhoneNumber == null)
+                {
+                    var smsNotificationRecord = new SMSNotificationRecord();
+                    smsNotificationRecord.CustomerId = customerId;
+                    smsNotificationRecord.ActivationCode = activationCode;
+                    smsNotificationRecord.PhoneNumber = phoneNumber;
+                    smsNotificationRecord.Active = active;
+                    _smsNotificationService.InsertSMSRecord(smsNotificationRecord);
+                }
+                else
+                {
+                    var smsNotificationRecord = _smsNotificationService.GetByCustomerId(customerId);
+                    smsNotificationRecord.CustomerId = customerId;
+                    smsNotificationRecord.ActivationCode = activationCode;
+                    smsNotificationRecord.PhoneNumber = phoneNumber;
+                    smsNotificationRecord.Active = active;
+                    _smsNotificationService.UpdateSMSRecord(smsNotificationRecord);
+                }
+                    
+                
+                if (_smsNotificationService.SendSMS(_smsNotificationSettings.RegisterMessage + " " + activationCode, 
                     _smsNotificationSettings.PhoneNumber,
                     model.PhoneNumber, null, _smsNotificationSettings.UserName,
                     _smsNotificationSettings.Password, _smsNotificationSettings.BaseURL,
@@ -56,7 +79,7 @@ namespace Nop.Web.Controllers
                 {
                     return View("ValidatePhoneResult", model);
                 }
-
+                //NOP 3.825
             }
             return View("ValidatePhone", model);
         }
@@ -79,7 +102,7 @@ namespace Nop.Web.Controllers
             _smsNotificationService.UpdateSMSRecord(smsRecord);
 
             var model = new AccountActivationModel();
-            model.Result = _localizationService.GetResource("Account.AccountActivation.Activated");
+            model.Result = _localizationService.GetResource("Account.ValidatePhone.Validated"); //NOP 3.825
             return View("AccountActivation", model);
         }
     }

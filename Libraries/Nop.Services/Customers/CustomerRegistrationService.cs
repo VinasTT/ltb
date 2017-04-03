@@ -25,6 +25,7 @@ namespace Nop.Services.Customers
         private readonly IRewardPointService _rewardPointService;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly CustomerSettings _customerSettings;
+        private readonly ISMSNotificationService _smsNotificationService; //BUGFIX 3.802
 
         #endregion
 
@@ -48,7 +49,8 @@ namespace Nop.Services.Customers
             IStoreService storeService,
             IRewardPointService rewardPointService,
             RewardPointsSettings rewardPointsSettings,
-            CustomerSettings customerSettings)
+            CustomerSettings customerSettings,
+            ISMSNotificationService smsNotificationService) //BUGFIX 3.802
         {
             this._customerService = customerService;
             this._encryptionService = encryptionService;
@@ -58,6 +60,7 @@ namespace Nop.Services.Customers
             this._rewardPointService = rewardPointService;
             this._rewardPointsSettings = rewardPointsSettings;
             this._customerSettings = customerSettings;
+            this._smsNotificationService = smsNotificationService; //BUGFIX 3.802
         }
 
         #endregion
@@ -177,6 +180,16 @@ namespace Nop.Services.Customers
                     return result;
                 }
             }
+
+            //BUGFIX 3.802
+            //validate phone number
+            if (_smsNotificationService.GetCustomerByPhoneNumber(request.PhoneNumber) != null)
+            {
+                result.AddError(_localizationService.GetResource("Account.Register.Errors.PhonenumberAlreadyExists"));
+                return result;
+            }
+
+
 
             //at this point request is valid
             request.Customer.Username = request.Username;

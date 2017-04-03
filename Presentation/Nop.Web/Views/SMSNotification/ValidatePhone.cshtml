@@ -1,0 +1,49 @@
+﻿@model SMSNotificationRecordModel
+@using Nop.Web.Models.Customer;
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework;
+<!--BUGFIX 3.803-->
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    Html.AddTitleParts(T("PageTitle.ValidatePhone").Text);
+    //page class
+    Html.AppendPageCssClassParts("html-registration-page");
+}
+
+@using (Html.BeginForm("ValidatePhone", "SMSNotification", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="page registration-page">
+        <div class="page-title">
+            <h1>@T("Account.ValidatePhone.Header")</h1>
+        </div>
+        <div class="page-body">
+            @{
+                var validationSummary = Html.ValidationSummary(true);
+            }
+            @if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+            {
+                <div class="message-error">@validationSummary</div>
+            }
+
+            <div class="fieldset">
+                <div class="title">
+                    <strong>@T("Account.ValidatePhone.YourPhoneNumber")</strong>
+                </div>
+                <div class="form-fields">
+                    <div class="inputs">
+                        @Html.LabelFor(model => Model.PhoneNumber, new { }, ":")
+                        @Html.EditorFor(model => Model.PhoneNumber)
+                        @Html.RequiredHint()
+                        @Html.ValidationMessageFor(model => Model.PhoneNumber)
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <input type="submit" id="register-button" class="button-1 register-next-step-button" value="@T("Account.ValidatePhone.Validate")" name="register-button" />
+            </div>
+        </div>
+    </div>
+
+                }

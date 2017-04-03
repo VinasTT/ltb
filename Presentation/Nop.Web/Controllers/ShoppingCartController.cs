@@ -94,6 +94,7 @@ namespace Nop.Web.Controllers
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly CustomerSettings _customerSettings;
 
+        private readonly ISMSNotificationService _smsNotificationService; //BUGFIX 1.03
         #endregion
 
 		#region Constructors
@@ -140,7 +141,8 @@ namespace Nop.Web.Controllers
             CaptchaSettings captchaSettings, 
             AddressSettings addressSettings,
             RewardPointsSettings rewardPointsSettings,
-            CustomerSettings customerSettings)
+            CustomerSettings customerSettings,
+            ISMSNotificationService smsNotificationService) //BUGFIX 1.03
         {
             this._productService = productService;
             this._workContext = workContext;
@@ -187,6 +189,7 @@ namespace Nop.Web.Controllers
             this._addressSettings = addressSettings;
             this._rewardPointsSettings = rewardPointsSettings;
             this._customerSettings = customerSettings;
+            this._smsNotificationService = smsNotificationService; //BUGFIX 1.03
         }
 
         #endregion
@@ -2134,6 +2137,10 @@ namespace Nop.Web.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.EnableShoppingCart))
                 return RedirectToRoute("HomePage");
+
+            //BUGFIX 3.803
+            if (!_smsNotificationService.CheckIfPhoneExistsAndActive(_workContext.CurrentCustomer.Id))
+                return RedirectToRoute("ValidatePhone");
 
             var cart = _workContext.CurrentCustomer.ShoppingCartItems
                 .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)

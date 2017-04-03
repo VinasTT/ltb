@@ -154,6 +154,7 @@ namespace Nop.Web.Framework
             builder.RegisterType<WebStoreContext>().As<IStoreContext>().InstancePerLifetimeScope();
 
             //services
+            builder.RegisterType<SMSNotificationService>().As<ISMSNotificationService>().InstancePerLifetimeScope(); //NOP 3.824
             builder.RegisterType<BackInStockSubscriptionService>().As<IBackInStockSubscriptionService>().InstancePerLifetimeScope();
             builder.RegisterType<CategoryService>().As<ICategoryService>().InstancePerLifetimeScope();
             builder.RegisterType<CompareProductsService>().As<ICompareProductsService>().InstancePerLifetimeScope();

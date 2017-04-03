@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.Entity.ModelConfiguration;
+using Nop.Core.Domain.Messages;
 
-namespace Nop.Plugin.Misc.SMS.Models
+namespace Nop.Data.Mapping.Messages
 {
-    public class SMSRecordMap : EntityTypeConfiguration<SMSRecord>
+    public class SMSNotificationRecordMap : NopEntityTypeConfiguration<SMSNotificationRecord>
     {
-        public SMSRecordMap()
+        public SMSNotificationRecordMap()
         {
             ToTable("SMS");
 

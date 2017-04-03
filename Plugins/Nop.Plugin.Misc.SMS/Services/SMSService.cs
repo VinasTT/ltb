@@ -3,7 +3,6 @@ using Nop.Plugin.Misc.SMS.Models;
 using Nop.Core.Data;
 using System.Linq;
 using System;
-using Nop.Core.Domain.Messages;
 using Nop.Services.Messages;
 using Nop.Services.Stores;
 using Nop.Core;
@@ -37,7 +36,7 @@ namespace Nop.Plugin.Misc.SMS.Services
 
             var query = from gp in _SMSRepository.Table
                         where gp.CustomerId == customerId
-                        orderby gp.Id
+                        orderby gp.Id descending //BUGFIX 3.803
                         select gp;
             var record = query.FirstOrDefault();
 
@@ -47,7 +46,7 @@ namespace Nop.Plugin.Misc.SMS.Services
         public virtual void InsertSMSRecord(SMSRecord smsRecord)
         {
             if (smsRecord == null)
-                throw new ArgumentNullException("googleProductRecord");
+                throw new ArgumentNullException("SMSRecord");
 
             _SMSRepository.Insert(smsRecord);
         }
@@ -55,7 +54,7 @@ namespace Nop.Plugin.Misc.SMS.Services
         public virtual void UpdateSMSRecord(SMSRecord smsRecord)
         {
             if (smsRecord == null)
-                throw new ArgumentNullException("googleProductRecord");
+                throw new ArgumentNullException("SMSRecord");
 
             _SMSRepository.Update(smsRecord);
         }
@@ -115,21 +114,19 @@ namespace Nop.Plugin.Misc.SMS.Services
             //NOP 3.821
         }
 
-
-        protected virtual MessageTemplate GetActiveMessageTemplate(string messageTemplateName, int storeId)
-        {
-            var messageTemplate = _messageTemplateService.GetMessageTemplateByName(messageTemplateName, storeId);
-
-            //no template found
-            if (messageTemplate == null)
+        //NOP 3.824
+        public string GetPhoneNumber(int customerId) {
+            if (customerId == 0)
                 return null;
 
-            //ensure it's active
-            var isActive = messageTemplate.IsActive;
-            if (!isActive)
-                return null;
+            var query = from gp in _SMSRepository.Table
+                        where gp.CustomerId == customerId
+                        orderby gp.Id descending //BUGFIX 3.803
+                        select gp;
+            var record = query.FirstOrDefault();
 
-            return messageTemplate;
-        }
+            return record.PhoneNumber;
+
+        } 
     }
 }

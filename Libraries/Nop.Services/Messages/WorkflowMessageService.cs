@@ -33,7 +33,9 @@ namespace Nop.Services.Messages
         private readonly IStoreContext _storeContext;
         private readonly EmailAccountSettings _emailAccountSettings;
         private readonly IEventPublisher _eventPublisher;
-
+        private readonly ICustomerService _customerService; //NOP 3.824
+        private readonly ISMSNotificationService _smsNotificationService; //NOP 3.824
+        private readonly SMSNotificationSettings _smsNotificationSettings; //NOP 3.824
         #endregion
 
         #region Ctor
@@ -47,7 +49,10 @@ namespace Nop.Services.Messages
             IStoreService storeService,
             IStoreContext storeContext,
             EmailAccountSettings emailAccountSettings,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher,
+            ICustomerService customerService, //NOP 3.824
+            ISMSNotificationService smsNotificationService, //NOP 3.824
+            SMSNotificationSettings smsNotificationSettings) //NOP 3.824
         {
             this._messageTemplateService = messageTemplateService;
             this._queuedEmailService = queuedEmailService;
@@ -59,12 +64,39 @@ namespace Nop.Services.Messages
             this._storeContext = storeContext;
             this._emailAccountSettings = emailAccountSettings;
             this._eventPublisher = eventPublisher;
+            this._customerService = customerService; //NOP 3.824
+            this._smsNotificationService = smsNotificationService; //NOP 3.824
+            this._smsNotificationSettings = smsNotificationSettings; //NOP 3.824
         }
 
         #endregion
 
         #region Utilities
-        
+
+        //NOP 3.824
+        protected virtual bool SendNotificationSMS(MessageTemplate messageTemplate,
+            SMSNotificationSettings smsSettings, int languageId, IEnumerable<Token> tokens,
+            string toEmail, string toName,
+            string attachmentFilePath = null, string attachmentFileName = null,
+            string replyToEmailAddress = null, string replyToName = null)
+        {
+            if (messageTemplate == null)
+                throw new ArgumentNullException("messageTemplate");
+            if (smsSettings == null)
+                throw new ArgumentNullException("smsSettings");
+            
+            var phoneNumber = GetPhoneNumber(toEmail);
+            if (string.IsNullOrEmpty(phoneNumber))
+                return false;
+
+            var body = messageTemplate.GetLocalized(mt => mt.Body, languageId);
+            var bodyReplaced = _tokenizer.Replace(body, tokens, true);
+            var bodyTrimmed = bodyReplaced.Replace("<p>", "").Replace("<br />","").Replace("&nbsp;", "").Replace("</p>", "");
+            return _smsNotificationService.SendSMS(bodyTrimmed, smsSettings.PhoneNumber,phoneNumber,toName,smsSettings.UserName,
+                smsSettings.Password,smsSettings.BaseURL,smsSettings.Resource,smsSettings.CountryCode);
+        }
+
+
         protected virtual int SendNotification(MessageTemplate messageTemplate, 
             EmailAccount emailAccount, int languageId, IEnumerable<Token> tokens,
             string toEmailAddress, string toName,
@@ -143,6 +175,17 @@ namespace Nop.Services.Messages
             if (emailAccount == null)
                 emailAccount = _emailAccountService.GetAllEmailAccounts().FirstOrDefault();
             return emailAccount;
+
+        }
+
+        //NOP 3.824
+        protected virtual string GetPhoneNumber(string emailAccount)
+        { 
+        
+            var customer = _customerService.GetCustomerByEmail(emailAccount);
+            var phoneNumber = _smsNotificationService.GetPhoneNumber(customer.Id);
+
+            return phoneNumber;
 
         }
 
@@ -600,6 +643,15 @@ namespace Nop.Services.Messages
 
             var toEmail = order.BillingAddress.Email;
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
+
+            //NOP 3.824
+            if (_smsNotificationSettings.Active) { 
+                if (!SendNotificationSMS(messageTemplate, _smsNotificationSettings, languageId,
+                    tokens, toEmail, toName)){
+                    throw new Exception("SMS could not be sent");
+                }
+            }
+
             return SendNotification(messageTemplate, emailAccount,
                 languageId, tokens,
                 toEmail, toName);
@@ -642,6 +694,17 @@ namespace Nop.Services.Messages
 
             var toEmail = order.BillingAddress.Email;
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
+
+            //NOP 3.824
+            if (_smsNotificationSettings.Active)
+            {
+                if (!SendNotificationSMS(messageTemplate, _smsNotificationSettings, languageId,
+                    tokens, toEmail, toName))
+                {
+                    throw new Exception("SMS could not be sent");
+                }
+            }
+
             return SendNotification(messageTemplate, emailAccount,
                 languageId, tokens,
                 toEmail, toName);
@@ -721,6 +784,17 @@ namespace Nop.Services.Messages
 
             var toEmail = order.BillingAddress.Email;
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
+
+            //NOP 3.824
+            if (_smsNotificationSettings.Active)
+            {
+                if (!SendNotificationSMS(messageTemplate, _smsNotificationSettings, languageId,
+                    tokens, toEmail, toName))
+                {
+                    throw new Exception("SMS could not be sent");
+                }
+            }
+
             return SendNotification(messageTemplate, emailAccount,
                 languageId, tokens,
                 toEmail, toName);
@@ -799,6 +873,17 @@ namespace Nop.Services.Messages
 
             var toEmail = order.BillingAddress.Email;
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
+
+            //NOP 3.824
+            if (_smsNotificationSettings.Active)
+            {
+                if (!SendNotificationSMS(messageTemplate, _smsNotificationSettings, languageId,
+                    tokens, toEmail, toName))
+                {
+                    throw new Exception("SMS could not be sent");
+                }
+            }
+
             return SendNotification(messageTemplate, emailAccount,
                 languageId, tokens,
                 toEmail, toName);
@@ -839,6 +924,17 @@ namespace Nop.Services.Messages
 
             var toEmail = order.BillingAddress.Email;
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
+
+            //NOP 3.824
+            if (_smsNotificationSettings.Active)
+            {
+                if (!SendNotificationSMS(messageTemplate, _smsNotificationSettings, languageId,
+                    tokens, toEmail, toName))
+                {
+                    throw new Exception("SMS could not be sent");
+                }
+            }
+
             return SendNotification(messageTemplate, emailAccount,
                 languageId, tokens,
                 toEmail, toName);
@@ -1132,6 +1228,17 @@ namespace Nop.Services.Messages
             var toName = returnRequest.Customer.IsGuest() ? 
                 orderItem.Order.BillingAddress.FirstName :
                 returnRequest.Customer.GetFullName();
+
+            //NOP 3.824
+            if (_smsNotificationSettings.Active)
+            {
+                if (!SendNotificationSMS(messageTemplate, _smsNotificationSettings, languageId,
+                    tokens, toEmail, toName))
+                {
+                    throw new Exception("SMS could not be sent");
+                }
+            }
+
             return SendNotification(messageTemplate, emailAccount,
                 languageId, tokens,
                 toEmail, toName);

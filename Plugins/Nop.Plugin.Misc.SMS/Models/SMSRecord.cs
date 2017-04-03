@@ -26,5 +26,7 @@ namespace Nop.Plugin.Misc.SMS.Models
         /// Gets or sets the activation code
         /// </summary>
         public virtual string ActivationCode { get; set; }
+
+        public virtual bool Active { get; set; } //BUGFIX 3.803
     }
 }

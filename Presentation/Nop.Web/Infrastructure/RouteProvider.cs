@@ -54,6 +54,12 @@ namespace Nop.Web.Infrastructure
                             new { orderId = @"\d+" },
                             new[] { "Nop.Web.Controllers" });
 
+            //BUGFIX 3.803
+            routes.MapLocalizedRoute("ValidatePhone",
+                            "validatephone/",
+                            new { controller = "SMSNotification", action = "ValidatePhone" },
+                            new[] { "Nop.Web.Controllers" });
+
             //login
             routes.MapLocalizedRoute("Login",
                             "login/",

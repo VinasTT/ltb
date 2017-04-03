@@ -102,6 +102,9 @@
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -254,6 +257,8 @@
     <Compile Include="Logging\ClearLogTask.cs" />
     <Compile Include="Media\AzurePictureService.cs" />
     <Compile Include="Media\ResizeType.cs" />
+    <Compile Include="Messages\ISMSNotificationService.cs" />
+    <Compile Include="Messages\SMSNotificationService.cs" />
     <Compile Include="Orders\UpdateOrderParameters.cs" />
     <Compile Include="Orders\ICustomNumberFormatter.cs" />
     <Compile Include="Orders\IReturnRequestService.cs" />

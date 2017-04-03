@@ -324,7 +324,8 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                     model.RegisterModel.Password,
                     _customerSettings.DefaultPasswordFormat,
                     _storeContext.CurrentStore.Id,
-                    isApproved);
+                    isApproved,
+                    model.SmsRecordModel.PhoneNumber); //BUGFIX 3.802
                 var registrationResult = _customerRegistrationService.RegisterCustomer(registrationRequest);
                 if (registrationResult.Success)
                 {
@@ -463,7 +464,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                     //raise event       
                     _eventPublisher.Publish(new CustomerRegisteredEvent(customer));
 
-                    if (_smsSettings.Active)
+                    if (_smsSettings.Active && registrationResult.Success) //BUGFIX 3.801
                     {
                         model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
                         model.Resource = _smsSettings.Resource;//NOP 3.821
@@ -473,6 +474,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                         model.MessageTemplate = _smsSettings.MessageTemplate;//NOP 3.821
                         model.SmsRecordModel.CustomerId = _customerService.GetCustomerByEmail(model.RegisterModel.Email).Id;
                         model.SmsRecordModel.ActivationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
+                        model.SmsRecordModel.Active = false; //BUGFIX 3.803
                         _smsService.InsertSMSRecord(model.SmsRecordModel);
                         if (_smsService.SendRegistrationSMS(model))
                         //send sms code
@@ -549,6 +551,10 @@ namespace Nop.Plugin.Misc.SMS.Controllers
 
             if (!cToken.Equals(token, StringComparison.InvariantCultureIgnoreCase))
                 return RedirectToRoute("HomePage");
+
+            //BUGFIX 3.803
+            smsRecord.Active = true;
+            _smsService.UpdateSMSRecord(smsRecord);
 
             //activate user account
             customer.Active = true;

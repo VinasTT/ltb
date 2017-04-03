@@ -22,7 +22,8 @@ namespace Nop.Services.Customers
             string password,
             PasswordFormat passwordFormat,
             int storeId,
-            bool isApproved = true)
+            bool isApproved = true,
+            string phoneNumber = null) //BUGFIX 3.802
         {
             this.Customer = customer;
             this.Email = email;
@@ -31,6 +32,7 @@ namespace Nop.Services.Customers
             this.PasswordFormat = passwordFormat;
             this.StoreId = storeId;
             this.IsApproved = isApproved;
+            this.PhoneNumber = phoneNumber; //BUGFIX 3.802
         }
 
         /// <summary>
@@ -61,5 +63,7 @@ namespace Nop.Services.Customers
         /// Is approved
         /// </summary>
         public bool IsApproved { get; set; }
+
+        public string PhoneNumber { get; set; } //BUGFIX 3.802
     }
 }

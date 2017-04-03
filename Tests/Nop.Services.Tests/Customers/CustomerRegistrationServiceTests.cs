@@ -42,6 +42,7 @@ namespace Nop.Services.Tests.Customers
         private RewardPointsSettings _rewardPointsSettings;
         private SecuritySettings _securitySettings;
         private IRewardPointService _rewardPointService;
+        private ISMSNotificationService _smsNotificationService; //BUGFIX 3.801
 
         [SetUp]
         public new void SetUp()
@@ -127,6 +128,7 @@ namespace Nop.Services.Tests.Customers
             _genericAttributeService = MockRepository.GenerateMock<IGenericAttributeService>();
             _newsLetterSubscriptionService = MockRepository.GenerateMock<INewsLetterSubscriptionService>();
             _rewardPointService = MockRepository.GenerateMock<IRewardPointService>();
+            _smsNotificationService = MockRepository.GenerateMock<ISMSNotificationService>(); //BUGFIX 3.801
 
             _localizationService = MockRepository.GenerateMock<ILocalizationService>();
             _customerService = new CustomerService(new NopNullCache(), _customerRepo, _customerRoleRepo,
@@ -135,7 +137,8 @@ namespace Nop.Services.Tests.Customers
                 _genericAttributeService, null, null, _eventPublisher, _customerSettings, null);
             _customerRegistrationService = new CustomerRegistrationService(_customerService,
                 _encryptionService, _newsLetterSubscriptionService, _localizationService,
-                _storeService, _rewardPointService, _rewardPointsSettings, _customerSettings);
+                _storeService, _rewardPointService, _rewardPointsSettings, _customerSettings,
+                _smsNotificationService); //BUGFIX 3.801
         }
 
         //[Test]

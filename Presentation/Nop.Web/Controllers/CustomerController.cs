@@ -455,9 +455,9 @@ namespace Nop.Web.Controllers
             //NOP 3.825
             if (_smsNotificationSettings.Active)
             {
-                var smsNotificationRecord = _smsNotificationService.GetByCustomerId(customer.Id);
+                var phoneNumber = _smsNotificationService.GetPhoneNumber(customer.Id); //BUGFIX 3.804
                 var smsNotificationRecordModel = new SMSNotificationRecordModel();
-                smsNotificationRecordModel.PhoneNumber = smsNotificationRecord.PhoneNumber;
+                smsNotificationRecordModel.PhoneNumber = phoneNumber;
                 model.SMSNotificationRecordModel = smsNotificationRecordModel;
             }
 

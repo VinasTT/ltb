@@ -24,7 +24,7 @@ namespace Nop.Plugin.ExternalAuth.Facebook.Core
         private readonly FacebookExternalAuthSettings _facebookExternalAuthSettings;
         private readonly HttpContextBase _httpContext;
         private readonly IWebHelper _webHelper;
-        private FacebookClient _facebookApplication;
+        private FacebookOAuth2Client _facebookApplication; // BUGFIX 3.805
 
         #endregion
 
@@ -68,9 +68,10 @@ namespace Nop.Plugin.ExternalAuth.Facebook.Core
 
             return string.Empty;
         }
-        private FacebookClient FacebookApplication
+        // BUGFIX 3.805
+        private FacebookOAuth2Client FacebookApplication
         {
-            get { return _facebookApplication ?? (_facebookApplication = new FacebookClient(_facebookExternalAuthSettings.ClientKeyIdentifier, _facebookExternalAuthSettings.ClientSecret)); }
+            get { return _facebookApplication ?? (_facebookApplication = new FacebookOAuth2Client(_facebookExternalAuthSettings.ClientKeyIdentifier, _facebookExternalAuthSettings.ClientSecret)); } 
         }
 
         private AuthorizeState VerifyAuthentication(string returnUrl)

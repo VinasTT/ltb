@@ -4,6 +4,7 @@ using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Messages;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Discounts;
 
 namespace Nop.Services.ExportImport
 {
@@ -24,6 +25,12 @@ namespace Nop.Services.ExportImport
         /// </summary>
         /// <param name="manufacturers">Manufactures</param>
         byte[] ExportManufacturersToXlsx(IEnumerable<Manufacturer> manufacturers);
+
+        //NOP 3.826
+        string ExportDiscountsToXml(IList<Discount> discounts);
+
+        //NOP 3.826
+        byte[] ExportDiscountsToXlsx(IEnumerable<Discount> discounts);
 
         /// <summary>
         /// Export category list to xml

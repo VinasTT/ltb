@@ -526,6 +526,25 @@ namespace Nop.Services.Discounts
             _eventPublisher.EntityDeleted(discountUsageHistory);
         }
 
+        //NOP 3.826
+        public virtual IPagedList<DiscountRequirement> GetDiscountRequirementByDiscountId(int discountId,
+            int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
+        {
+            if (discountId == 0)
+                return new PagedList<DiscountRequirement>(new List<DiscountRequirement>(), pageIndex, pageSize);
+
+
+            var query = from pm in _discountRepository.Table
+                        join p in _discountRequirementRepository.Table on pm.Id equals p.DiscountId
+                        where pm.Id == discountId
+                        orderby pm.Id
+                        select p;
+
+                var productManufacturers = new PagedList<DiscountRequirement>(query, pageIndex, pageSize);
+                return productManufacturers;
+            
+        }
+
         #endregion
     }
 }

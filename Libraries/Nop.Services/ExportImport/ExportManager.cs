@@ -27,6 +27,8 @@ using Nop.Services.Tax;
 using Nop.Services.Vendors;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using Nop.Core.Domain.Discounts;
+using Nop.Services.Discounts;
 
 namespace Nop.Services.ExportImport
 {
@@ -51,6 +53,7 @@ namespace Nop.Services.ExportImport
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly IMeasureService _measureService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly IDiscountService _discountService; //NOP 3.826
 
         #endregion
 
@@ -69,7 +72,8 @@ namespace Nop.Services.ExportImport
             IShippingService shippingService,
             ITaxCategoryService taxCategoryService,
             IMeasureService measureService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            IDiscountService discountService) //NOP 3.826
         {
             this._categoryService = categoryService;
             this._manufacturerService = manufacturerService;
@@ -85,6 +89,7 @@ namespace Nop.Services.ExportImport
             this._taxCategoryService = taxCategoryService;
             this._measureService = measureService;
             this._catalogSettings = catalogSettings;
+            this._discountService = discountService; //NOP 3.826
         }
 
         #endregion
@@ -385,6 +390,91 @@ namespace Nop.Services.ExportImport
 
         #region Methods
 
+
+        //NOP 3.826
+        public virtual string ExportDiscountsToXml(IList<Discount> discounts)
+        {
+            var sb = new StringBuilder();
+            var stringWriter = new StringWriter(sb);
+            var xmlWriter = new XmlTextWriter(stringWriter);
+            xmlWriter.WriteStartDocument();
+            xmlWriter.WriteStartElement("Manufacturers");
+            xmlWriter.WriteAttributeString("Version", NopVersion.CurrentVersion);
+
+            foreach (var discount in discounts)
+            {
+                xmlWriter.WriteStartElement("Discount");
+
+                xmlWriter.WriteElementString("DiscountId", null, discount.Id.ToString());
+                xmlWriter.WriteElementString("Name", null, discount.Name);
+                xmlWriter.WriteElementString("DiscountTypeId", null, discount.DiscountTypeId.ToString());
+                xmlWriter.WriteElementString("UsePercentage", null, discount.UsePercentage.ToString());
+                xmlWriter.WriteElementString("DiscountPercentage", null, discount.DiscountPercentage.ToString());
+                xmlWriter.WriteElementString("DiscountAmount", null, discount.DiscountAmount.ToString());
+                xmlWriter.WriteElementString("MaximumDiscountAmount", null, discount.MaximumDiscountAmount.ToString());
+                xmlWriter.WriteElementString("StartDateUtc", null, discount.StartDateUtc.ToString());
+                xmlWriter.WriteElementString("EndDateUtc", null, discount.EndDateUtc.ToString());
+                xmlWriter.WriteElementString("RequiresCouponCode", null, discount.RequiresCouponCode.ToString());
+                xmlWriter.WriteElementString("CouponCode", null, discount.CouponCode);
+                xmlWriter.WriteElementString("IsCumulative", null, discount.IsCumulative.ToString());
+                xmlWriter.WriteElementString("DiscountLimitationId", null, discount.DiscountLimitationId.ToString());
+                xmlWriter.WriteElementString("LimitationTimes", null, discount.LimitationTimes.ToString());
+                xmlWriter.WriteElementString("MaximumDiscountedQuantity", null, discount.MaximumDiscountedQuantity.ToString());
+                xmlWriter.WriteElementString("AppliedToSubCategories", null, discount.AppliedToSubCategories.ToString());
+             
+                xmlWriter.WriteStartElement("Requirements");
+                var discountRequirements = _discountService.GetDiscountRequirementByDiscountId(discount.Id, showHidden: true);
+                if (discountRequirements != null)
+                {
+                    foreach (var discountRequirement in discountRequirements)
+                    {
+                        if (discountRequirement != null)
+                        {
+                            xmlWriter.WriteStartElement("Requirement");
+                            xmlWriter.WriteElementString("RequirementId", null, discountRequirement.Id.ToString());
+                            xmlWriter.WriteElementString("DiscountId", null, discountRequirement.DiscountId.ToString());
+                            xmlWriter.WriteElementString("DiscountRequirementRuleSystemName", null, discountRequirement.DiscountRequirementRuleSystemName);
+                            xmlWriter.WriteEndElement();
+                        }
+                    }
+                }
+                xmlWriter.WriteEndElement();
+
+                xmlWriter.WriteEndElement();
+            }
+
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndDocument();
+            xmlWriter.Close();
+            return stringWriter.ToString();
+        }
+
+        //NOP 3.826
+        public virtual byte[] ExportDiscountsToXlsx(IEnumerable<Discount> discounts)
+        {
+            //property array
+            var properties = new[]
+            {
+                new PropertyByName<Discount>("Id", p => p.Id),
+                new PropertyByName<Discount>("Name", p => p.Name),
+                new PropertyByName<Discount>("DiscountTypeId", p => p.DiscountTypeId),
+                new PropertyByName<Discount>("UsePercentage", p => p.UsePercentage),
+                new PropertyByName<Discount>("DiscountPercentage", p => p.DiscountPercentage),
+                new PropertyByName<Discount>("DiscountAmount", p => p.DiscountAmount),
+                new PropertyByName<Discount>("MaximumDiscountAmount", p => p.MaximumDiscountAmount),
+                new PropertyByName<Discount>("StartDateUtc", p => p.StartDateUtc),
+                new PropertyByName<Discount>("EndDateUtc", p => p.EndDateUtc),
+                new PropertyByName<Discount>("RequiresCouponCode", p => p.RequiresCouponCode),
+                new PropertyByName<Discount>("CouponCode", p => p.CouponCode),
+                new PropertyByName<Discount>("IsCumulative", p => p.IsCumulative),
+                new PropertyByName<Discount>("DiscountLimitationId", p => p.DiscountLimitationId),
+                new PropertyByName<Discount>("LimitationTimes", p => p.LimitationTimes),
+                new PropertyByName<Discount>("MaximumDiscountedQuantity", p => p.MaximumDiscountedQuantity),
+                new PropertyByName<Discount>("AppliedToSubCategories", p => p.AppliedToSubCategories)
+            };
+
+            return ExportToXlsx(properties, discounts);
+        }
         /// <summary>
         /// Export manufacturer list to xml
         /// </summary>

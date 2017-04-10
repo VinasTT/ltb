@@ -129,5 +129,9 @@ namespace Nop.Services.Discounts
         /// <param name="discountUsageHistory">Discount usage history record</param>
         void DeleteDiscountUsageHistory(DiscountUsageHistory discountUsageHistory);
 
+        //NOP 3.826
+        IPagedList<DiscountRequirement> GetDiscountRequirementByDiscountId(int discountId,
+            int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
+
     }
 }

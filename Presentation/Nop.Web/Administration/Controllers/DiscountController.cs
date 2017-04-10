@@ -25,6 +25,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
+using Nop.Services.ExportImport;
 
 namespace Nop.Admin.Controllers
 {
@@ -49,6 +50,8 @@ namespace Nop.Admin.Controllers
         private readonly IOrderService _orderService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly ICacheManager _cacheManager;
+        private readonly IImportManager _importManager; //NOP 3.826
+        private readonly IExportManager _exportManager; //NOP 3.826
 
         #endregion
 
@@ -70,7 +73,9 @@ namespace Nop.Admin.Controllers
             IVendorService vendorService,
             IOrderService orderService,
             IPriceFormatter priceFormatter, 
-            ICacheManager cacheManager)
+            ICacheManager cacheManager,
+            IImportManager importManager, //NOP 3.826
+            IExportManager exportManager) //NOP 3.826
         {
             this._discountService = discountService;
             this._localizationService = localizationService;
@@ -89,6 +94,8 @@ namespace Nop.Admin.Controllers
             this._orderService = orderService;
             this._priceFormatter = priceFormatter;
             this._cacheManager = cacheManager;
+            this._importManager = importManager; //NOP 3.826
+            this._exportManager = exportManager; //NOP 3.826
         }
 
         #endregion
@@ -832,6 +839,94 @@ namespace Nop.Admin.Controllers
                 _discountService.DeleteDiscountUsageHistory(duh);
 
             return new NullJsonResult();
+        }
+
+        #endregion
+
+        #region Export / Import
+        /// <summary>
+        /// NOP 3.826
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ExportXml()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageDiscounts))
+                return AccessDeniedView();
+
+            DiscountType? discountType = null;
+
+            try
+            {
+                var discounts = _discountService.GetAllDiscounts(discountType: discountType, showHidden: true);
+                var xml = _exportManager.ExportDiscountsToXml(discounts);
+                return new XmlDownloadResult(xml, "discounts.xml");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
+        /// <summary>
+        /// NOP 3.826
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ExportXlsx()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageDiscounts))
+                return AccessDeniedView();
+
+            DiscountType? discountType = null;
+
+            try
+            {
+                var bytes = _exportManager.ExportDiscountsToXlsx(_discountService.GetAllDiscounts(discountType:discountType,showHidden:true));
+
+                return File(bytes, MimeTypes.TextXlsx, "discounts.xlsx");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
+        /// <summary>
+        /// NOP 3.826
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult ImportExcel()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            //a vendor cannot import discounts
+            if (_workContext.CurrentVendor != null)
+                return AccessDeniedView();
+
+            try
+            {
+                var file = Request.Files["importexcelfile"];
+                if (file != null && file.ContentLength > 0)
+                {
+                    _importManager.ImportDiscountsFromXlsx(file.InputStream);
+                }
+                else
+                {
+                    ErrorNotification(_localizationService.GetResource("Admin.Common.UploadFile"));
+                    return RedirectToAction("List");
+                }
+                SuccessNotification(_localizationService.GetResource("Admin.Discounts.Imported"));
+                return RedirectToAction("List");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+
         }
 
         #endregion

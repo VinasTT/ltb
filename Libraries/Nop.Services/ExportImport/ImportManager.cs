@@ -24,6 +24,8 @@ using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
 using OfficeOpenXml;
+using Nop.Core.Domain.Discounts;
+using Nop.Services.Discounts;
 
 namespace Nop.Services.ExportImport
 {
@@ -53,6 +55,7 @@ namespace Nop.Services.ExportImport
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly IMeasureService _measureService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly IDiscountService _discountService; //NOP 3.826
 
         #endregion
 
@@ -76,7 +79,8 @@ namespace Nop.Services.ExportImport
             ITaxCategoryService taxCategoryService,
             IMeasureService measureService,
             IProductAttributeService productAttributeService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            IDiscountService discountService) //NOP 3.826
         {
             this._productService = productService;
             this._categoryService = categoryService;
@@ -97,6 +101,7 @@ namespace Nop.Services.ExportImport
             this._measureService = measureService;
             this._productAttributeService = productAttributeService;
             this._catalogSettings = catalogSettings;
+            this._discountService = discountService; //NOP 3.826
         }
 
         #endregion
@@ -1288,6 +1293,83 @@ namespace Nop.Services.ExportImport
                     //search engine name
                     var seName = manager.GetProperty("SeName").StringValue;
                     _urlRecordService.SaveSlug(category, category.ValidateSeName(seName, category.Name, true), 0);
+
+                    iRow++;
+                }
+            }
+        }
+
+        //NOP 3.826
+        public virtual void ImportDiscountsFromXlsx(Stream stream)
+        {
+            var properties = new[]
+            {
+                new PropertyByName<Discount>("Id"),
+                new PropertyByName<Discount>("Name"),
+                new PropertyByName<Discount>("DiscountTypeId"),
+                new PropertyByName<Discount>("UsePercentage"),
+                new PropertyByName<Discount>("DiscountPercentage"),
+                new PropertyByName<Discount>("DiscountAmount"),
+                new PropertyByName<Discount>("MaximumDiscountAmount"),
+                new PropertyByName<Discount>("StartDateUtc"),
+                new PropertyByName<Discount>("EndDateUtc"),
+                new PropertyByName<Discount>("RequiresCouponCode"),
+                new PropertyByName<Discount>("CouponCode"),
+                new PropertyByName<Discount>("IsCumulative"),
+                new PropertyByName<Discount>("DiscountLimitationId"),
+                new PropertyByName<Discount>("LimitationTimes"),
+                new PropertyByName<Discount>("MaximumDiscountedQuantity"),
+                new PropertyByName<Discount>("AppliedToSubCategories"),
+            };
+
+            var manager = new PropertyManager<Discount>(properties);
+
+            using (var xlPackage = new ExcelPackage(stream))
+            {
+                // get the first worksheet in the workbook
+                var worksheet = xlPackage.Workbook.Worksheets.FirstOrDefault();
+                if (worksheet == null)
+                    throw new NopException("No worksheet found");
+
+                var iRow = 2;
+
+                while (true)
+                {
+                    var allColumnsAreEmpty = manager.GetProperties
+                        .Select(property => worksheet.Cells[iRow, property.PropertyOrderPosition])
+                        .All(cell => cell == null || cell.Value == null || String.IsNullOrEmpty(cell.Value.ToString()));
+
+                    if (allColumnsAreEmpty)
+                        break;
+
+                    manager.ReadFromXlsx(worksheet, iRow);
+
+                    var discount = _discountService.GetDiscountById(manager.GetProperty("Id").IntValue);
+
+                    var isNew = discount == null;
+
+                    discount = discount ?? new Discount();
+
+                    discount.Name = manager.GetProperty("Name").StringValue;
+                    discount.DiscountTypeId = manager.GetProperty("DiscountTypeId").IntValue;
+                    discount.UsePercentage = manager.GetProperty("UsePercentage").BooleanValue;
+                    discount.DiscountPercentage = manager.GetProperty("DiscountPercentage").DecimalValue;
+                    discount.DiscountAmount = manager.GetProperty("DiscountAmount").DecimalValue;
+                    discount.MaximumDiscountAmount = manager.GetProperty("MaximumDiscountAmount").DecimalValueNullable;
+                    discount.StartDateUtc = manager.GetProperty("StartDateUtc").DateTimeNullable;
+                    discount.EndDateUtc = manager.GetProperty("EndDateUtc").DateTimeNullable;
+                    discount.RequiresCouponCode = manager.GetProperty("RequiresCouponCode").BooleanValue;
+                    discount.CouponCode = manager.GetProperty("CouponCode").StringValue;
+                    discount.IsCumulative = manager.GetProperty("IsCumulative").BooleanValue;
+                    discount.DiscountLimitationId = manager.GetProperty("DiscountLimitationId").IntValue;
+                    discount.LimitationTimes = manager.GetProperty("LimitationTimes").IntValue;
+                    discount.MaximumDiscountedQuantity = manager.GetProperty("MaximumDiscountedQuantity").IntValue;
+                    discount.AppliedToSubCategories = manager.GetProperty("AppliedToSubCategories").BooleanValue;
+                
+                    if (isNew)
+                        _discountService.InsertDiscount(discount);
+                    else
+                        _discountService.UpdateDiscount(discount);
 
                     iRow++;
                 }

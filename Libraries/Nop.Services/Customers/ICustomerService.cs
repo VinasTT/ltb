@@ -43,7 +43,8 @@ namespace Nop.Services.Customers
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
             string ipAddress = null, bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-            int pageIndex = 0, int pageSize = int.MaxValue);
+            int pageIndex = 0, int pageSize = int.MaxValue,
+            string phoneNumber = null); //NOP 3.827
         
         /// <summary>
         /// Gets all customers by customer format (including deleted ones)

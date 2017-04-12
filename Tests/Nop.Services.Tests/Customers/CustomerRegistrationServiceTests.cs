@@ -18,6 +18,7 @@ using Nop.Services.Stores;
 using Nop.Tests;
 using NUnit.Framework;
 using Rhino.Mocks;
+using Nop.Core.Domain.Messages;
 
 namespace Nop.Services.Tests.Customers
 {
@@ -43,6 +44,7 @@ namespace Nop.Services.Tests.Customers
         private SecuritySettings _securitySettings;
         private IRewardPointService _rewardPointService;
         private ISMSNotificationService _smsNotificationService; //BUGFIX 3.801
+        private IRepository<SMSNotificationRecord> _smsNotificationRepository; //NOP 3.827
 
         [SetUp]
         public new void SetUp()
@@ -129,16 +131,19 @@ namespace Nop.Services.Tests.Customers
             _newsLetterSubscriptionService = MockRepository.GenerateMock<INewsLetterSubscriptionService>();
             _rewardPointService = MockRepository.GenerateMock<IRewardPointService>();
             _smsNotificationService = MockRepository.GenerateMock<ISMSNotificationService>(); //BUGFIX 3.801
+            _smsNotificationRepository = MockRepository.GenerateMock<IRepository<SMSNotificationRecord>>(); //NOP 3.827
 
             _localizationService = MockRepository.GenerateMock<ILocalizationService>();
             _customerService = new CustomerService(new NopNullCache(), _customerRepo, _customerRoleRepo,
                 _genericAttributeRepo, _orderRepo, _forumPostRepo, _forumTopicRepo,
                 null, null, null, null, null,
-                _genericAttributeService, null, null, _eventPublisher, _customerSettings, null);
+                _genericAttributeService, null, null, _eventPublisher, _customerSettings, null,
+                _smsNotificationRepository); //NOP 3.827
             _customerRegistrationService = new CustomerRegistrationService(_customerService,
                 _encryptionService, _newsLetterSubscriptionService, _localizationService,
                 _storeService, _rewardPointService, _rewardPointsSettings, _customerSettings,
-                _smsNotificationService); //BUGFIX 3.801
+                _smsNotificationService);  //BUGFIX 3.801
+             
         }
 
         //[Test]

@@ -63,5 +63,9 @@ namespace Nop.Admin.Models.Customers
 
         [NopResourceDisplayName("Admin.Customers.Customers.List.SearchIpAddress")]
         public string SearchIpAddress { get; set; }
+
+        //NOP 3.827
+        [NopResourceDisplayName("Admin.Customers.Customers.List.SearchPhoneNumber")]
+        public string SearchPhoneNumber { get; set; }
     }
 }

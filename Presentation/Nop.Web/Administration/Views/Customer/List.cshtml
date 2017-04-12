@@ -106,6 +106,16 @@
                                         @Html.NopEditorFor(model => model.SearchLastName)
                                     </div>
                                 </div>
+                                @*NOP 3.827*@
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        @Html.NopLabelFor(model => model.SearchPhoneNumber)
+                                    </div>
+                                    <div class="col-md-8">
+                                        @Html.NopEditorFor(model => model.SearchPhoneNumber)
+                                    </div>
+                                </div>
+
                                 @if (Model.DateOfBirthEnabled)
                                 {
                                     <div class="form-group">
@@ -373,6 +383,7 @@
                                     "#@Html.FieldIdFor(model => model.SearchCompany),",
                                     "#@Html.FieldIdFor(model => model.SearchPhone),",
                                     "#@Html.FieldIdFor(model => model.SearchZipPostalCode),",
+                                    "#@Html.FieldIdFor(model => model.SearchPhoneNumber),", //NOP 3.827
                                     "#@Html.FieldIdFor(model => model.SearchIpAddress)")).keydown(function(event) {
                                         if (event.keyCode === 13) {
                                             $("#search-customers").click();
@@ -435,7 +446,8 @@
                                     SearchCompany: $('#@Html.FieldIdFor(model => model.SearchCompany)').val(),
                                     SearchPhone: $('#@Html.FieldIdFor(model => model.SearchPhone)').val(),
                                     SearchZipPostalCode: $('#@Html.FieldIdFor(model => model.SearchZipPostalCode)').val(),
-                                    SearchIpAddress: $('#@Html.FieldIdFor(model => model.SearchIpAddress)').val()
+                                    SearchIpAddress: $('#@Html.FieldIdFor(model => model.SearchIpAddress)').val(),
+                                    SearchPhoneNumber: $('#@Html.FieldIdFor(model => model.SearchPhoneNumber)').val() //NOP 3.827
                                 };
                                 addAntiForgeryToken(data);
                                 return data;

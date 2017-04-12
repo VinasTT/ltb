@@ -89,6 +89,7 @@ namespace Nop.Admin.Controllers
         private readonly IAffiliateService _affiliateService;
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly IRewardPointService _rewardPointService;
+        private readonly ISMSNotificationService _smsNotificationService; //NOP 3.827
 
         #endregion
 
@@ -135,7 +136,8 @@ namespace Nop.Admin.Controllers
             IAddressAttributeFormatter addressAttributeFormatter,
             IAffiliateService affiliateService,
             IWorkflowMessageService workflowMessageService,
-            IRewardPointService rewardPointService)
+            IRewardPointService rewardPointService,
+            ISMSNotificationService smsNotificationService) //NOP 3.827
         {
             this._customerService = customerService;
             this._newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -179,6 +181,7 @@ namespace Nop.Admin.Controllers
             this._affiliateService = affiliateService;
             this._workflowMessageService = workflowMessageService;
             this._rewardPointService = rewardPointService;
+            this._smsNotificationService = smsNotificationService; //NOP 3.827
         }
 
         #endregion
@@ -547,6 +550,11 @@ namespace Nop.Admin.Controllers
                     model.StateProvinceId = customer.GetAttribute<int>(SystemCustomerAttributeNames.StateProvinceId);
                     model.Phone = customer.GetAttribute<string>(SystemCustomerAttributeNames.Phone);
                     model.Fax = customer.GetAttribute<string>(SystemCustomerAttributeNames.Fax);
+                    //NOP 3.827
+                    var smsNotificationRecord = _smsNotificationService.GetByCustomerId(customer.Id);
+                    model.PhoneNumber = smsNotificationRecord.PhoneNumber;
+                    model.PhoneActivated = smsNotificationRecord.Active;
+
                 }
             }
 
@@ -821,7 +829,8 @@ namespace Nop.Admin.Controllers
                 ipAddress: model.SearchIpAddress,
                 loadOnlyWithShoppingCart: false,
                 pageIndex: command.Page - 1,
-                pageSize: command.PageSize);
+                pageSize: command.PageSize,
+                phoneNumber: model.SearchPhoneNumber); //NOP 3.827
             var gridModel = new DataSourceResult
             {
                 Data = customers.Select(PrepareCustomerModelForList),
@@ -863,6 +872,16 @@ namespace Nop.Admin.Controllers
                 if (cust2 != null)
                     ModelState.AddModelError("", "Username is already registered");
             }
+
+            //NOP 3.827
+            var smsNotificationRecord = new SMSNotificationRecord();
+
+            if (_smsNotificationService.GetCustomerByPhoneNumber(model.PhoneNumber) != null)
+            {
+                ModelState.AddModelError("", "Phone number already exists");
+            }
+            smsNotificationRecord.PhoneNumber = model.PhoneNumber;
+            smsNotificationRecord.Active = model.PhoneActivated;
 
             //validate customer roles
             var allCustomerRoles = _customerService.GetAllCustomerRoles(true);
@@ -927,6 +946,9 @@ namespace Nop.Admin.Controllers
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, model.Phone);
                 if (_customerSettings.FaxEnabled)
                     _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Fax, model.Fax);
+
+                //NOP 3.876
+                _smsNotificationService.InsertSMSRecord(smsNotificationRecord);
 
                 //custom customer attributes
                 var customerAttributes = ParseCustomCustomerAttributes(customer, form);
@@ -1082,6 +1104,17 @@ namespace Nop.Admin.Controllers
                 ErrorNotification("Valid Email is required for customer to be in 'Registered' role", false);
             }
 
+            //NOP 3.827
+            var smsNotificationRecord = _smsNotificationService.GetByCustomerId(customer.Id);
+            
+            if (model.PhoneNumber != smsNotificationRecord.PhoneNumber && _smsNotificationService.GetCustomerByPhoneNumber(model.PhoneNumber) != null)
+            {
+                ModelState.AddModelError("", "Phone number already exists");
+                ErrorNotification("Phone number already exists. Please enter a different phone number", false);
+            }
+            smsNotificationRecord.PhoneNumber = model.PhoneNumber;
+            smsNotificationRecord.Active = model.PhoneActivated;
+
             if (ModelState.IsValid)
             {
                 try
@@ -1172,6 +1205,8 @@ namespace Nop.Admin.Controllers
                         _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Phone, model.Phone);
                     if (_customerSettings.FaxEnabled)
                         _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.Fax, model.Fax);
+
+                    _smsNotificationService.UpdateSMSRecord(smsNotificationRecord); //NOP 3.827
 
                     //custom customer attributes
                     var customerAttributes = ParseCustomCustomerAttributes(customer, form);

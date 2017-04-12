@@ -222,6 +222,14 @@ namespace Nop.Admin.Models.Customers
         [NopResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth")]
         public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; }
 
+        //NOP 3.827
+        [NopResourceDisplayName("Admin.Customers.Customers.PhoneNumber")]
+        [AllowHtml]
+        public string PhoneNumber { get; set; }
+
+        //NOP 3.827
+        [NopResourceDisplayName("Admin.Customers.Customers.PhoneActivated")]
+        public bool PhoneActivated { get; set; }
 
         #region Nested classes
 

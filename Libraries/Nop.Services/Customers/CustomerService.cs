@@ -19,6 +19,7 @@ using Nop.Core.Domain.Shipping;
 using Nop.Data;
 using Nop.Services.Common;
 using Nop.Services.Events;
+using Nop.Core.Domain.Messages;
 
 namespace Nop.Services.Customers
 {
@@ -71,6 +72,7 @@ namespace Nop.Services.Customers
         private readonly CustomerSettings _customerSettings;
         private readonly CommonSettings _commonSettings;
 
+        private readonly IRepository<SMSNotificationRecord> _smsNotificationRepository; //NOP 3.827
         #endregion
 
         #region Ctor
@@ -92,7 +94,8 @@ namespace Nop.Services.Customers
             IDbContext dbContext,
             IEventPublisher eventPublisher, 
             CustomerSettings customerSettings,
-            CommonSettings commonSettings)
+            CommonSettings commonSettings,
+            IRepository<SMSNotificationRecord> smsNotificationRepository) //NOP 3.827
         {
             this._cacheManager = cacheManager;
             this._customerRepository = customerRepository;
@@ -112,6 +115,7 @@ namespace Nop.Services.Customers
             this._eventPublisher = eventPublisher;
             this._customerSettings = customerSettings;
             this._commonSettings = commonSettings;
+            this._smsNotificationRepository = smsNotificationRepository; //NOP 3.827
         }
 
         #endregion
@@ -150,7 +154,8 @@ namespace Nop.Services.Customers
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
             string ipAddress = null, bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-            int pageIndex = 0, int pageSize = int.MaxValue)
+            int pageIndex = 0, int pageSize = int.MaxValue,
+            string phoneNumber = null) //NOP 3.827
         {
             var query = _customerRepository.Table;
             if (createdFromUtc.HasValue)
@@ -184,6 +189,14 @@ namespace Nop.Services.Customers
                     .Where((z => z.Attribute.KeyGroup == "Customer" &&
                         z.Attribute.Key == SystemCustomerAttributeNames.LastName &&
                         z.Attribute.Value.Contains(lastName)))
+                    .Select(z => z.Customer);
+            }
+            //NOP 3.827
+            if (!String.IsNullOrWhiteSpace(phoneNumber))
+            {
+                query = query
+                    .Join(_smsNotificationRepository.Table, x => x.Id, y => y.CustomerId, (x, y) => new { Customer = x, SMS = y })
+                    .Where((z => z.SMS.PhoneNumber == phoneNumber))
                     .Select(z => z.Customer);
             }
             //date of birth is stored as a string into database.

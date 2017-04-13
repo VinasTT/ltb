@@ -28,6 +28,7 @@ using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Security;
 using Nop.Web.Models.Checkout;
 using Nop.Web.Models.Common;
+using Nop.Services.Messages;
 
 namespace Nop.Web.Controllers
 {
@@ -69,6 +70,8 @@ namespace Nop.Web.Controllers
         private readonly AddressSettings _addressSettings;
         private readonly CustomerSettings _customerSettings;
 
+        private readonly ISMSNotificationService _smsNotificationService; //BUGFIX 3.806
+
         #endregion
 
 		#region Constructors
@@ -103,7 +106,8 @@ namespace Nop.Web.Controllers
             PaymentSettings paymentSettings,
             ShippingSettings shippingSettings,
             AddressSettings addressSettings,
-            CustomerSettings customerSettings)
+            CustomerSettings customerSettings,
+            ISMSNotificationService smsNotificationService) //BUGFIX 3.806
         {
             this._workContext = workContext;
             this._storeContext = storeContext;
@@ -137,6 +141,7 @@ namespace Nop.Web.Controllers
             this._shippingSettings = shippingSettings;
             this._addressSettings = addressSettings;
             this._customerSettings = customerSettings;
+            this._smsNotificationService = smsNotificationService; //BUGFIX 3.806
         }
 
         #endregion
@@ -513,6 +518,10 @@ namespace Nop.Web.Controllers
                 .ToList();
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
+
+            //BUGFIX 3.806
+            if (!_smsNotificationService.CheckIfPhoneExistsAndActive(_workContext.CurrentCustomer.Id))
+                return RedirectToRoute("ValidatePhone");
 
             bool downloadableProductsRequireRegistration =
                 _customerSettings.RequireRegistrationForDownloadableProducts && cart.Any(sci => sci.Product.IsDownload);

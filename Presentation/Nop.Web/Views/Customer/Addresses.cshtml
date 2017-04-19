@@ -69,6 +69,13 @@
                                         @address.Address2
                                     </li>
                                 }
+
+                                @*NOP 3.828*@
+                                <li class="address2">
+                                    @address.DistrictName
+                                </li>
+                                
+
                                 @if (address.CityEnabled || address.StateProvinceEnabled || address.ZipPostalCodeEnabled)
                                 {
                                     var cityStateZip = "";

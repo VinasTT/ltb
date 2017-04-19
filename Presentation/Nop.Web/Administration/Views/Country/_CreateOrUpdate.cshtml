@@ -261,7 +261,12 @@
                                     title: "@T("Admin.Common.Edit")",
                                     width: 100,
                                     template: "<input type='submit' value='@T("Admin.Common.Edit")' onclick=\"javascript:OpenWindow('@Url.Content("~/Admin/Country/StateEditPopup/")#=Id#?btnId=btnRefresh&formId=country-form', 800, 450, true); return false;\" class='btn btn-default' />"
-                                }, {
+                                },{ //NOP 3.828
+                                    field: "StateProvinceId",
+                                    title: "@T("Admin.Common.Districts")",
+                                    width: 100,
+                                    template: "<a href='/Admin/Country/DistrictEdit/#=StateProvinceId#'>@T("Admin.Common.View")</a>"
+                                },{
                                     command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
                                     title: "@T("Admin.Common.Delete")",
                                     width: 100

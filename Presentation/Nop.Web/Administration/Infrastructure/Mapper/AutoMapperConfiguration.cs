@@ -129,6 +129,12 @@ namespace Nop.Admin.Infrastructure.Mapper
                 cfg.CreateMap<StateProvinceModel, StateProvince>()
                     .ForMember(dest => dest.Country, mo => mo.Ignore());
 
+                //NOP 3.828
+                cfg.CreateMap<District, DistrictModel>()
+                    .ForMember(dest => dest.Locales, mo => mo.Ignore())
+                    .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
+                cfg.CreateMap<DistrictModel, District>();
+
                 //language
                 cfg.CreateMap<Language, LanguageModel>()
                     .ForMember(dest => dest.AvailableStores, mo => mo.Ignore())

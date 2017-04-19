@@ -34,6 +34,7 @@ namespace Nop.Admin.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IExportManager _exportManager;
         private readonly IImportManager _importManager;
+        private readonly IDistrictService _districtService; //NOP 3.828
 
 	    #endregion
 
@@ -49,7 +50,8 @@ namespace Nop.Admin.Controllers
             IStoreService storeService,
             IStoreMappingService storeMappingService,
             IExportManager exportManager,
-            IImportManager importManager)
+            IImportManager importManager,
+            IDistrictService districtService) //NOP 3.828
 		{
             this._countryService = countryService;
             this._stateProvinceService = stateProvinceService;
@@ -62,6 +64,7 @@ namespace Nop.Admin.Controllers
             this._storeMappingService = storeMappingService;
             this._exportManager = exportManager;
             this._importManager = importManager;
+            this._districtService = districtService; //NOP 3.828
 		}
 
 		#endregion 
@@ -240,6 +243,27 @@ namespace Nop.Admin.Controllers
             });
             //Stores
             PrepareStoresMappingModel(model, country, false);
+            return View(model);
+        }
+
+        //NOP 3.828
+        public ActionResult DistrictEdit(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCountries))
+                return AccessDeniedView();
+
+            var state = _stateProvinceService.GetStateProvinceByStateProvinceId(id);
+            if (state == null)
+                //No country found with the specified id
+                return RedirectToAction("List");
+
+            var model = state.ToModel();
+            //locales
+            AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            {
+                locale.Name = state.GetLocalized(x => x.Name, languageId, false, false);
+            });
+
             return View(model);
         }
 
@@ -534,6 +558,137 @@ namespace Nop.Admin.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        // NOP 3.828
+        [HttpPost]
+        public ActionResult Districts(int stateId, DataSourceRequest command)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCountries))
+                return AccessDeniedView();
+
+            var districts = _districtService.GetDistrictsByStateProvinceId(stateId, showHidden: true);
+
+            var gridModel = new DataSourceResult
+            {
+                Data = districts.Select(x => x.ToModel()),
+                Total = districts.Count
+            };
+            return Json(gridModel);
+        }
+
+        // NOP 3.828
+        [HttpPost]
+        public ActionResult DistrictDelete(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCountries))
+                return AccessDeniedView();
+
+            var district = _districtService.GetDistrictById(id);
+            if (district == null)
+                throw new ArgumentException("No district found with the specified id");
+
+            //int countryId = state.CountryId;
+            _districtService.DeleteDistrict(district);
+
+            return new NullJsonResult();
+        }
+
+        //NOP 3.828
+        public ActionResult DistrictEditPopUp(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCountries))
+                return AccessDeniedView();
+
+            var ds = _districtService.GetDistrictById(id);
+            if (ds == null)
+                //No state found with the specified id
+                return RedirectToAction("List");
+
+            var model = ds.ToModel();
+            //locales
+            AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            {
+                locale.Name = ds.GetLocalized(x => x.Name, languageId, false, false);
+            });
+
+            return View(model);
+        }
+
+        //NOP 3.828
+        [HttpPost]
+        public ActionResult DistrictEditPopUp(string btnId, string formId, DistrictModel model)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCountries))
+                return AccessDeniedView();
+
+            var ds = _districtService.GetDistrictById(model.Id);
+            if (ds == null)
+                //No state found with the specified id
+                return RedirectToAction("List");
+
+            if (ModelState.IsValid)
+            {
+                ds = model.ToEntity(ds);
+                _districtService.UpdateDistrict(ds);
+                
+                ViewBag.RefreshPage = true;
+                ViewBag.btnId = btnId;
+                ViewBag.formId = formId;
+                return View(model);
+            }
+
+            //If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //NOP 3.828
+        [AcceptVerbs(HttpVerbs.Get)]
+        public ActionResult GetDistrictsByStateId(string stateId, bool addSelectDistrictItem)
+        {
+            //this action method gets called via an ajax request
+            if (String.IsNullOrEmpty(stateId))
+                throw new ArgumentNullException("stateId");
+
+            var state = _stateProvinceService.GetStateProvinceById(Convert.ToInt32(stateId));
+            var districts = state != null ? _districtService.GetDistrictsByStateProvinceId(state.StateProvinceId, showHidden: true).ToList() : new List<District>();
+            var result = (from s in districts
+                          select new { id = s.Id, name = s.Name })
+                          .ToList();
+
+
+            if (state == null)
+            {
+                //country is not selected ("choose country" item)
+                if (addSelectDistrictItem)
+                {
+                    result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.SelectDistrict") });
+                }
+                else
+                {
+                    result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.OtherNonUS") });
+                }
+            }
+            else
+            {
+                //some country is selected
+                if (!result.Any())
+                {
+                    //country does not have states
+                    result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.OtherNonUS") });
+                }
+                else
+                {
+                    //country has some states
+                    if (addSelectDistrictItem)
+                    {
+                        result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.SelectDistrict") });
+                    }
+                }
+            }
+
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
         #region Export / import

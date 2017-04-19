@@ -123,6 +123,19 @@
                                 @Html.NopDisplayFor(model => model.TotalWeight)
                             </div>
                         </div>
+                        @*NOP 3.828*@
+                        @if (Model.IsLongDistance.HasValue && Model.IsLongDistance.Value)
+                        {
+                            <div class="form-group">
+                                <div class="col-md-3">
+                                    @Html.NopLabelFor(model => model.IsLongDistance)
+                                </div>
+
+                                <div class="col-md-9">
+                                    @T("Admin.Orders.Shipments.IsLongDistance.Yes")
+                                </div>
+                            </div>
+                        }
                         <div class="form-group">
                             <div class="col-md-3">
                                 @Html.NopLabelFor(model => model.ShippedDate)

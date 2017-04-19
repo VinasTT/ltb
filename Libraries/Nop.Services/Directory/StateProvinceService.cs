@@ -184,6 +184,16 @@ namespace Nop.Services.Directory
             _eventPublisher.EntityUpdated(stateProvince);
         }
 
+        //NOP 3.828
+        public virtual StateProvince GetStateProvinceByStateProvinceId(int stateProvinceId)
+        {
+            var query = from sp in _stateProvinceRepository.Table
+                        where sp.StateProvinceId == stateProvinceId
+                        select sp;
+            var stateProvince = query.FirstOrDefault();
+            return stateProvince;
+        }
+
         #endregion
     }
 }

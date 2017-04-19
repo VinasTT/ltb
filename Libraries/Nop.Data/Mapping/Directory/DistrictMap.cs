@@ -1,0 +1,21 @@
+﻿using Nop.Core.Domain.Directory;
+//NOP 3.828
+namespace Nop.Data.Mapping.Directory
+{
+    public class DistrictMap : NopEntityTypeConfiguration<District>
+    {
+        public DistrictMap()
+        {
+            ToTable("District");
+
+            HasKey(m => m.Id);
+            //Map the additional properties
+            Property(m => m.StateProvinceId);
+            Property(m => m.Name);
+            Property(m => m.Abbreviation);
+            Property(m => m.DisplayOrder);
+            Property(m => m.Published);
+            Property(m => m.LongDistance);
+        }
+    }
+}

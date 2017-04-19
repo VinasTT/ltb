@@ -137,6 +137,17 @@
                                         </td>
                                     </tr>
                                 }
+
+                                @*NOP 3.828*@
+                                <tr>
+                                    <td>
+                                        @T("Admin.Orders.Address.IsLongDistance")
+                                    </td>
+                                    <td>
+                                        @Model.ShippingAddress.IsLongDistance
+                                    </td>
+                                </tr>
+
                                 @if (!String.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
                                 {
                                     <tr class="custom-attributes-view">

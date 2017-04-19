@@ -86,7 +86,8 @@ namespace Nop.Web.Extensions
             Func<IList<Country>> loadCountries = null,
             bool prePopulateWithCustomerFields = false,
             Customer customer = null,
-            string overrideAttributesXml = "")
+            string overrideAttributesXml = "",
+            IDistrictService districtService = null) //NOP 3.828
         {
             if (model == null)
                 throw new ArgumentNullException("model");
@@ -109,6 +110,15 @@ namespace Nop.Web.Extensions
                 model.StateProvinceName = address.StateProvince != null 
                     ? address.StateProvince.GetLocalized(x => x.Name)
                     : null;
+                //NOP 3.828
+                model.DistrictId = address.DistrictId;
+                model.DistrictName = address.District != null
+                    ? address.District.Name
+                    : null;
+
+                if(model.DistrictId != null && districtService != null)
+                    model.StateProvinceMappingId = districtService.GetStateProvinceMappingId(model.DistrictId);
+
                 model.City = address.City;
                 model.Address1 = address.Address1;
                 model.Address2 = address.Address2;
@@ -166,7 +176,7 @@ namespace Nop.Web.Extensions
                     if (states.Any())
                     {
                         model.AvailableStates.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectState"), Value = "0" });
-
+                        
                         foreach (var s in states)
                         {
                             model.AvailableStates.Add(new SelectListItem
@@ -183,6 +193,38 @@ namespace Nop.Web.Extensions
                         model.AvailableStates.Add(new SelectListItem
                         {
                             Text = localizationService.GetResource(anyCountrySelected ? "Address.OtherNonUS" : "Address.SelectState"),
+                            Value = "0"
+                        });
+                    }
+
+
+                    //NOP 3.828
+                    if (districtService == null)
+                        throw new ArgumentNullException("districtService");
+
+                    var districts = districtService
+                       .GetDistrictsByStateProvinceId(model.StateProvinceMappingId.HasValue ? model.StateProvinceMappingId.Value : 0, languageId)
+                       .ToList();
+                    if (districts.Any())
+                    {
+                        model.AvailableDistricts.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectDistrict"), Value = "0" });
+
+                        foreach (var s in districts)
+                        {
+                            model.AvailableDistricts.Add(new SelectListItem
+                            {
+                                Text = s.Name,
+                                Value = s.Id.ToString(),
+                                Selected = (s.Id == model.DistrictId)
+                            });
+                        }
+                    }
+                    else
+                    {
+                        bool anyStateSelected = model.AvailableDistricts.Any(x => x.Selected);
+                        model.AvailableDistricts.Add(new SelectListItem
+                        {
+                            Text = localizationService.GetResource(anyStateSelected ? "Address.OtherNonUS" : "Address.SelectDistrict"),
                             Value = "0"
                         });
                     }
@@ -359,6 +401,7 @@ namespace Nop.Web.Extensions
             destination.ZipPostalCode = model.ZipPostalCode;
             destination.PhoneNumber = model.PhoneNumber;
             destination.FaxNumber = model.FaxNumber;
+            destination.DistrictId = model.DistrictId; //NOP 3.828
 
             return destination;
         }

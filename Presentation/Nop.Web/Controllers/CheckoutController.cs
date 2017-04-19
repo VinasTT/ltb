@@ -71,6 +71,7 @@ namespace Nop.Web.Controllers
         private readonly CustomerSettings _customerSettings;
 
         private readonly ISMSNotificationService _smsNotificationService; //BUGFIX 3.806
+        private readonly IDistrictService _districtService; //NOP 3.828
 
         #endregion
 
@@ -107,7 +108,8 @@ namespace Nop.Web.Controllers
             ShippingSettings shippingSettings,
             AddressSettings addressSettings,
             CustomerSettings customerSettings,
-            ISMSNotificationService smsNotificationService) //BUGFIX 3.806
+            ISMSNotificationService smsNotificationService, //BUGFIX 3.806
+            IDistrictService districtService) //NOP 3.828
         {
             this._workContext = workContext;
             this._storeContext = storeContext;
@@ -142,6 +144,7 @@ namespace Nop.Web.Controllers
             this._addressSettings = addressSettings;
             this._customerSettings = customerSettings;
             this._smsNotificationService = smsNotificationService; //BUGFIX 3.806
+            this._districtService = districtService; //NOP 3.828
         }
 
         #endregion
@@ -187,7 +190,8 @@ namespace Nop.Web.Controllers
                     address: address, 
                     excludeProperties: false, 
                     addressSettings: _addressSettings,
-                    addressAttributeFormatter: _addressAttributeFormatter);
+                    addressAttributeFormatter: _addressAttributeFormatter,
+                    districtService: _districtService); //NOP 3.828
                 model.ExistingAddresses.Add(addressModel);
             }
 
@@ -204,7 +208,8 @@ namespace Nop.Web.Controllers
                 loadCountries: () => _countryService.GetAllCountriesForBilling(_workContext.WorkingLanguage.Id),
                 prePopulateWithCustomerFields: prePopulateNewAddressWithCustomerFields,
                 customer: _workContext.CurrentCustomer,
-                overrideAttributesXml: overrideAttributesXml);
+                overrideAttributesXml: overrideAttributesXml,
+                districtService: _districtService); //NOP 3.828
             return model;
         }
 
@@ -287,7 +292,8 @@ namespace Nop.Web.Controllers
                     address: address,
                     excludeProperties: false,
                     addressSettings: _addressSettings,
-                    addressAttributeFormatter: _addressAttributeFormatter);
+                    addressAttributeFormatter: _addressAttributeFormatter,
+                    districtService: _districtService); //NOP 3.828
                 model.ExistingAddresses.Add(addressModel);
             }
 
@@ -304,7 +310,8 @@ namespace Nop.Web.Controllers
                 loadCountries: () => _countryService.GetAllCountriesForShipping(_workContext.WorkingLanguage.Id),
                 prePopulateWithCustomerFields: prePopulateNewAddressWithCustomerFields,
                 customer: _workContext.CurrentCustomer,
-                overrideAttributesXml: overrideAttributesXml);
+                overrideAttributesXml: overrideAttributesXml,
+                districtService: _districtService); //NOP 3.828
 
             return model;
         }
@@ -706,7 +713,8 @@ namespace Nop.Web.Controllers
                     model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                     model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                     model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                    model.NewAddress.CountryId, customAttributes);
+                    model.NewAddress.CountryId, customAttributes,
+                    model.NewAddress.DistrictId); //NOP 3.828
                 if (address == null)
                 {
                     //address is not found. let's create a new one
@@ -718,6 +726,9 @@ namespace Nop.Web.Controllers
                         address.CountryId = null;
                     if (address.StateProvinceId == 0)
                         address.StateProvinceId = null;
+                    //NOP 3.828
+                    if (address.DistrictId == 0)
+                        address.DistrictId = null;
                     _workContext.CurrentCustomer.Addresses.Add(address);
                 }
                 _workContext.CurrentCustomer.BillingAddress = address;
@@ -780,6 +791,8 @@ namespace Nop.Web.Controllers
             var address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == addressId);
             if (address == null)
                 return RedirectToRoute("CheckoutShippingAddress");
+
+            address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
 
             _workContext.CurrentCustomer.ShippingAddress = address;
             _customerService.UpdateCustomer(_workContext.CurrentCustomer);
@@ -869,7 +882,11 @@ namespace Nop.Web.Controllers
                     model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                     model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                     model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                    model.NewAddress.CountryId, customAttributes);
+                    model.NewAddress.CountryId, customAttributes,
+                    model.NewAddress.DistrictId); //NOP 3.828
+
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
+
                 if (address == null)
                 {
                     address = model.NewAddress.ToEntity();
@@ -880,6 +897,9 @@ namespace Nop.Web.Controllers
                         address.CountryId = null;
                     if (address.StateProvinceId == 0)
                         address.StateProvinceId = null;
+                    //NOP 3.828
+                    if (address.DistrictId == 0)
+                        address.DistrictId = null;
                     _workContext.CurrentCustomer.Addresses.Add(address);
                 }
                 _workContext.CurrentCustomer.ShippingAddress = address;
@@ -1559,7 +1579,8 @@ namespace Nop.Web.Controllers
                         model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                         model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                         model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                        model.NewAddress.CountryId, customAttributes);
+                        model.NewAddress.CountryId, customAttributes,
+                        model.NewAddress.DistrictId); //NOP 3.828
                     if (address == null)
                     {
                         //address is not found. let's create a new one
@@ -1742,7 +1763,8 @@ namespace Nop.Web.Controllers
                         model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                         model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                         model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                        model.NewAddress.CountryId, customAttributes);
+                        model.NewAddress.CountryId, customAttributes,
+                        model.NewAddress.DistrictId); //NOP 3.828
                     if (address == null)
                     {
                         address = model.NewAddress.ToEntity();

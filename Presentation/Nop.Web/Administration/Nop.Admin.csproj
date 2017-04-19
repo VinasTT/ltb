@@ -239,6 +239,7 @@
     <Compile Include="Models\Common\SystemInfoModel.cs" />
     <Compile Include="Models\Customers\CustomerAttributeModel.cs" />
     <Compile Include="Models\Customers\CustomerAttributeValueModel.cs" />
+    <Compile Include="Models\Directory\DistrictModel.cs" />
     <Compile Include="Models\Discounts\DiscountListModel.cs" />
     <Compile Include="Models\Home\NopCommerceNewsModel.cs" />
     <Compile Include="Models\Home\CommonStatisticsModel.cs" />
@@ -2140,6 +2141,10 @@
     <Content Include="Views\Product\_CreateOrUpdate.PurchasedWithOrders.cshtml" />
     <Content Include="Views\Common\AclDisabledWarning.cshtml" />
     <Content Include="Views\Common\MultistoreDisabledWarning.cshtml" />
+    <Content Include="Views\Country\DistrictEdit.cshtml" />
+    <Content Include="Views\Country\_CreateOrUpdateDistrict.cshtml" />
+    <Content Include="Views\Country\DistrictEditPopup.cshtml" />
+    <Content Include="Views\Country\_CreateOrUpdateDistrictPopup.cshtml" />
     <None Include="Views\Product\_ProductAttributes.cshtml" />
     <Content Include="Views\Setting\_ReturnRequestReasons.cshtml" />
     <Content Include="Views\Setting\ReturnRequestReasonEdit.cshtml" />

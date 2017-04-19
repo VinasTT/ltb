@@ -547,6 +547,14 @@ namespace Nop.Web.Infrastructure
                             new { controller = "Country", action = "GetStatesByCountryId" },
                             new[] { "Nop.Web.Controllers" });
 
+            //NOP 3.828
+            //get district list by state ID  (AJAX link)
+            routes.MapRoute("GetDistrictsByStateId",
+                            "country/getdistrictsbystateid/",
+                            new { controller = "Country", action = "GetDistrictsByStateId" },
+                            new[] { "Nop.Web.Controllers" });
+            
+
             //EU Cookie law accept button handler (AJAX link)
             routes.MapRoute("EuCookieLawAccept",
                             "eucookielawaccept",

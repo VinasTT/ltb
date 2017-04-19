@@ -881,6 +881,24 @@ namespace Nop.Admin.Extensions
             return model.MapTo(destination);
         }
 
+        // NOP 3.828
+        public static DistrictModel ToModel(this District entity)
+        {
+            return entity.MapTo<District, DistrictModel>();
+        }
+
+        // NOP 3.828
+        public static District ToEntity(this DistrictModel model)
+        {
+            return model.MapTo<DistrictModel, District>();
+        }
+
+        // NOP 3.828
+        public static District ToEntity(this DistrictModel model, District destination)
+        {
+            return model.MapTo(destination);
+        }
+
 
         #endregion
 

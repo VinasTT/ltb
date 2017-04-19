@@ -106,8 +106,17 @@ namespace Nop.Core.Domain.Common
                 FaxNumber = this.FaxNumber,
                 CustomAttributes = this.CustomAttributes,
                 CreatedOnUtc = this.CreatedOnUtc,
+                IsLongDistance = this.IsLongDistance, //NOP 3.828
+                DistrictId = this.DistrictId, //NOP 3.828
+                District = this.District //NOP 3.828
             };
             return addr;
         }
+
+        public bool? IsLongDistance { get; set; } //NOP 3.828
+
+        public int? DistrictId { get; set; } //NOP 3.828
+
+        public virtual District District { get; set; } //NOP 3.828
     }
 }

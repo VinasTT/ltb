@@ -19,6 +19,7 @@ namespace Nop.Web.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly IWorkContext _workContext;
         private readonly ICacheManager _cacheManager;
+        private readonly IDistrictService _districtService; //NOP 3.828
 
 	    #endregion
 
@@ -28,13 +29,15 @@ namespace Nop.Web.Controllers
             IStateProvinceService stateProvinceService, 
             ILocalizationService localizationService, 
             IWorkContext workContext,
-            ICacheManager cacheManager)
+            ICacheManager cacheManager,
+            IDistrictService districtService) //NOP 3.828
 		{
             this._countryService = countryService;
             this._stateProvinceService = stateProvinceService;
             this._localizationService = localizationService;
             this._workContext = workContext;
             this._cacheManager = cacheManager;
+            this._districtService = districtService; //NOP 3.828
 		}
 
         #endregion
@@ -96,6 +99,58 @@ namespace Nop.Web.Controllers
             return Json(cacheModel, JsonRequestBehavior.AllowGet);
         }
 
+
+        //NOP 3.828
+        //available even when navigation is not allowed
+        [PublicStoreAllowNavigation(true)]
+        [AcceptVerbs(HttpVerbs.Get)]
+        public ActionResult GetDistrictsByStateId(string stateId, bool addSelectDistrictItem)
+        {
+            //this action method gets called via an ajax request
+            if (String.IsNullOrEmpty(stateId))
+                throw new ArgumentNullException("stateId");
+
+                var state = _stateProvinceService.GetStateProvinceById(Convert.ToInt32(stateId));
+                var districts = _districtService.GetDistrictsByStateProvinceId(state != null ? state.StateProvinceId : 0, _workContext.WorkingLanguage.Id).ToList();
+                var result = (from s in districts
+                              select new { id = s.Id, name = s.Name })
+                              .ToList();
+
+
+                if (state == null)
+                {
+                    //country is not selected ("choose country" item)
+                    if (addSelectDistrictItem)
+                    {
+                        result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.SelectDistrict") });
+                    }
+                    else
+                    {
+                        result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.OtherNonUS") });
+                    }
+                }
+                else
+                {
+                    //some country is selected
+                    if (!result.Any())
+                    {
+                        //country does not have states
+                        result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.OtherNonUS") });
+                    }
+                    else
+                    {
+                        //country has some states
+                        if (addSelectDistrictItem)
+                        {
+                            result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.SelectDistrict") });
+                        }
+                    }
+                }
+
+                
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }

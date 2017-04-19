@@ -39,6 +39,10 @@ namespace Nop.Admin.Models.Orders
 
         public IList<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; }
 
+        //NOP 3.828
+        [NopResourceDisplayName("Admin.Orders.Shipments.IsLongDistance")]
+        public bool? IsLongDistance { get; set; } 
+
         #region Nested classes
 
         public partial class ShipmentItemModel : BaseNopEntityModel

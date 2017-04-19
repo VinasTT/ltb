@@ -663,6 +663,7 @@ namespace Nop.Admin.Controllers
                 if (!order.PickUpInStore)
                 {
                     model.ShippingAddress = order.ShippingAddress.ToModel();
+                    model.ShippingAddress.IsLongDistance = order.ShippingAddress.IsLongDistance; //NOP 3.828
                     model.ShippingAddress.FormattedCustomAddressAttributes = _addressAttributeFormatter.FormatAttributes(order.ShippingAddress.CustomAttributes);
                     model.ShippingAddress.FirstNameEnabled = true;
                     model.ShippingAddress.FirstNameRequired = true;
@@ -904,6 +905,10 @@ namespace Nop.Admin.Controllers
                 CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue,
                 AdminComment = shipment.AdminComment,
             };
+
+            //NOP 3.828
+            var order = _orderService.GetOrderById(shipment.OrderId);
+            model.IsLongDistance = order.ShippingAddress.IsLongDistance;
 
             if (prepareProducts)
             {

@@ -90,6 +90,7 @@ namespace Nop.Admin.Controllers
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly IRewardPointService _rewardPointService;
         private readonly ISMSNotificationService _smsNotificationService; //NOP 3.827
+        private readonly IDistrictService _districtService; //NOP 3.828
 
         #endregion
 
@@ -137,7 +138,8 @@ namespace Nop.Admin.Controllers
             IAffiliateService affiliateService,
             IWorkflowMessageService workflowMessageService,
             IRewardPointService rewardPointService,
-            ISMSNotificationService smsNotificationService) //NOP 3.827
+            ISMSNotificationService smsNotificationService, //NOP 3.827
+            IDistrictService districtService) //NOP 3.828
         {
             this._customerService = customerService;
             this._newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -182,6 +184,7 @@ namespace Nop.Admin.Controllers
             this._workflowMessageService = workflowMessageService;
             this._rewardPointService = rewardPointService;
             this._smsNotificationService = smsNotificationService; //NOP 3.827
+            this._districtService = districtService; //NOP 3.828
         }
 
         #endregion
@@ -750,6 +753,19 @@ namespace Nop.Admin.Controllers
             }
             else
                 model.Address.AvailableStates.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Address.OtherNonUS"), Value = "0" });
+
+            //NOP 3.828
+            var stateProvinceMappingId = _districtService.GetStateProvinceMappingId(model.Address.DistrictId);
+            var districts = stateProvinceMappingId > 0 ? _districtService.GetDistrictsByStateProvinceId(stateProvinceMappingId, showHidden: true).ToList() : new List<District>();
+            if (districts.Any())
+            {
+                foreach (var d in districts)
+                    model.Address.AvailableDistricts.Add(new SelectListItem { Text = d.Name, Value = d.Id.ToString(), Selected = (d.Id == model.Address.DistrictId) });
+            }
+            else
+                model.Address.AvailableDistricts.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Address.OtherNonUS"), Value = "0" });
+
+
             //customer attribute services
             model.Address.PrepareCustomAddressAttributes(address, _addressAttributeService, _addressAttributeParser);
         }
@@ -1717,6 +1733,7 @@ namespace Nop.Admin.Controllers
                         addressHtmlSb.AppendFormat("{0}<br />", Server.HtmlEncode(model.Address2));
                     if (_addressSettings.CityEnabled && !String.IsNullOrEmpty(model.City))
                         addressHtmlSb.AppendFormat("{0},", Server.HtmlEncode(model.City));
+                    addressHtmlSb.AppendFormat("{0},", Server.HtmlEncode(model.DistrictName)); //NOP 3.828
                     if (_addressSettings.StateProvinceEnabled && !String.IsNullOrEmpty(model.StateProvinceName))
                         addressHtmlSb.AppendFormat("{0},", Server.HtmlEncode(model.StateProvinceName));
                     if (_addressSettings.ZipPostalCodeEnabled && !String.IsNullOrEmpty(model.ZipPostalCode))
@@ -1807,6 +1824,11 @@ namespace Nop.Admin.Controllers
                     address.CountryId = null;
                 if (address.StateProvinceId == 0)
                     address.StateProvinceId = null;
+                //NOP 3.828
+                if (address.DistrictId == 0)
+                    address.DistrictId = null;
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address); 
+
                 customer.Addresses.Add(address);
                 _customerService.UpdateCustomer(customer);
 
@@ -1868,6 +1890,7 @@ namespace Nop.Admin.Controllers
             {
                 address = model.Address.ToEntity(address);
                 address.CustomAttributes = customAttributes;
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
                 _addressService.UpdateAddress(address);
 
                 SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Addresses.Updated"));

@@ -16,6 +16,7 @@ namespace Nop.Admin.Models.Common
             AvailableCountries = new List<SelectListItem>();
             AvailableStates = new List<SelectListItem>();
             CustomAddressAttributes = new List<AddressAttributeModel>();
+            AvailableDistricts = new List<SelectListItem>(); //NOP 3.828
         }
 
         [NopResourceDisplayName("Admin.Address.Fields.FirstName")]
@@ -83,8 +84,18 @@ namespace Nop.Admin.Models.Common
 
         public IList<SelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; }
+        public IList<SelectListItem> AvailableDistricts { get; set; } //NOP 3.828
 
+        public bool? IsLongDistance { get; set; } //NOP 3.828
 
+        //NOP 3.828
+        [NopResourceDisplayName("Admin.Address.Fields.District")]
+        public int? DistrictId { get; set; }
+
+        //NOP 3.828
+        [NopResourceDisplayName("Admin.Address.Fields.District")]
+        [AllowHtml]
+        public string DistrictName { get; set; }
 
         public bool FirstNameEnabled { get; set; }
         public bool FirstNameRequired { get; set; }

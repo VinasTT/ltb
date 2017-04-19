@@ -37,6 +37,8 @@ namespace Nop.Core.Domain.Directory
         /// Gets or sets the country
         /// </summary>
         public virtual Country Country { get; set; }
+
+        public int StateProvinceId { get; set; } //NOP 3.828
     }
 
 }

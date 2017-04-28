@@ -17,16 +17,19 @@ namespace Nop.Services.Messages
         private readonly IMessageTemplateService _messageTemplateService;
         private readonly IStoreService _storeService;
         private readonly IStoreContext _storeContext;
+        private readonly IRepository<SMSNotificationLog> _smsLogRepository; //NOP 3.829
 
         public SMSNotificationService(IRepository<SMSNotificationRecord> SMSRepository,
             IMessageTemplateService messageTemplateService,
             IStoreService storeService,
-            IStoreContext storeContext)
+            IStoreContext storeContext,
+            IRepository<SMSNotificationLog> smsLogRepository) //NOP 3.829
         {
             _SMSRepository = SMSRepository;
             this._messageTemplateService = messageTemplateService;
             this._storeService = storeService;
             this._storeContext = storeContext;
+            this._smsLogRepository = smsLogRepository; //NOP 3.829
         }
         
        
@@ -135,6 +138,24 @@ namespace Nop.Services.Messages
                 return null;
         }
 
+        //NOP 3.829
+        public virtual void InsertSMSLogRecord(SMSNotificationLog smsNotificationLog)
+        {
+            if (smsNotificationLog == null)
+                throw new ArgumentNullException("SMSNotificationLog");
+
+            _smsLogRepository.Insert(smsNotificationLog);
+        }
+
+        //NOP 3.829
+        public virtual void UpdateSMSLogRecord(SMSNotificationLog smsNotificationLog)
+        {
+            if (smsNotificationLog == null)
+                throw new ArgumentNullException("SMSNotificationLog");
+
+            _smsLogRepository.Update(smsNotificationLog);
+        }
+
         public bool SendSMS(string messageTemplate, string fromNumber, string toNumber, string toName,
             string userName, string password, string baseURL, string resource, string countryCode)
         {
@@ -158,14 +179,35 @@ namespace Nop.Services.Messages
                 text = messageTemplate
             });
 
+            //NOP 3.829
+            var SMSNotificationLog = new SMSNotificationLog()
+            {
+                PhoneNumber = toNumber,
+                Message = messageTemplate,
+                CreatedOnUtc = DateTime.UtcNow
+            };
+
+            InsertSMSLogRecord(SMSNotificationLog);
+            //NOP 3.829
 
             // execute the request
             var response = client.Execute<SMSNotificationResponse>(request);
             var content = response.Data;
 
-            foreach (var item in content.messages)
+            client = new RestClient("https://api.infobip.com/sms/1/reports" + "?" + content.messages[0].messageId);
+
+            request = new RestRequest(Method.GET);
+            request.AddHeader("accept", "application/json");
+            request.AddHeader("Authorization", "Basic " + encodedUP);
+
+            var reportResponse = client.Execute<SMSNotificationReportResponse>(request);
+            var reportContent = reportResponse.Data;
+
+            foreach (var item in reportContent.results)
             {
-                if (item.status.name == "PENDING_ENROUTE")
+                SMSNotificationLog.Status = item.status.name; //NOP 3.829
+                UpdateSMSLogRecord(SMSNotificationLog); //NOP 3.829
+                if (item.status.name == "DELIVERED_TO_HANDSET")
                     return true;
             }
 

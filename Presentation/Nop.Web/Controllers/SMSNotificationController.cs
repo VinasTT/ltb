@@ -79,6 +79,10 @@ namespace Nop.Web.Controllers
                 {
                     return View("ValidatePhoneResult", model);
                 }
+                else
+                {
+                    ModelState.AddModelError("", _localizationService.GetResource("Account.Validatephone.Wrongnumber")); //NOP 3.829
+                }
                 //NOP 3.825
             }
             return View("ValidatePhone", model);

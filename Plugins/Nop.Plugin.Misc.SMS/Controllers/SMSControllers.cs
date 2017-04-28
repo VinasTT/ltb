@@ -477,9 +477,17 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                         model.SmsRecordModel.Active = false; //BUGFIX 3.803
                         _smsService.InsertSMSRecord(model.SmsRecordModel);
                         if (_smsService.SendRegistrationSMS(model))
-                        //send sms code
+                        {
                             return View("~/Plugins/Misc.SMS/Views/RegisterResultSMS.cshtml", model.SmsRecordModel);
-                        
+                        }
+                        else
+                        {
+                            //NOP 3.829
+                            ModelState.AddModelError("", _localizationService.GetResource("Account.Validatephone.Wrongnumber")); 
+                            PrepareCustomerRegisterModel(model.RegisterModel, true, customerAttributesXml);
+                            return View("~/Plugins/Misc.SMS/Views/Register.cshtml", model);
+                        }
+                            
                     }
                     switch (_customerSettings.UserRegistrationType)
                     {

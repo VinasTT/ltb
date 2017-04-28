@@ -117,7 +117,9 @@
     <Compile Include="Domain\Forums\ForumPostVote.cs" />
     <Compile Include="Domain\Messages\MessageDelayPeriod.cs" />
     <Compile Include="Domain\Messages\QueuedEmailPriority.cs" />
+    <Compile Include="Domain\Messages\SMSNotificationLog.cs" />
     <Compile Include="Domain\Messages\SMSNotificationRequest.cs" />
+    <Compile Include="Domain\Messages\SMSNotificationReportResponse.cs" />
     <Compile Include="Domain\Messages\SMSNotificationSettings.cs" />
     <Compile Include="Domain\Messages\SMSNotificationRecord.cs" />
     <Compile Include="Domain\Messages\SMSNotificationResponse.cs" />

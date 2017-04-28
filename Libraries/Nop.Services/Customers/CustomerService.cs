@@ -196,7 +196,7 @@ namespace Nop.Services.Customers
             {
                 query = query
                     .Join(_smsNotificationRepository.Table, x => x.Id, y => y.CustomerId, (x, y) => new { Customer = x, SMS = y })
-                    .Where((z => z.SMS.PhoneNumber == phoneNumber))
+                    .Where((z => z.SMS.PhoneNumber.Contains(phoneNumber))) //BUGFIX 3.807
                     .Select(z => z.Customer);
             }
             //date of birth is stored as a string into database.

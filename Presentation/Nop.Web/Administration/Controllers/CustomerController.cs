@@ -896,8 +896,11 @@ namespace Nop.Admin.Controllers
             {
                 ModelState.AddModelError("", "Phone number already exists");
             }
-            smsNotificationRecord.PhoneNumber = model.PhoneNumber;
-            smsNotificationRecord.Active = model.PhoneActivated;
+            else //BUGFIX 3.808
+            {
+                smsNotificationRecord.PhoneNumber = model.PhoneNumber;
+                smsNotificationRecord.Active = model.PhoneActivated;
+            }
 
             //validate customer roles
             var allCustomerRoles = _customerService.GetAllCustomerRoles(true);
@@ -1128,8 +1131,11 @@ namespace Nop.Admin.Controllers
                 ModelState.AddModelError("", "Phone number already exists");
                 ErrorNotification("Phone number already exists. Please enter a different phone number", false);
             }
-            smsNotificationRecord.PhoneNumber = model.PhoneNumber;
-            smsNotificationRecord.Active = model.PhoneActivated;
+            else //BUGFIX 3.808
+            {
+                smsNotificationRecord.PhoneNumber = model.PhoneNumber;
+                smsNotificationRecord.Active = model.PhoneActivated;
+            }
 
             if (ModelState.IsValid)
             {

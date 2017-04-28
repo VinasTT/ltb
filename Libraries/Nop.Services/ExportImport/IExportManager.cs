@@ -32,6 +32,13 @@ namespace Nop.Services.ExportImport
         //NOP 3.826
         byte[] ExportDiscountsToXlsx(IEnumerable<Discount> discounts);
 
+
+        //NOP 3.830
+        string ExportGiftCardsToXml(IList<GiftCard> giftCards);
+
+        //NOP 3.830
+        byte[] ExportGiftCardsToXlsx(IEnumerable<GiftCard> giftCards);
+
         /// <summary>
         /// Export category list to xml
         /// </summary>

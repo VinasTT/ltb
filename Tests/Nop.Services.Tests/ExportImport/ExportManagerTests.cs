@@ -23,6 +23,7 @@ using Nop.Services.Vendors;
 using NUnit.Framework;
 using Rhino.Mocks;
 using Nop.Services.Discounts;
+using Nop.Services.Orders;
 
 namespace Nop.Services.Tests.ExportImport
 {
@@ -45,6 +46,7 @@ namespace Nop.Services.Tests.ExportImport
         private IMeasureService _measureService;
         private CatalogSettings _catalogSettings;
         private IDiscountService _discountService; //NOP 3.826
+        private IGiftCardService _giftCardService; //NOP 3.830
 
         [SetUp]
         public new void SetUp()
@@ -64,14 +66,15 @@ namespace Nop.Services.Tests.ExportImport
             _measureService = MockRepository.GenerateMock<IMeasureService>();
             _catalogSettings=new CatalogSettings();
             _discountService = MockRepository.GenerateMock<IDiscountService>(); //NOP 3.826
-
+            _giftCardService = MockRepository.GenerateMock<IGiftCardService>(); //NOP 3.830
             _exportManager = new ExportManager(_categoryService,
                 _manufacturerService, _productAttributeService, 
                 _pictureService, _newsLetterSubscriptionService,
                 _storeService, _workContext, _productEditorSettings, 
                 _vendorService, _productTemplateService, _shippingService,
                 _taxCategoryService, _measureService, _catalogSettings,
-                _discountService); //NOP 3.826
+                _discountService, //NOP 3.826
+                _giftCardService); //NOP 3.830
         }
 
         //[Test]

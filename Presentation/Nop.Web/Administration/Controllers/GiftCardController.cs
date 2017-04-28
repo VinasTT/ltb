@@ -18,6 +18,8 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
+using Nop.Services.ExportImport;
+using Nop.Web.Framework.Mvc;
 
 namespace Nop.Admin.Controllers
 {
@@ -36,6 +38,7 @@ namespace Nop.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IPermissionService _permissionService;
+        private readonly IExportManager _exportManager; //NOP 3.830
 
         #endregion
 
@@ -46,7 +49,8 @@ namespace Nop.Admin.Controllers
             IDateTimeHelper dateTimeHelper, LocalizationSettings localizationSettings,
             ICurrencyService currencyService, CurrencySettings currencySettings,
             ILocalizationService localizationService, ILanguageService languageService,
-            ICustomerActivityService customerActivityService, IPermissionService permissionService)
+            ICustomerActivityService customerActivityService, IPermissionService permissionService,
+            IExportManager exportManager) //NOP 3.830
         {
             this._giftCardService = giftCardService;
             this._priceFormatter = priceFormatter;
@@ -59,6 +63,7 @@ namespace Nop.Admin.Controllers
             this._languageService = languageService;
             this._customerActivityService = customerActivityService;
             this._permissionService = permissionService;
+            this._exportManager = exportManager; //NOP 3.830
         }
 
         #endregion
@@ -326,6 +331,43 @@ namespace Nop.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        //NOP 3.830
+        public ActionResult ExportXml()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageDiscounts))
+                return AccessDeniedView();
+            try
+            {
+                var giftCards = _giftCardService.GetAllGiftCards();
+                var xml = _exportManager.ExportGiftCardsToXml(giftCards);
+                return new XmlDownloadResult(xml, "giftcards.xml");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
+        //NOP 3.830
+        public ActionResult ExportXlsx()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageDiscounts))
+                return AccessDeniedView();
+
+            try
+            {
+                var bytes = _exportManager.ExportGiftCardsToXlsx(_giftCardService.GetAllGiftCards());
+
+                return File(bytes, MimeTypes.TextXlsx, "giftcards.xlsx");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
         }
 
         #endregion

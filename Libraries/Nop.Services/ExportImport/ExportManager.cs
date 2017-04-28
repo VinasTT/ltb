@@ -29,6 +29,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using Nop.Core.Domain.Discounts;
 using Nop.Services.Discounts;
+using Nop.Services.Orders;
 
 namespace Nop.Services.ExportImport
 {
@@ -54,6 +55,7 @@ namespace Nop.Services.ExportImport
         private readonly IMeasureService _measureService;
         private readonly CatalogSettings _catalogSettings;
         private readonly IDiscountService _discountService; //NOP 3.826
+        private readonly IGiftCardService _giftCardService; //NOP 3.830
 
         #endregion
 
@@ -73,7 +75,8 @@ namespace Nop.Services.ExportImport
             ITaxCategoryService taxCategoryService,
             IMeasureService measureService,
             CatalogSettings catalogSettings,
-            IDiscountService discountService) //NOP 3.826
+            IDiscountService discountService, //NOP 3.826
+            IGiftCardService giftCardService) //NOP 3.830
         {
             this._categoryService = categoryService;
             this._manufacturerService = manufacturerService;
@@ -90,6 +93,7 @@ namespace Nop.Services.ExportImport
             this._measureService = measureService;
             this._catalogSettings = catalogSettings;
             this._discountService = discountService; //NOP 3.826
+            this._giftCardService = giftCardService; //NOP 3.830
         }
 
         #endregion
@@ -389,7 +393,86 @@ namespace Nop.Services.ExportImport
         #endregion
 
         #region Methods
+        //NOP 3.830
+        public string ExportGiftCardsToXml(IList<GiftCard> giftCards)
+        {
+            var sb = new StringBuilder();
+            var stringWriter = new StringWriter(sb);
+            var xmlWriter = new XmlTextWriter(stringWriter);
+            xmlWriter.WriteStartDocument();
+            xmlWriter.WriteStartElement("GiftCards");
+            xmlWriter.WriteAttributeString("Version", NopVersion.CurrentVersion);
 
+            foreach (var giftCard in giftCards)
+            {
+                xmlWriter.WriteStartElement("GiftCard");
+
+                xmlWriter.WriteElementString("GiftCardId", null, giftCard.Id.ToString());
+                xmlWriter.WriteElementString("PurchasedWithOrderItemId", null, giftCard.PurchasedWithOrderItemId.ToString());
+                xmlWriter.WriteElementString("GiftCardTypeId", null, giftCard.GiftCardTypeId.ToString());
+                xmlWriter.WriteElementString("Amount", null, giftCard.Amount.ToString());
+                xmlWriter.WriteElementString("IsGiftCardActivated", null, giftCard.IsGiftCardActivated.ToString());
+                xmlWriter.WriteElementString("GiftCardCouponCode", null, giftCard.GiftCardCouponCode.ToString());
+                xmlWriter.WriteElementString("RecipientName", null, giftCard.RecipientName.ToString());
+                xmlWriter.WriteElementString("RecipientEmail", null, giftCard.RecipientEmail.ToString());
+                xmlWriter.WriteElementString("SenderName", null, giftCard.SenderName.ToString());
+                xmlWriter.WriteElementString("SenderEmail", null, giftCard.SenderEmail.ToString());
+                xmlWriter.WriteElementString("Message", null, giftCard.Message);
+                xmlWriter.WriteElementString("IsRecipientNotified", null, giftCard.IsRecipientNotified.ToString());
+                xmlWriter.WriteElementString("CreatedOnUtc", null, giftCard.CreatedOnUtc.ToString());
+
+                xmlWriter.WriteStartElement("GiftCardUsageHistory");
+                var giftCardUsageHistory = giftCard.GiftCardUsageHistory.OrderByDescending(gcuh => gcuh.CreatedOnUtc);
+               
+                if (giftCardUsageHistory != null)
+                {
+                    foreach (var giftCardUsage in giftCardUsageHistory)
+                    {
+                        if (giftCardUsage != null)
+                        {
+                            xmlWriter.WriteStartElement("GiftCardUsage");
+                            xmlWriter.WriteElementString("GiftCardUsageId", null, giftCardUsage.Id.ToString());
+                            xmlWriter.WriteElementString("UsedValue", null, giftCardUsage.UsedValue.ToString());
+                            xmlWriter.WriteElementString("UsedWithOrderId", null, giftCardUsage.UsedWithOrderId.ToString());
+                            xmlWriter.WriteElementString("CreatedOnUtc", null, giftCardUsage.CreatedOnUtc.ToString());
+                            xmlWriter.WriteEndElement();
+                        }
+                    }
+                }
+                xmlWriter.WriteEndElement();
+
+                xmlWriter.WriteEndElement();
+            }
+
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndDocument();
+            xmlWriter.Close();
+            return stringWriter.ToString();
+
+        }
+
+        //NOP 3.830
+        public byte[] ExportGiftCardsToXlsx(IEnumerable<GiftCard> giftCards)
+        {
+            //property array
+            var properties = new[]
+            {
+                new PropertyByName<GiftCard>("Id", p => p.Id),
+                new PropertyByName<GiftCard>("PurchasedWithOrderItemId", p => p.PurchasedWithOrderItemId),
+                new PropertyByName<GiftCard>("GiftCardTypeId", p => p.GiftCardTypeId),
+                new PropertyByName<GiftCard>("Amount", p => p.Amount),
+                new PropertyByName<GiftCard>("IsGiftCardActivated", p => p.IsGiftCardActivated),
+                new PropertyByName<GiftCard>("GiftCardCouponCode", p => p.GiftCardCouponCode),
+                new PropertyByName<GiftCard>("RecipientName", p => p.RecipientName),
+                new PropertyByName<GiftCard>("RecipientEmail", p => p.RecipientEmail),
+                new PropertyByName<GiftCard>("SenderName", p => p.SenderName),
+                new PropertyByName<GiftCard>("SenderEmail", p => p.SenderEmail),
+                new PropertyByName<GiftCard>("Message", p => p.Message),
+                new PropertyByName<GiftCard>("CreatedOnUtc", p => p.CreatedOnUtc)
+            };
+
+            return ExportToXlsx(properties, giftCards);
+        }
 
         //NOP 3.826
         public virtual string ExportDiscountsToXml(IList<Discount> discounts)
@@ -398,7 +481,7 @@ namespace Nop.Services.ExportImport
             var stringWriter = new StringWriter(sb);
             var xmlWriter = new XmlTextWriter(stringWriter);
             xmlWriter.WriteStartDocument();
-            xmlWriter.WriteStartElement("Manufacturers");
+            xmlWriter.WriteStartElement("Discounts");
             xmlWriter.WriteAttributeString("Version", NopVersion.CurrentVersion);
 
             foreach (var discount in discounts)

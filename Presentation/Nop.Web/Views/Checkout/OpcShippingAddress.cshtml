@@ -197,6 +197,10 @@
                                 {
                                     addressLine += ", " + address.City;
                                 }
+
+                                @*BUGFIX 3.810*@
+                                addressLine += ", " + address.DistrictName;
+
                                 if (address.StateProvinceEnabled && !String.IsNullOrEmpty(address.StateProvinceName))
                                 {
                                     addressLine += ", " + address.StateProvinceName;

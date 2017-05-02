@@ -884,8 +884,7 @@ namespace Nop.Web.Controllers
                     model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
                     model.NewAddress.CountryId, customAttributes,
                     model.NewAddress.DistrictId); //NOP 3.828
-
-                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
+                
 
                 if (address == null)
                 {
@@ -900,8 +899,11 @@ namespace Nop.Web.Controllers
                     //NOP 3.828
                     if (address.DistrictId == 0)
                         address.DistrictId = null;
+                    address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                     _workContext.CurrentCustomer.Addresses.Add(address);
                 }
+
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                 _workContext.CurrentCustomer.ShippingAddress = address;
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
 
@@ -1592,12 +1594,16 @@ namespace Nop.Web.Controllers
                             address.CountryId = null;
                         if (address.StateProvinceId == 0)
                             address.StateProvinceId = null;
+                        //BUGFIX 3.810
+                        if (address.DistrictId == 0)
+                            address.DistrictId = null;
                         if (address.CountryId.HasValue && address.CountryId.Value > 0)
                         {
                             address.Country = _countryService.GetCountryById(address.CountryId.Value);
                         }
                         _workContext.CurrentCustomer.Addresses.Add(address);
                     }
+                    
                     _workContext.CurrentCustomer.BillingAddress = address;
                     _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 }
@@ -1721,6 +1727,7 @@ namespace Nop.Web.Controllers
                     if (address == null)
                         throw new Exception("Address can't be loaded");
 
+                    address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                     _workContext.CurrentCustomer.ShippingAddress = address;
                     _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 }
@@ -1784,8 +1791,15 @@ namespace Nop.Web.Controllers
                             address.CountryId = null;
                         if (address.StateProvinceId == 0)
                             address.StateProvinceId = null;
+                        //BUGFIX 3.810
+                        if (address.DistrictId == 0)
+                            address.DistrictId = null;
+
+                        address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                         _workContext.CurrentCustomer.Addresses.Add(address);
                     }
+
+                    address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                     _workContext.CurrentCustomer.ShippingAddress = address;
                     _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 }

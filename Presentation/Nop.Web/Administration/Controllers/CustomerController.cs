@@ -555,8 +555,12 @@ namespace Nop.Admin.Controllers
                     model.Fax = customer.GetAttribute<string>(SystemCustomerAttributeNames.Fax);
                     //NOP 3.827
                     var smsNotificationRecord = _smsNotificationService.GetByCustomerId(customer.Id);
-                    model.PhoneNumber = smsNotificationRecord.PhoneNumber;
-                    model.PhoneActivated = smsNotificationRecord.Active;
+                    if (smsNotificationRecord != null) //BUGFIX 3.809
+                    {
+                        model.PhoneNumber = smsNotificationRecord.PhoneNumber;
+                        model.PhoneActivated = smsNotificationRecord.Active;
+                    }
+                    
 
                 }
             }

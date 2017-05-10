@@ -23,3 +23,10 @@
      
     </div>
 </div>
+@*BUGFIX 3.811*@
+<script type="text/javascript">
+    setTimeout(function () {
+        var url = "/" + "@Model.CustomProperties["Referrer"]";
+        window.location.href = url;
+    }, 1000);
+</script>

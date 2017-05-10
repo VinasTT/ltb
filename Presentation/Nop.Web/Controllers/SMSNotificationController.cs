@@ -31,16 +31,17 @@ namespace Nop.Web.Controllers
             this._localizationService = localizationService;
         }
         // GET: SMSNotification
-        public ActionResult ValidatePhone(string phoneNumber = null) //NOP 3.825
+        public ActionResult ValidatePhone(string referrer = null) //NOP 3.825
         {
             var model = new SMSNotificationRecordModel();
-            model.PhoneNumber = phoneNumber;
+            TempData["Referrer"] = referrer;
             return View(model);
         }
 
         [HttpPost]
         public ActionResult ValidatePhone(SMSNotificationRecordModel model)
         {
+            TempData.Keep();
             if (ModelState.IsValid)
             {
                 //NOP 3.825
@@ -106,6 +107,10 @@ namespace Nop.Web.Controllers
             _smsNotificationService.UpdateSMSRecord(smsRecord);
 
             var model = new AccountActivationModel();
+            //BUGFIX 3.811
+            var referrer = TempData["Referrer"];
+            model.CustomProperties.Add("Referrer", referrer);
+
             model.Result = _localizationService.GetResource("Account.ValidatePhone.Validated"); //NOP 3.825
             return View("AccountActivation", model);
         }

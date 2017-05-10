@@ -528,7 +528,13 @@ namespace Nop.Web.Controllers
 
             //BUGFIX 3.806
             if (!_smsNotificationService.CheckIfPhoneExistsAndActive(_workContext.CurrentCustomer.Id))
-                return RedirectToRoute("ValidatePhone");
+                //BUGFIX 3.811
+                return RedirectToRoute(new
+                {
+                    controller = "SMSNotification",
+                    action = "ValidatePhone",
+                    referrer = Request.Url.PathAndQuery
+                });
 
             bool downloadableProductsRequireRegistration =
                 _customerSettings.RequireRegistrationForDownloadableProducts && cart.Any(sci => sci.Product.IsDownload);

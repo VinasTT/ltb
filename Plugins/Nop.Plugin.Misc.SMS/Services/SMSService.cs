@@ -65,7 +65,7 @@ namespace Nop.Plugin.Misc.SMS.Services
 
             var messageTemplate = model.MessageTemplate + " " + model.SmsRecordModel.ActivationCode;
             var fromNumber = model.PhoneNumber;
-            var toNumber = model.CountryCode + model.SmsRecordModel.PhoneNumber;
+            var toNumber = model.SmsRecordModel.PhoneNumber;//BUGFIX 3.812
             var toName = model.RegisterModel.FirstName + " " + model.RegisterModel.LastName;
             var userName = model.UserName;
             var password = model.Password;

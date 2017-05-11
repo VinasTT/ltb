@@ -75,6 +75,21 @@ namespace Nop.Plugin.Misc.SMS
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.MessageTemplate", "MessageTemplate");
             this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PhoneNumberFormat", "Please specify phone number in format XXXXXXXXXX");
 
+            //BUGFIX 3.812
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.ProviderNameTr", "Sağlayıcı İsmi");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.ActiveTr", "Aktif/Pasif");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.BaseURLTr", "API Url"); 
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.ResourceTr", "API Endpoint"); 
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.CountryCodeTr", "Ülke Kodu"); 
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PhoneNumberTr", "SMS Numarası");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.UserNameTr", "Kullanıcı Adı");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PasswordTr", "Şifre");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.AccountSidTr", "AccountSid");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.AuthTokenTr", "AuthToken");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.MessageTemplateTr", "Mesaj şablonu");
+            this.AddOrUpdatePluginLocaleResource("Plugins.Misc.SMS.PhoneNumberFormatTr", "Lütfen +XXXXXXXXXXX formatında giriniz");
+
+
             PluginManager.MarkPluginAsInstalled(this.PluginDescriptor.SystemName);
             base.Install();
         }

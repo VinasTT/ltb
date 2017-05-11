@@ -208,19 +208,45 @@ namespace Nop.Plugin.Misc.SMS.Controllers
         {
 
             var model = new SMSModel();
-            model.ProviderName = _smsSettings.ProviderName;
-            model.Active = _smsSettings.Active;
-            model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
-            model.Resource = _smsSettings.Resource;//NOP 3.821
-            model.CountryCode = _smsSettings.CountryCode;//NOP 3.821
-            model.PhoneNumber = _smsSettings.PhoneNumber;
-            model.UserName = _smsSettings.UserName;
-            model.Password = _smsSettings.Password;
-            model.AccountSid = _smsSettings.AccountSid;
-            model.AuthToken = _smsSettings.AuthToken;
-            model.MessageTemplate = _smsSettings.MessageTemplate;
 
-            return View("~/Plugins/Misc.SMS/Views/Configure.cshtml", model);
+            model.LanguageId = _storeContext.CurrentStore.DefaultLanguageId;
+
+            //BUGFIX 3.812
+            if (_workContext.WorkingLanguage.Name == "English") //English
+            {
+                model.ProviderName = _smsSettings.ProviderName;
+                model.Active = _smsSettings.Active;
+                model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
+                model.Resource = _smsSettings.Resource;//NOP 3.821
+                model.CountryCode = _smsSettings.CountryCode;//NOP 3.821
+                model.PhoneNumber = _smsSettings.PhoneNumber;
+                model.UserName = _smsSettings.UserName;
+                model.Password = _smsSettings.Password;
+                model.AccountSid = _smsSettings.AccountSid;
+                model.AuthToken = _smsSettings.AuthToken;
+                model.MessageTemplate = _smsSettings.MessageTemplate;
+
+                return View("~/Plugins/Misc.SMS/Views/Configure.cshtml", model);
+            }
+            else
+            {
+                model.ProviderNameTr = _smsSettings.ProviderNameTr;
+                model.ActiveTr = _smsSettings.ActiveTr;
+                model.BaseURLTr = _smsSettings.BaseURLTr;
+                model.ResourceTr = _smsSettings.ResourceTr;
+                model.CountryCodeTr = _smsSettings.CountryCodeTr;
+                model.PhoneNumberTr = _smsSettings.PhoneNumberTr;
+                model.UserNameTr = _smsSettings.UserNameTr;
+                model.PasswordTr = _smsSettings.PasswordTr;
+                model.AccountSidTr = _smsSettings.AccountSidTr;
+                model.AuthTokenTr = _smsSettings.AuthTokenTr;
+                model.MessageTemplateTr = _smsSettings.MessageTemplateTr;
+
+                return View("~/Plugins/Misc.SMS/Views/ConfigureTr.cshtml", model);
+            }
+            
+
+            
            
         }
 
@@ -235,16 +261,34 @@ namespace Nop.Plugin.Misc.SMS.Controllers
             }
 
             //save settings
-            _smsSettings.Active = model.Active;
-            _smsSettings.BaseURL = model.BaseURL;//NOP 3.821
-            _smsSettings.Resource = model.Resource;//NOP 3.821
-            _smsSettings.CountryCode = model.CountryCode;//NOP 3.821
-            _smsSettings.PhoneNumber = model.PhoneNumber;
-            _smsSettings.UserName = model.UserName;
-            _smsSettings.Password = model.Password;
-            _smsSettings.AccountSid = _smsSettings.AccountSid;
-            _smsSettings.AuthToken = _smsSettings.AuthToken;
-            _smsSettings.MessageTemplate = _smsSettings.MessageTemplate;
+            //BUGFIX 3.812
+            if (_workContext.WorkingLanguage.Name == "English") //English
+            {
+                _smsSettings.Active = model.Active;
+                _smsSettings.BaseURL = model.BaseURL;//NOP 3.821
+                _smsSettings.Resource = model.Resource;//NOP 3.821
+                _smsSettings.CountryCode = model.CountryCode;//NOP 3.821
+                _smsSettings.PhoneNumber = model.PhoneNumber;
+                _smsSettings.UserName = model.UserName;
+                _smsSettings.Password = model.Password;
+                _smsSettings.AccountSid = _smsSettings.AccountSid;
+                _smsSettings.AuthToken = _smsSettings.AuthToken;
+                _smsSettings.MessageTemplate = _smsSettings.MessageTemplate;
+                
+            }
+            else
+            {
+                _smsSettings.ActiveTr = model.ActiveTr;
+                _smsSettings.BaseURLTr = model.BaseURLTr;
+                _smsSettings.ResourceTr = model.ResourceTr;
+                _smsSettings.CountryCodeTr = model.CountryCodeTr;
+                _smsSettings.PhoneNumberTr = model.PhoneNumberTr;
+                _smsSettings.UserNameTr = model.UserNameTr;
+                _smsSettings.PasswordTr = model.PasswordTr;
+                _smsSettings.AccountSidTr = _smsSettings.AccountSidTr;
+                _smsSettings.AuthTokenTr = _smsSettings.AuthTokenTr;
+                _smsSettings.MessageTemplateTr = _smsSettings.MessageTemplateTr;
+            }
             _settingService.SaveSetting(_smsSettings);
 
             SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
@@ -265,7 +309,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
 
             var smsModel = new SMSModel();
             smsModel.RegisterModel = model;
-            smsModel.Active = _smsSettings.Active;
+            smsModel.Active = _workContext.WorkingLanguage.Name == "English" ? _smsSettings.Active : _smsSettings.ActiveTr; //BUGFIX 3.812
             var smsRecordModel = new SMSRecord();
             smsModel.SmsRecordModel = smsRecordModel;
             
@@ -466,12 +510,25 @@ namespace Nop.Plugin.Misc.SMS.Controllers
 
                     if (_smsSettings.Active && registrationResult.Success) //BUGFIX 3.801
                     {
-                        model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
-                        model.Resource = _smsSettings.Resource;//NOP 3.821
-                        model.CountryCode = _smsSettings.CountryCode;//NOP 3.821
-                        model.UserName = _smsSettings.UserName;//NOP 3.821
-                        model.Password = _smsSettings.Password;//NOP 3.821
-                        model.MessageTemplate = _smsSettings.MessageTemplate;//NOP 3.821
+                        if (_workContext.WorkingLanguage.Name == "English")
+                        {
+                            model.BaseURL = _smsSettings.BaseURL;//NOP 3.821
+                            model.Resource = _smsSettings.Resource;//NOP 3.821
+                            model.CountryCode = _smsSettings.CountryCode;//NOP 3.821
+                            model.UserName = _smsSettings.UserName;//NOP 3.821
+                            model.Password = _smsSettings.Password;//NOP 3.821
+                            model.MessageTemplate = _smsSettings.MessageTemplate;//NOP 3.821
+                        }
+                        else //BUGFIX 3.812
+                        {
+                            model.BaseURL = _smsSettings.BaseURLTr;
+                            model.Resource = _smsSettings.ResourceTr;
+                            model.CountryCode = _smsSettings.CountryCodeTr;
+                            model.UserName = _smsSettings.UserNameTr;
+                            model.Password = _smsSettings.PasswordTr;
+                            model.MessageTemplate = _smsSettings.MessageTemplateTr;
+                        }
+                        
                         model.SmsRecordModel.CustomerId = _customerService.GetCustomerByEmail(model.RegisterModel.Email).Id;
                         model.SmsRecordModel.ActivationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
                         model.SmsRecordModel.Active = false; //BUGFIX 3.803

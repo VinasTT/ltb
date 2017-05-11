@@ -161,7 +161,6 @@ namespace Nop.Services.Messages
         {
             
             var uP = userName + ":" + password;
-            var toNumberWithCountry = countryCode + toNumber;
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(uP);
             var encodedUP = System.Convert.ToBase64String(plainTextBytes);
 
@@ -175,7 +174,7 @@ namespace Nop.Services.Messages
             request.AddBody(new SMSNotificationRequest
             {
                 from = fromNumber,
-                to = toNumberWithCountry,
+                to = toNumber, //BUGFIX 3.812
                 text = messageTemplate
             });
 

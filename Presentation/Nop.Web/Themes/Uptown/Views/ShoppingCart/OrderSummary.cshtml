@@ -219,43 +219,17 @@
                     </div>
                 }
             </div>
+            
             <div class="cart-footer">
                 @Html.Widget("order_summary_cart_footer")
                 @if (Model.IsEditable)
                 {
-                    <div class="cart-collaterals">
-                        <div class="deals">
-                            @if (Model.DiscountBox.Display && !Model.GiftCardBox.Display)
-                            {
-                                <div class="title">
-                                    <strong>@T("ShoppingCart.DiscountCouponCode")</strong>
-                                </div>
-                                <div class="hint">@T("shoppingcart.discountcouponcode.tooltip")</div>
-                            }
-                            
-                            @if (Model.GiftCardBox.Display && !Model.DiscountBox.Display)
-                            {
-                                <div class="title">
-                                    <strong>@T("ShoppingCart.GiftCardCouponCode")</strong>
-                                </div>
-                                <div class="hint">@T("shoppingcart.giftcardcouponcode.tooltip")</div>
-                            }
-                            
-                            @if (Model.DiscountBox.Display && Model.GiftCardBox.Display)
-                            {
-                                <div class="title">
-                                    <strong>@T("ShoppingCart.DiscountCouponCode") &amp @T("ShoppingCart.GiftCardCouponCode")</strong>
-                                </div>
-                                <div class="hint">@T("SevenSpikes.Themes.Uptown.Common.GiftCardCouponCode.Tooltip")</div>
-                            }
-                            
-                            @Html.Partial("_DiscountBox", Model.DiscountBox)
-                            @Html.Partial("_GiftCardBox", Model.GiftCardBox)
-                            @Html.Widget("order_summary_content_deals")
-                        </div>
-                        @Html.Partial("EstimateShipping", Model.EstimateShipping)
-                    </div>
+                    
                 }
+                <div class="loyalty" style="float:left;margin-top:40px;">
+                    <img alt="Loyalty Card" src="/Themes/Uptown/Content/img/loyalty.jpg" title="Loyalty Card" />
+                </div>
+               
                 <div class="totals">
                     <div class="cart-totals-wrapper">
                         @Html.Action("OrderTotals", "ShoppingCart", new { isEditable = Model.IsEditable })

@@ -391,6 +391,11 @@ namespace Nop.Services.Catalog
         /// </param>
         /// <returns>Products</returns>
         public virtual IPagedList<Product> SearchProducts(
+            bool? overrideStock = null, //NOP 3.81
+            string integrationCode = null, //NOP 3.81
+            bool? overrideStockless = null, //NOP 3.82
+            bool? overrideNewProducts = null, //NOP 3.82
+            bool? overridePictureless = null,
             int pageIndex = 0,
             int pageSize = int.MaxValue,
             IList<int> categoryIds = null,
@@ -414,12 +419,7 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null,
-            bool? overrideStock = null, //NOP 3.81
-            string integrationCode = null, //NOP 3.81
-            bool? overrideStockless = null, //NOP 3.82
-            bool? overrideNewProducts = null, //NOP 3.82
-            bool? overridePictureless = null) //NOP 3.82
+            bool? overridePublished = null) //NOP 3.82
         {
             IList<int> filterableSpecificationAttributeOptionIds;
             return SearchProducts(out filterableSpecificationAttributeOptionIds, false,
@@ -431,6 +431,43 @@ namespace Nop.Services.Catalog
                 orderBy, showHidden, overridePublished,
                 overrideStock, integrationCode, //NOP 3.81
                 overrideStockless, overrideNewProducts, overridePictureless); //NOP 3.82
+        }
+
+
+        public virtual IPagedList<Product> SearchProducts(
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
+            IList<int> categoryIds = null,
+            int manufacturerId = 0,
+            int storeId = 0,
+            int vendorId = 0,
+            int warehouseId = 0,
+            ProductType? productType = null,
+            bool visibleIndividuallyOnly = false,
+            bool markedAsNewOnly = false,
+            bool? featuredProducts = null,
+            decimal? priceMin = null,
+            decimal? priceMax = null,
+            int productTagId = 0,
+            string keywords = null,
+            bool searchDescriptions = false,
+            bool searchManufacturerPartNumber = true,
+            bool searchSku = true,
+            bool searchProductTags = false,
+            int languageId = 0,
+            IList<int> filteredSpecs = null,
+            ProductSortingEnum orderBy = ProductSortingEnum.Position,
+            bool showHidden = false,
+            bool? overridePublished = null)
+        {
+            IList<int> filterableSpecificationAttributeOptionIds;
+            return SearchProducts(out filterableSpecificationAttributeOptionIds, false,
+                pageIndex, pageSize, categoryIds, manufacturerId,
+                storeId, vendorId, warehouseId,
+                productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts,
+                priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku,
+                searchProductTags, languageId, filteredSpecs,
+                orderBy, showHidden, overridePublished);
         }
 
         /// <summary>

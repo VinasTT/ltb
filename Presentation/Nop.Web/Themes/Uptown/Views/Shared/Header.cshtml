@@ -12,9 +12,7 @@
     @Html.Widget("header")
     <div class="header-upper">
         <div class="header-centering">
-            <div class="header-welcome-message">
-                @T("SevenSpikes.Themes.Uptown.Common.Welcome")
-            </div>
+            
             @if (isHeader1)
             {
                 @Html.Partial("HeaderSocials")
@@ -49,7 +47,13 @@
             <div class="header-cart-search-wrapper">
                 
                 @Html.Action("FlyoutShoppingCart", "ShoppingCart")
-                
+
+                @*NOP 3.831*@
+                <a class="logins-register" href="/register">@T("account.register")</a>
+
+                <a class="logins-login" href="/login">@T("account.login")</a>
+
+               
                 <div class="search-box store-search-box">
                     @Html.Action("SearchBox", "Catalog")
                 </div>

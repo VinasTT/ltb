@@ -105,6 +105,11 @@ namespace Nop.Services.Catalog
         /// </param>
         /// <returns>Products</returns>
         IPagedList<Product> SearchProducts(
+            bool? overrideStock,//NOP 3.81
+            string integrationCode,//NOP 3.81
+            bool? overrideStockless,//NOP 3.82
+            bool? overrideNewProducts,//NOP 3.82
+            bool? overridePictureless,//NOP 3.82
             int pageIndex = 0,
             int pageSize = int.MaxValue,
             IList<int> categoryIds = null,
@@ -128,12 +133,36 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null,
-            bool? overrideStock = null,//NOP 3.81
-            string integrationCode = null,//NOP 3.81
-            bool? overrideStockless = null,//NOP 3.82
-            bool? overrideNewProducts = null,//NOP 3.82
-            bool? overridePictureless = null);//NOP 3.82
+            bool? overridePublished = null);
+
+
+
+
+        IPagedList<Product> SearchProducts(
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
+            IList<int> categoryIds = null,
+            int manufacturerId = 0,
+            int storeId = 0,
+            int vendorId = 0,
+            int warehouseId = 0,
+            ProductType? productType = null,
+            bool visibleIndividuallyOnly = false,
+            bool markedAsNewOnly = false,
+            bool? featuredProducts = null,
+            decimal? priceMin = null,
+            decimal? priceMax = null,
+            int productTagId = 0,
+            string keywords = null,
+            bool searchDescriptions = false,
+            bool searchManufacturerPartNumber = true,
+            bool searchSku = true,
+            bool searchProductTags = false,
+            int languageId = 0,
+            IList<int> filteredSpecs = null,
+            ProductSortingEnum orderBy = ProductSortingEnum.Position,
+            bool showHidden = false,
+            bool? overridePublished = null);
 
         /// <summary>
         /// Search products

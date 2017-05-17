@@ -395,7 +395,7 @@ namespace Nop.Services.Catalog
             string integrationCode = null, //NOP 3.81
             bool? overrideStockless = null, //NOP 3.82
             bool? overrideNewProducts = null, //NOP 3.82
-            bool? overridePictureless = null,
+            bool? overridePictureless = null, //NOP 3.82
             int pageIndex = 0,
             int pageSize = int.MaxValue,
             IList<int> categoryIds = null,
@@ -419,7 +419,7 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null) //NOP 3.82
+            bool? overridePublished = null) 
         {
             IList<int> filterableSpecificationAttributeOptionIds;
             return SearchProducts(out filterableSpecificationAttributeOptionIds, false,

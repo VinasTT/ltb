@@ -36,6 +36,18 @@ namespace Nop.Services.Customers
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Customers</returns>
+        IPagedList<Customer> GetAllCustomers(string phoneNumber, //NOP 3.827
+            DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null, int affiliateId = 0, int vendorId = 0,
+            int[] customerRoleIds = null, string email = null, string username = null,
+            string firstName = null, string lastName = null,
+            int dayOfBirth = 0, int monthOfBirth = 0,
+            string company = null, string phone = null, string zipPostalCode = null,
+            string ipAddress = null, bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
+            int pageIndex = 0, int pageSize = int.MaxValue
+            ); 
+
+        //BUGFIX 3.814
         IPagedList<Customer> GetAllCustomers(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null, int affiliateId = 0, int vendorId = 0,
             int[] customerRoleIds = null, string email = null, string username = null,
@@ -43,9 +55,7 @@ namespace Nop.Services.Customers
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
             string ipAddress = null, bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-            int pageIndex = 0, int pageSize = int.MaxValue,
-            string phoneNumber = null); //NOP 3.827
-        
+            int pageIndex = 0, int pageSize = int.MaxValue);
         /// <summary>
         /// Gets all customers by customer format (including deleted ones)
         /// </summary>

@@ -147,15 +147,16 @@ namespace Nop.Services.Customers
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Customers</returns>
-        public virtual IPagedList<Customer> GetAllCustomers(DateTime? createdFromUtc = null,
+        public virtual IPagedList<Customer> GetAllCustomers(string phoneNumber, //NOP 3.827
+            DateTime ? createdFromUtc = null,
             DateTime? createdToUtc = null, int affiliateId = 0, int vendorId = 0,
             int[] customerRoleIds = null, string email = null, string username = null,
             string firstName = null, string lastName = null,
             int dayOfBirth = 0, int monthOfBirth = 0,
             string company = null, string phone = null, string zipPostalCode = null,
             string ipAddress = null, bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-            int pageIndex = 0, int pageSize = int.MaxValue,
-            string phoneNumber = null) //NOP 3.827
+            int pageIndex = 0, int pageSize = int.MaxValue
+            ) 
         {
             var query = _customerRepository.Table;
             if (createdFromUtc.HasValue)
@@ -299,6 +300,28 @@ namespace Nop.Services.Customers
 
             var customers = new PagedList<Customer>(query, pageIndex, pageSize);
             return customers;
+        }
+
+        //BUGFIX 3.814
+        public virtual IPagedList<Customer> GetAllCustomers(DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null, int affiliateId = 0, int vendorId = 0,
+            int[] customerRoleIds = null, string email = null, string username = null,
+            string firstName = null, string lastName = null,
+            int dayOfBirth = 0, int monthOfBirth = 0,
+            string company = null, string phone = null, string zipPostalCode = null,
+            string ipAddress = null, bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
+            int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            return GetAllCustomers(null,createdFromUtc,
+            createdToUtc, affiliateId, vendorId,
+            customerRoleIds, email, username,
+            firstName, lastName,
+            dayOfBirth, monthOfBirth,
+            company, phone, zipPostalCode,
+            ipAddress, loadOnlyWithShoppingCart, sct,
+            pageIndex, pageSize
+            );
+
         }
 
         /// <summary>

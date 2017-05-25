@@ -7,6 +7,7 @@ using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Web.Controllers;
 using Nop.Web.Infrastructure.Installation;
 using Nop.Services.Directory;
+using Nop.Services.Common;
 
 namespace Nop.Web.Infrastructure
 {
@@ -25,7 +26,7 @@ namespace Nop.Web.Infrastructure
         {
 
             builder.RegisterType<DistrictService>().As<IDistrictService>().InstancePerLifetimeScope(); //NOP 3.82
-
+            builder.RegisterType<JeanGuideService>().As<IJeanGuideService>().InstancePerLifetimeScope(); //NOP 3.832
             //we cache presentation models between requests
             builder.RegisterType<BlogController>()
                 .WithParameter(ResolvedParameter.ForNamed<ICacheManager>("nop_cache_static"));

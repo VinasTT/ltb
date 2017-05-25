@@ -1,0 +1,88 @@
+﻿.jeanguide-category-main{
+	text-align: center;
+	margin-top:50px;
+}
+
+.jeanguide-category{
+	position: relative;
+	display: inline-block;
+}
+
+jeanguide-category-detail{
+	position: relative;
+	display: inline-block;
+	width:100%;
+	margin-bottom:25px;
+}
+
+.jeanguide-genre-main{
+	text-align: center;
+	margin-top:200px;
+}
+
+.jeanguide-genre{
+	position: relative;
+	display: inline-block;
+	margin-right:100px;
+	margin-left:100px;
+}
+
+.jeanguide-image-wrapper2 img {
+    	width: 100%;
+  	
+}
+
+.jeanguide-image-wrapper img {
+    	width: 100%;
+  	
+}
+
+.jeanguide-shop {
+	margin-bottom:20px;
+}
+
+@media only screen and (min-width: 1001px) {
+.jeanguide-image-wrapper2{
+    	width: 25%;
+	float:left;	
+	margin-left:30%;
+}
+
+
+
+.jeanguide-content {
+    	width: 30%;
+	float: right;
+	margin-right:10%;
+	text-align:initial;
+    	margin-left:10px;
+  	
+}
+
+.jeanguide-header{
+	position: relative;
+	display: inline-block;
+	margin-bottom: 20px;
+	text-transform: uppercase;
+	margin-top: 20px;
+}
+
+.jeanguide-desc{
+  	width:55%;
+}
+.jeanguide-cut{
+	margin-top:10px;
+}
+.jeanguide-rise{
+	margin-top:10px;
+}
+.jeanguide-inseam{
+	margin-top:10px;
+}
+.jeanguide-legopening{
+	margin-top:10px;
+}
+.jeanguide-shop{
+	margin-top:20px;
+}
+}

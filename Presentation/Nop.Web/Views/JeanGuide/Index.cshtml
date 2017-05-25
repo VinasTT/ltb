@@ -1,0 +1,26 @@
+﻿@model JeanGuideModel
+@using Nop.Web.Models.Common;
+@*NOP 3.832*@
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.JeanGuide").Text);
+    //page class
+    Html.AddCssFileParts(ResourceLocation.Head, "/Content/css/jeanguide.css");
+}
+<div class="page contact-page">
+    <div class="page-title">
+        <h1>@T("PageTitle.JeanGuide")</h1>
+    </div>
+    <div class="page-body">
+            <div class="jeanguide-genre-main">
+                    <div class="jeanguide-genre">
+                        <h1>@Html.ActionLink(T("JeanGuide.Woman").Text, "JeanGuide", new { genre = "Woman" })</h1>
+                    </div>
+                    <div class="jeanguide-genre">
+                        <h1>@Html.ActionLink(T("JeanGuide.Man").Text, "JeanGuide", new { genre = "Man" })</h1>
+                    </div>
+            </div>
+    </div>
+</div>

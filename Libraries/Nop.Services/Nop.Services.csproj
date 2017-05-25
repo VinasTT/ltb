@@ -208,6 +208,8 @@
     <Compile Include="Catalog\IPriceFormatter.cs" />
     <Compile Include="Catalog\ProductAttributeFormatter.cs" />
     <Compile Include="Catalog\ProductAttributeParser.cs" />
+    <Compile Include="Common\JeanGuideService.cs" />
+    <Compile Include="Common\IJeanGuideService.cs" />
     <Compile Include="Directory\DistrictService.cs" />
     <Compile Include="Directory\IDistrictService.cs" />
     <Compile Include="Extensions.cs" />

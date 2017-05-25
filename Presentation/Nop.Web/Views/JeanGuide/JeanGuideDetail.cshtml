@@ -1,0 +1,66 @@
+﻿@model List<JeanGuideModel>
+@using Nop.Web.Models.Common;
+@*NOP 3.832*@
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.JeanGuide").Text);
+    //page class
+    Html.AddCssFileParts(ResourceLocation.Head, "/Content/css/jeanguide.css");
+}
+<div class="page contact-page">
+    <div class="page-title">
+        <h1>@Model.FirstOrDefault().JeanGuideCategory.Name</h1>
+    </div>
+    <div class="page-body">
+        <div class="jeanguide-category-main">
+            @foreach (var item in Model)
+            {
+                <div class="jeanguide-category-detail">
+                    <div class="jeanguide-image-wrapper2">
+                        <img src="@item.ImageUrl" />
+                    </div>
+                    <div class="jeanguide-content">
+                        <div class="jeanguide-header">
+                            <h3>@item.Name</h3>
+                        </div>
+                        <div class="jeanguide-desc">
+                            <h5>@T("JeanGuide.Description")</h5>
+                            @item.Description
+                        </div>
+                        <div class="jeanguide-cut">
+                            <h5>@T("JeanGuide.Cut")</h5>
+                            @item.Cut
+                        </div>
+                        <div class="jeanguide-rise">
+                            <h5>@T("JeanGuide.Rise")</h5>
+                            @item.Rise
+                        </div>
+                        <div class="jeanguide-inseam">
+                            <h5>@T("JeanGuide.Inseam")</h5>
+                            <div class="jeanguide-inseam-one">
+                                @item.InseamOne
+                            </div>
+                            <div class="jeanguide-inseam-one">
+                                @item.InseamTwo
+                            </div>
+                            <div class="jeanguide-inseam-one">
+                                @item.InseamThree
+                            </div>
+                        </div>
+                        <div class="jeanguide-legopening">
+                            <h5>@T("JeanGuide.LegOpening")</h5>
+                            @item.LegOpening
+                        </div>
+                        <div class="jeanguide-shop">
+                            <input type="button" value="@T("Jeanguide.ShopByFit")" class="button-1 cart-button" onclick="setLocation('ShopByFit?jeanguideId=@item.Id')">
+                        </div>
+                    </div>
+                    
+                </div>
+
+            }
+        </div>
+    </div>
+</div>

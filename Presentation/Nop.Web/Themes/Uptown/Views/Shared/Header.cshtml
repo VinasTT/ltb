@@ -12,7 +12,7 @@
     @Html.Widget("header")
     <div class="header-upper">
         <div class="header-centering">
-            
+
             @if (isHeader1)
             {
                 @Html.Partial("HeaderSocials")
@@ -45,20 +45,29 @@
             </div>
 
             <div class="header-cart-search-wrapper">
-                
+
                 @Html.Action("FlyoutShoppingCart", "ShoppingCart")
 
                 @*NOP 3.831*@
                 @*BUGFIX 3.815*@
+
                 @if (!HttpContext.Current.User.Identity.IsAuthenticated)
                 {
-                    <a class="logins-register" href="/register">@T("account.register")</a>
+                    <div class="header-logins">
+                        <a class="logins-register" href="/register">@T("account.register")</a>
 
-                    <a class="logins-login" href="/login">@T("account.login")</a>
+                        <a class="logins-login" href="/login">@T("account.login")</a>
+                    </div>
                 }
-                
+                else
+                {
 
-               
+                    <div class="header-logins-empty">
+                    </div>
+                }
+
+
+
                 <div class="search-box store-search-box">
                     @Html.Action("SearchBox", "Catalog")
                 </div>
@@ -85,7 +94,7 @@
                         @Html.Partial("HeaderSocials")
                     </div>
                 </div>
-            }
+                            }
 
         </div>
     </div>

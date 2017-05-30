@@ -127,6 +127,59 @@ namespace Nop.Plugin.Misc.SMS.Services
 
             return record.PhoneNumber;
 
-        } 
+        }
+        
+        public bool CheckIfPhoneExistsAndActive(int customerId)
+        {
+            if (customerId == 0)
+                return false;
+
+            var query = from gp in _SMSRepository.Table
+                        where gp.CustomerId == customerId
+                            && gp.Active == true
+                        orderby gp.Id descending
+                        select gp;
+            var record = query.FirstOrDefault();
+
+            if (record != null)
+                return true;
+            else
+                return false;
+        }
+        
+        public string GetActivationCode(int customerId)
+        {
+            if (customerId == 0)
+                return null;
+
+            var query = from gp in _SMSRepository.Table
+                        where gp.CustomerId == customerId
+                        orderby gp.Id descending
+                        select gp;
+            var record = query.FirstOrDefault();
+
+            if (record != null)
+                return record.ActivationCode;
+            else
+                return null;
+
+        }
+
+        public string GetCustomerByPhoneNumber(string phoneNumber)
+        {
+            if (phoneNumber == null)
+                return null;
+
+            var query = from gp in _SMSRepository.Table
+                        where gp.PhoneNumber == phoneNumber
+                        orderby gp.Id descending
+                        select gp;
+            var record = query.FirstOrDefault();
+
+            if (record != null)
+                return record.PhoneNumber;
+            else
+                return null;
+        }
     }
 }

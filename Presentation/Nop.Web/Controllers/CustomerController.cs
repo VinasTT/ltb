@@ -94,7 +94,6 @@ namespace Nop.Web.Controllers
 
         private readonly ISMSNotificationService _smsNotificationService; //NOP 3.825
         private readonly SMSNotificationSettings _smsNotificationSettings; //NOP 3.825
-        private readonly IDistrictService _districtService; //NOP 3.828
 
         #endregion
 
@@ -145,8 +144,8 @@ namespace Nop.Web.Controllers
             CatalogSettings catalogSettings, 
             VendorSettings vendorSettings,
             ISMSNotificationService smsNotificationService, //NOP 3.825
-            SMSNotificationSettings smsNotificationSettings, //NOP 3.825
-            IDistrictService districtService) //NOP 3.828
+            SMSNotificationSettings smsNotificationSettings) //NOP 3.825
+          
         {
             this._authenticationService = authenticationService;
             this._dateTimeHelper = dateTimeHelper;
@@ -194,7 +193,6 @@ namespace Nop.Web.Controllers
             this._vendorSettings = vendorSettings;
             this._smsNotificationService = smsNotificationService; //NOP 3.825
             this._smsNotificationSettings = smsNotificationSettings; //NOP 3.825
-            this._districtService = districtService; //NOP 3.828
         }
 
         #endregion
@@ -1617,8 +1615,7 @@ namespace Nop.Web.Controllers
                     localizationService: _localizationService,
                     stateProvinceService: _stateProvinceService,
                     addressAttributeFormatter: _addressAttributeFormatter,
-                    loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
-                    districtService: _districtService); //NOP 3.828
+                    loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id));
                 model.Addresses.Add(addressModel);
             }
             return View(model);
@@ -1661,13 +1658,12 @@ namespace Nop.Web.Controllers
             model.Address.PrepareModel(
                 address: null,
                 excludeProperties: false,
-                addressSettings:_addressSettings,
-                localizationService:_localizationService,
+                addressSettings: _addressSettings,
+                localizationService: _localizationService,
                 stateProvinceService: _stateProvinceService,
                 addressAttributeService: _addressAttributeService,
                 addressAttributeParser: _addressAttributeParser,
-                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
-                districtService: _districtService); //NOP 3.828
+                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id));
 
             return View(model);
         }
@@ -1700,10 +1696,7 @@ namespace Nop.Web.Controllers
                     address.CountryId = null;
                 if (address.StateProvinceId == 0)
                     address.StateProvinceId = null;
-                //NOP 3.828
-                if (address.DistrictId == 0)
-                    address.DistrictId = null;
-                address.IsLongDistance = _districtService.CheckIfLongDistance(address);
+              
 
                 customer.Addresses.Add(address);
                 _customerService.UpdateCustomer(customer);
@@ -1715,14 +1708,13 @@ namespace Nop.Web.Controllers
             model.Address.PrepareModel(
                 address: null,
                 excludeProperties: true,
-                addressSettings:_addressSettings,
-                localizationService:_localizationService,
+                addressSettings: _addressSettings,
+                localizationService: _localizationService,
                 stateProvinceService: _stateProvinceService,
                 addressAttributeService: _addressAttributeService,
                 addressAttributeParser: _addressAttributeParser,
                 loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
-                overrideAttributesXml: customAttributes,
-                districtService: _districtService); //NOP 3.828
+                overrideAttributesXml: customAttributes);
 
             return View(model);
         }
@@ -1748,8 +1740,7 @@ namespace Nop.Web.Controllers
                 stateProvinceService: _stateProvinceService,
                 addressAttributeService: _addressAttributeService,
                 addressAttributeParser: _addressAttributeParser,
-                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
-                districtService: _districtService); //NOP 3.828
+                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id));
 
             return View(model);
         }
@@ -1781,7 +1772,6 @@ namespace Nop.Web.Controllers
             {
                 address = model.Address.ToEntity(address);
                 address.CustomAttributes = customAttributes;
-                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
                 _addressService.UpdateAddress(address);
 
                 return RedirectToRoute("CustomerAddresses");
@@ -1797,8 +1787,7 @@ namespace Nop.Web.Controllers
                 addressAttributeService: _addressAttributeService,
                 addressAttributeParser: _addressAttributeParser,
                 loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
-                overrideAttributesXml: customAttributes,
-                districtService: _districtService); //NOP 3.828
+                overrideAttributesXml: customAttributes);
             return View(model);
         }
 

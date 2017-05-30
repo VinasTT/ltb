@@ -1,5 +1,5 @@
-﻿@model SMSNotificationRecordModel
-@using Nop.Web.Models.Customer;
+﻿@model SMSModel
+@using Nop.Plugin.Misc.SMS.Models;
 @using Nop.Web.Framework.UI;
 @using Nop.Web.Framework;
  <!--BUGFIX 3.803-->
@@ -12,7 +12,7 @@
     //page class
     Html.AppendPageCssClassParts("html-registration-result-page");
 }
-@using (Html.BeginForm("AccountActivation", "SMSNotification", FormMethod.Post))
+@using (Html.BeginForm("AccountValidation", "SMS", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     <div class="page registration-result-page">
@@ -27,6 +27,7 @@
             </div>
             <div class="result">
                 <input type="text" name="token" id="token" />
+                <input type="hidden" name="referrer" id="referrer" value="@Model.Referrer" />
             </div>
 
             <div class="buttons">

@@ -1,7 +1,8 @@
-﻿@model SMSNotificationRecordModel
+﻿@model SMSModel
 @using Nop.Web.Models.Customer;
 @using Nop.Web.Framework.UI;
 @using Nop.Web.Framework;
+@using Nop.Plugin.Misc.SMS.Models;
 <!--BUGFIX 3.803-->
 @{
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
@@ -11,7 +12,7 @@
     Html.AppendPageCssClassParts("html-registration-page");
 }
 
-@using (Html.BeginForm("ValidatePhone", "SMSNotification", FormMethod.Post))
+@using (Html.BeginForm("ValidatePhone", "SMS", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     <div class="page registration-page">
@@ -33,11 +34,12 @@
                 </div>
                 <div class="form-fields">
                     <div class="inputs">
-                        @Html.LabelFor(model => Model.PhoneNumber, new { }, ":")
-                        @Html.EditorFor(model => Model.PhoneNumber)
+                        @Html.LabelFor(model => Model.SmsRecordModel.PhoneNumber, new { }, ":")
+                        @Html.EditorFor(model => Model.SmsRecordModel.PhoneNumber)
                         @Html.RequiredHint()
-                        @Html.ValidationMessageFor(model => Model.PhoneNumber)
+                        @Html.ValidationMessageFor(model => Model.SmsRecordModel.PhoneNumber)
                     </div>
+                    @Html.HiddenFor(model => Model.Referrer)
                 </div>
             </div>
             <div class="buttons">

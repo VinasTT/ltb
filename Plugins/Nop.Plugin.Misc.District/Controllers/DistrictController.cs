@@ -23,19 +23,21 @@ using Nop.Services.Payments;
 using Nop.Services.Shipping;
 using Nop.Services.Stores;
 using Nop.Services.Tax;
-using Nop.Web.Extensions;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Security;
 using Nop.Web.Models.Checkout;
+using Nop.Plugin.Misc.District.Services;
+using Nop.Plugin.Misc.District.Extensions;
+using Nop.Plugin.Misc.District.Models;
+using Nop.Web.Models.Customer;
 using Nop.Web.Models.Common;
-using Nop.Services.Messages;
 
-namespace Nop.Web.Controllers
+namespace Nop.Plugin.Misc.District.Controllers
 {
     [NopHttpsRequirement(SslRequirement.Yes)]
-    public partial class CheckoutController : BasePublicController
+    public partial class DistrictController : BasePluginController
     {
-		#region Fields
+        #region Fields
 
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
@@ -58,10 +60,11 @@ namespace Nop.Web.Controllers
         private readonly ILogger _logger;
         private readonly IOrderService _orderService;
         private readonly IWebHelper _webHelper;
-        private readonly HttpContextBase _httpContext; 
+        private readonly HttpContextBase _httpContext;
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly IAddressAttributeFormatter _addressAttributeFormatter;
+        private readonly IAddressService _addressService;
 
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
@@ -69,26 +72,27 @@ namespace Nop.Web.Controllers
         private readonly ShippingSettings _shippingSettings;
         private readonly AddressSettings _addressSettings;
         private readonly CustomerSettings _customerSettings;
-        
+
+        private readonly Nop.Plugin.Misc.District.Services.IDistrictService _districtService; //NOP 3.828
 
         #endregion
 
-		#region Constructors
+        #region Constructors
 
-        public CheckoutController(IWorkContext workContext,
+        public DistrictController(IWorkContext workContext,
             IStoreContext storeContext,
             IStoreMappingService storeMappingService,
-            IShoppingCartService shoppingCartService, 
-            ILocalizationService localizationService, 
-            ITaxService taxService, 
-            ICurrencyService currencyService, 
-            IPriceFormatter priceFormatter, 
+            IShoppingCartService shoppingCartService,
+            ILocalizationService localizationService,
+            ITaxService taxService,
+            ICurrencyService currencyService,
+            IPriceFormatter priceFormatter,
             IOrderProcessingService orderProcessingService,
-            ICustomerService customerService, 
+            ICustomerService customerService,
             IGenericAttributeService genericAttributeService,
             ICountryService countryService,
             IStateProvinceService stateProvinceService,
-            IShippingService shippingService, 
+            IShippingService shippingService,
             IPaymentService paymentService,
             IPluginFinder pluginFinder,
             IOrderTotalCalculationService orderTotalCalculationService,
@@ -100,12 +104,14 @@ namespace Nop.Web.Controllers
             IAddressAttributeParser addressAttributeParser,
             IAddressAttributeService addressAttributeService,
             IAddressAttributeFormatter addressAttributeFormatter,
-            OrderSettings orderSettings, 
+            IAddressService addressService,
+            OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings,
             PaymentSettings paymentSettings,
             ShippingSettings shippingSettings,
             AddressSettings addressSettings,
-            CustomerSettings customerSettings)
+            CustomerSettings customerSettings,
+            Nop.Plugin.Misc.District.Services.IDistrictService districtService) //NOP 3.828
         {
             this._workContext = workContext;
             this._storeContext = storeContext;
@@ -132,6 +138,7 @@ namespace Nop.Web.Controllers
             this._addressAttributeParser = addressAttributeParser;
             this._addressAttributeService = addressAttributeService;
             this._addressAttributeFormatter = addressAttributeFormatter;
+            this._addressService = addressService;
 
             this._orderSettings = orderSettings;
             this._rewardPointsSettings = rewardPointsSettings;
@@ -139,6 +146,7 @@ namespace Nop.Web.Controllers
             this._shippingSettings = shippingSettings;
             this._addressSettings = addressSettings;
             this._customerSettings = customerSettings;
+            this._districtService = districtService; //NOP 3.828
         }
 
         #endregion
@@ -169,11 +177,11 @@ namespace Nop.Web.Controllers
 
             //existing addresses
             var addresses = _workContext.CurrentCustomer.Addresses
-                .Where(a => a.Country == null || 
+                .Where(a => a.Country == null ||
                     (//published
-                    a.Country.Published && 
+                    a.Country.Published &&
                     //allow billing
-                    a.Country.AllowsBilling && 
+                    a.Country.AllowsBilling &&
                     //enabled for the current store
                     _storeMappingService.Authorize(a.Country)))
                 .ToList();
@@ -184,7 +192,8 @@ namespace Nop.Web.Controllers
                     address: address,
                     excludeProperties: false,
                     addressSettings: _addressSettings,
-                    addressAttributeFormatter: _addressAttributeFormatter);
+                    addressAttributeFormatter: _addressAttributeFormatter,
+                    districtService: _districtService); //NOP 3.828
                 model.ExistingAddresses.Add(addressModel);
             }
 
@@ -201,7 +210,8 @@ namespace Nop.Web.Controllers
                 loadCountries: () => _countryService.GetAllCountriesForBilling(_workContext.WorkingLanguage.Id),
                 prePopulateWithCustomerFields: prePopulateNewAddressWithCustomerFields,
                 customer: _workContext.CurrentCustomer,
-                overrideAttributesXml: overrideAttributesXml);
+                overrideAttributesXml: overrideAttributesXml,
+                districtService: _districtService); //NOP 3.828
             return model;
         }
 
@@ -266,10 +276,10 @@ namespace Nop.Web.Controllers
                     return model;
                 }
             }
-            
+
             //existing addresses
             var addresses = _workContext.CurrentCustomer.Addresses
-                .Where(a => a.Country == null || 
+                .Where(a => a.Country == null ||
                     (//published
                     a.Country.Published &&
                     //allow shipping
@@ -284,7 +294,8 @@ namespace Nop.Web.Controllers
                     address: address,
                     excludeProperties: false,
                     addressSettings: _addressSettings,
-                    addressAttributeFormatter: _addressAttributeFormatter);
+                    addressAttributeFormatter: _addressAttributeFormatter,
+                    districtService: _districtService); //NOP 3.828
                 model.ExistingAddresses.Add(addressModel);
             }
 
@@ -301,7 +312,8 @@ namespace Nop.Web.Controllers
                 loadCountries: () => _countryService.GetAllCountriesForShipping(_workContext.WorkingLanguage.Id),
                 prePopulateWithCustomerFields: prePopulateNewAddressWithCustomerFields,
                 customer: _workContext.CurrentCustomer,
-                overrideAttributesXml: overrideAttributesXml);
+                overrideAttributesXml: overrideAttributesXml,
+                districtService: _districtService); //NOP 3.828
 
             return model;
         }
@@ -326,12 +338,12 @@ namespace Nop.Web.Controllers
                 foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
                 {
                     var soModel = new CheckoutShippingMethodModel.ShippingMethodModel
-                                      {
-                                          Name = shippingOption.Name,
-                                          Description = shippingOption.Description,
-                                          ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
-                                          ShippingOption = shippingOption,
-                                      };
+                    {
+                        Name = shippingOption.Name,
+                        Description = shippingOption.Description,
+                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
+                        ShippingOption = shippingOption,
+                    };
 
                     //adjust rate
                     List<Discount> appliedDiscounts;
@@ -351,11 +363,11 @@ namespace Nop.Web.Controllers
                 if (selectedShippingOption != null)
                 {
                     var shippingOptionToSelect = model.ShippingMethods.ToList()
-                        .Find( so =>
-                            !String.IsNullOrEmpty(so.Name) &&
-                            so.Name.Equals(selectedShippingOption.Name, StringComparison.InvariantCultureIgnoreCase) &&
-                            !String.IsNullOrEmpty(so.ShippingRateComputationMethodSystemName) &&
-                            so.ShippingRateComputationMethodSystemName.Equals(selectedShippingOption.ShippingRateComputationMethodSystemName, StringComparison.InvariantCultureIgnoreCase));
+                        .Find(so =>
+                           !String.IsNullOrEmpty(so.Name) &&
+                           so.Name.Equals(selectedShippingOption.Name, StringComparison.InvariantCultureIgnoreCase) &&
+                           !String.IsNullOrEmpty(so.ShippingRateComputationMethodSystemName) &&
+                           so.ShippingRateComputationMethodSystemName.Equals(selectedShippingOption.ShippingRateComputationMethodSystemName, StringComparison.InvariantCultureIgnoreCase));
                     if (shippingOptionToSelect != null)
                     {
                         shippingOptionToSelect.Selected = true;
@@ -397,7 +409,7 @@ namespace Nop.Web.Controllers
                 int rewardPointsBalance = _rewardPointService.GetRewardPointsBalance(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id);
                 decimal rewardPointsAmountBase = _orderTotalCalculationService.ConvertRewardPointsToAmount(rewardPointsBalance);
                 decimal rewardPointsAmount = _currencyService.ConvertFromPrimaryStoreCurrency(rewardPointsAmountBase, _workContext.WorkingCurrency);
-                if (rewardPointsAmount > decimal.Zero && 
+                if (rewardPointsAmount > decimal.Zero &&
                     _orderTotalCalculationService.CheckMinimumRewardPointsToUseRequirement(rewardPointsBalance))
                 {
                     model.DisplayRewardPoints = true;
@@ -432,7 +444,7 @@ namespace Nop.Web.Controllers
 
                 model.PaymentMethods.Add(pmModel);
             }
-            
+
             //find a selected (previously) payment method
             var selectedPaymentMethodSystemName = _workContext.CurrentCustomer.GetAttribute<string>(
                 SystemCustomerAttributeNames.SelectedPaymentMethod,
@@ -485,7 +497,7 @@ namespace Nop.Web.Controllers
             }
             return model;
         }
-        
+
         [NonAction]
         protected virtual bool IsMinimumOrderPlacementIntervalValid(Customer customer)
         {
@@ -507,6 +519,187 @@ namespace Nop.Web.Controllers
 
         #region Methods (common)
 
+        [NopHttpsRequirement(SslRequirement.Yes)]
+        public ActionResult Addresses()
+        {
+            if (!_workContext.CurrentCustomer.IsRegistered())
+                return new HttpUnauthorizedResult();
+
+            var customer = _workContext.CurrentCustomer;
+
+            var model = new CustomerAddressListModel();
+            var addresses = customer.Addresses
+                //enabled for the current store
+                .Where(a => a.Country == null || _storeMappingService.Authorize(a.Country))
+                .ToList();
+            foreach (var address in addresses)
+            {
+                var addressModel = new AddressModel();
+                addressModel.PrepareModel(
+                    address: address,
+                    excludeProperties: false,
+                    addressSettings: _addressSettings,
+                    localizationService: _localizationService,
+                    stateProvinceService: _stateProvinceService,
+                    addressAttributeFormatter: _addressAttributeFormatter,
+                    loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
+                    districtService: _districtService); //NOP 3.828
+                model.Addresses.Add(addressModel);
+            }
+            return View("~/Plugins/Misc.District/Views/District/Addresses.cshtml",model);
+        }
+
+        [NopHttpsRequirement(SslRequirement.Yes)]
+        public ActionResult AddressAdd()
+        {
+            if (!_workContext.CurrentCustomer.IsRegistered())
+                return new HttpUnauthorizedResult();
+
+            var model = new CustomerAddressEditModel();
+            model.Address.PrepareModel(
+                address: null,
+                excludeProperties: false,
+                addressSettings: _addressSettings,
+                localizationService: _localizationService,
+                stateProvinceService: _stateProvinceService,
+                addressAttributeService: _addressAttributeService,
+                addressAttributeParser: _addressAttributeParser,
+                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
+                districtService: _districtService); //NOP 3.828
+
+            return View("~/Plugins/Misc.District/Views/District/AddressAdd.cshtml",model);
+        }
+
+        [HttpPost]
+        [PublicAntiForgery]
+        [ValidateInput(false)]
+        public ActionResult AddressAdd(CustomerAddressEditModel model, FormCollection form)
+        {
+            if (!_workContext.CurrentCustomer.IsRegistered())
+                return new HttpUnauthorizedResult();
+
+            var customer = _workContext.CurrentCustomer;
+
+            //custom address attributes
+            var customAttributes = form.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
+            var customAttributeWarnings = _addressAttributeParser.GetAttributeWarnings(customAttributes);
+            foreach (var error in customAttributeWarnings)
+            {
+                ModelState.AddModelError("", error);
+            }
+
+            if (ModelState.IsValid)
+            {
+                var address = model.Address.ToEntity();
+                address.CustomAttributes = customAttributes;
+                address.CreatedOnUtc = DateTime.UtcNow;
+                //some validation
+                if (address.CountryId == 0)
+                    address.CountryId = null;
+                if (address.StateProvinceId == 0)
+                    address.StateProvinceId = null;
+                //NOP 3.828
+                if (address.DistrictId == 0)
+                    address.DistrictId = null;
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address);
+
+                customer.Addresses.Add(address);
+                _customerService.UpdateCustomer(customer);
+
+                return RedirectToRoute("CustomerAddresses");
+            }
+
+            //If we got this far, something failed, redisplay form
+            model.Address.PrepareModel(
+                address: null,
+                excludeProperties: true,
+                addressSettings: _addressSettings,
+                localizationService: _localizationService,
+                stateProvinceService: _stateProvinceService,
+                addressAttributeService: _addressAttributeService,
+                addressAttributeParser: _addressAttributeParser,
+                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
+                overrideAttributesXml: customAttributes,
+                districtService: _districtService); //NOP 3.828
+
+            return View("~/Plugins/Misc.District/Views/District/AddressAdd.cshtml",model);
+        }
+
+        [NopHttpsRequirement(SslRequirement.Yes)]
+        public ActionResult AddressEdit(int addressId)
+        {
+            if (!_workContext.CurrentCustomer.IsRegistered())
+                return new HttpUnauthorizedResult();
+
+            var customer = _workContext.CurrentCustomer;
+            //find address (ensure that it belongs to the current customer)
+            var address = customer.Addresses.FirstOrDefault(a => a.Id == addressId);
+            if (address == null)
+                //address is not found
+                return RedirectToRoute("CustomerAddresses");
+
+            var model = new CustomerAddressEditModel();
+            model.Address.PrepareModel(address: address,
+                excludeProperties: false,
+                addressSettings: _addressSettings,
+                localizationService: _localizationService,
+                stateProvinceService: _stateProvinceService,
+                addressAttributeService: _addressAttributeService,
+                addressAttributeParser: _addressAttributeParser,
+                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
+                districtService: _districtService); //NOP 3.828
+
+            return View("~/Plugins/Misc.District/Views/District/AddressEdit.cshtml",model);
+        }
+
+        [HttpPost]
+        [PublicAntiForgery]
+        [ValidateInput(false)]
+        public ActionResult AddressEdit(CustomerAddressEditModel model, int addressId, FormCollection form)
+        {
+            if (!_workContext.CurrentCustomer.IsRegistered())
+                return new HttpUnauthorizedResult();
+
+            var customer = _workContext.CurrentCustomer;
+            //find address (ensure that it belongs to the current customer)
+            var address = customer.Addresses.FirstOrDefault(a => a.Id == addressId);
+            if (address == null)
+                //address is not found
+                return RedirectToRoute("CustomerAddresses");
+
+            //custom address attributes
+            var customAttributes = form.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
+            var customAttributeWarnings = _addressAttributeParser.GetAttributeWarnings(customAttributes);
+            foreach (var error in customAttributeWarnings)
+            {
+                ModelState.AddModelError("", error);
+            }
+
+            if (ModelState.IsValid)
+            {
+                address = model.Address.ToEntity(address);
+                address.CustomAttributes = customAttributes;
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
+                _addressService.UpdateAddress(address);
+
+                return RedirectToRoute("CustomerAddresses");
+            }
+
+            //If we got this far, something failed, redisplay form
+            model.Address.PrepareModel(
+                address: address,
+                excludeProperties: true,
+                addressSettings: _addressSettings,
+                localizationService: _localizationService,
+                stateProvinceService: _stateProvinceService,
+                addressAttributeService: _addressAttributeService,
+                addressAttributeParser: _addressAttributeParser,
+                loadCountries: () => _countryService.GetAllCountries(_workContext.WorkingLanguage.Id),
+                overrideAttributesXml: customAttributes,
+                districtService: _districtService); //NOP 3.828
+            return View("~/Plugins/Misc.District/Views/District/AddressEdit.cshtml",model);
+        }
+
         public ActionResult Index()
         {
             var cart = _workContext.CurrentCustomer.ShoppingCartItems
@@ -519,7 +712,7 @@ namespace Nop.Web.Controllers
             bool downloadableProductsRequireRegistration =
                 _customerSettings.RequireRegistrationForDownloadableProducts && cart.Any(sci => sci.Product.IsDownload);
 
-            if (_workContext.CurrentCustomer.IsGuest() 
+            if (_workContext.CurrentCustomer.IsGuest()
                 && (!_orderSettings.AnonymousCheckoutAllowed
                     || downloadableProductsRequireRegistration)
                 )
@@ -552,7 +745,7 @@ namespace Nop.Web.Controllers
 
             if (_orderSettings.OnePageCheckoutEnabled)
                 return RedirectToRoute("CheckoutOnePage");
-            
+
             return RedirectToRoute("CheckoutBillingAddress");
         }
 
@@ -582,7 +775,7 @@ namespace Nop.Web.Controllers
             //disable "order completed" page?
             if (_orderSettings.DisableOrderCompletedPage)
             {
-                return RedirectToRoute("OrderDetails", new {orderId = order.Id});
+                return RedirectToRoute("OrderDetails", new { orderId = order.Id });
             }
 
             //model
@@ -632,7 +825,7 @@ namespace Nop.Web.Controllers
                 return NewBillingAddress(model, form);
             }
 
-            return View(model);
+            return View("~/Plugins/Misc.District/Views/District/BillingAddress.cshtml",model);
         }
 
         public ActionResult SelectBillingAddress(int addressId, bool shipToSameAddress = false)
@@ -699,7 +892,8 @@ namespace Nop.Web.Controllers
                     model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                     model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                     model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                    model.NewAddress.CountryId, customAttributes);
+                    model.NewAddress.CountryId, customAttributes,
+                    model.NewAddress.DistrictId); //NOP 3.828
                 if (address == null)
                 {
                     //address is not found. let's create a new one
@@ -711,6 +905,9 @@ namespace Nop.Web.Controllers
                         address.CountryId = null;
                     if (address.StateProvinceId == 0)
                         address.StateProvinceId = null;
+                    //NOP 3.828
+                    if (address.DistrictId == 0)
+                        address.DistrictId = null;
                     _workContext.CurrentCustomer.Addresses.Add(address);
                 }
                 _workContext.CurrentCustomer.BillingAddress = address;
@@ -736,7 +933,7 @@ namespace Nop.Web.Controllers
             model = PrepareBillingAddressModel(cart,
                 selectedCountryId: model.NewAddress.CountryId,
                 overrideAttributesXml: customAttributes);
-            return View(model);
+            return View("~/Plugins/Misc.District/Views/District/BillingAddress.cshtml",model);
         }
 
         public ActionResult ShippingAddress()
@@ -765,7 +962,7 @@ namespace Nop.Web.Controllers
             //model
             var model = PrepareShippingAddressModel(prePopulateNewAddressWithCustomerFields: true);
 
-            return View(model);
+            return View("~/Plugins/Misc.District/Views/District/ShippingAddress.cshtml",model);
         }
 
         public ActionResult SelectShippingAddress(int addressId)
@@ -773,6 +970,8 @@ namespace Nop.Web.Controllers
             var address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == addressId);
             if (address == null)
                 return RedirectToRoute("CheckoutShippingAddress");
+
+            address.IsLongDistance = _districtService.CheckIfLongDistance(address); //NOP 3.828
 
             _workContext.CurrentCustomer.ShippingAddress = address;
             _customerService.UpdateCustomer(_workContext.CurrentCustomer);
@@ -862,8 +1061,9 @@ namespace Nop.Web.Controllers
                     model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                     model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                     model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                    model.NewAddress.CountryId, customAttributes);
-                
+                    model.NewAddress.CountryId, customAttributes,
+                    model.NewAddress.DistrictId); //NOP 3.828
+
 
                 if (address == null)
                 {
@@ -875,9 +1075,14 @@ namespace Nop.Web.Controllers
                         address.CountryId = null;
                     if (address.StateProvinceId == 0)
                         address.StateProvinceId = null;
+                    //NOP 3.828
+                    if (address.DistrictId == 0)
+                        address.DistrictId = null;
+                    address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                     _workContext.CurrentCustomer.Addresses.Add(address);
                 }
-                
+
+                address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                 _workContext.CurrentCustomer.ShippingAddress = address;
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
 
@@ -889,9 +1094,9 @@ namespace Nop.Web.Controllers
             model = PrepareShippingAddressModel(
                 selectedCountryId: model.NewAddress.CountryId,
                 overrideAttributesXml: customAttributes);
-            return View(model);
+            return View("~/Plugins/Misc.District/Views/District/ShippingAddress.cshtml",model);
         }
-        
+
         public ActionResult ShippingMethod()
         {
             //validation
@@ -912,8 +1117,8 @@ namespace Nop.Web.Controllers
             {
                 _genericAttributeService.SaveAttribute<ShippingOption>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedShippingOption, null, _storeContext.CurrentStore.Id);
                 return RedirectToRoute("CheckoutPaymentMethod");
-                }
-            
+            }
+
             //model
             var model = PrepareShippingMethodModel(cart, _workContext.CurrentCustomer.ShippingAddress);
 
@@ -921,11 +1126,11 @@ namespace Nop.Web.Controllers
                 model.ShippingMethods.Count == 1)
             {
                 //if we have only one shipping method, then a customer doesn't have to choose a shipping method
-                _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, 
+                _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
                     SystemCustomerAttributeNames.SelectedShippingOption,
                     model.ShippingMethods.First().ShippingOption,
                     _storeContext.CurrentStore.Id);
-            
+
                 return RedirectToRoute("CheckoutPaymentMethod");
             }
 
@@ -961,12 +1166,12 @@ namespace Nop.Web.Controllers
             //parse selected method 
             if (String.IsNullOrEmpty(shippingoption))
                 return ShippingMethod();
-            var splittedOption = shippingoption.Split(new [] { "___" }, StringSplitOptions.RemoveEmptyEntries);
+            var splittedOption = shippingoption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
             if (splittedOption.Length != 2)
                 return ShippingMethod();
             string selectedName = splittedOption[0];
             string shippingRateComputationMethodSystemName = splittedOption[1];
-            
+
             //find it
             //performance optimization. try cache first
             var shippingOptions = _workContext.CurrentCustomer.GetAttribute<List<ShippingOption>>(SystemCustomerAttributeNames.OfferedShippingOptions, _storeContext.CurrentStore.Id);
@@ -992,10 +1197,10 @@ namespace Nop.Web.Controllers
 
             //save
             _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedShippingOption, shippingOption, _storeContext.CurrentStore.Id);
-            
+
             return RedirectToRoute("CheckoutPaymentMethod");
         }
-        
+
         public ActionResult PaymentMethod()
         {
             //validation
@@ -1041,7 +1246,7 @@ namespace Nop.Web.Controllers
                 //so customer doesn't have to choose a payment method
 
                 _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
-                    SystemCustomerAttributeNames.SelectedPaymentMethod, 
+                    SystemCustomerAttributeNames.SelectedPaymentMethod,
                     paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName,
                     _storeContext.CurrentStore.Id);
                 return RedirectToRoute("CheckoutPaymentInfo");
@@ -1090,7 +1295,7 @@ namespace Nop.Web.Controllers
                 return PaymentMethod();
 
             var paymentMethodInst = _paymentService.LoadPaymentMethodBySystemName(paymentmethod);
-            if (paymentMethodInst == null || 
+            if (paymentMethodInst == null ||
                 !paymentMethodInst.IsPaymentMethodActive(_paymentSettings) ||
                 !_pluginFinder.AuthenticateStore(paymentMethodInst.PluginDescriptor, _storeContext.CurrentStore.Id))
                 return PaymentMethod();
@@ -1098,7 +1303,7 @@ namespace Nop.Web.Controllers
             //save
             _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
                 SystemCustomerAttributeNames.SelectedPaymentMethod, paymentmethod, _storeContext.CurrentStore.Id);
-            
+
             return RedirectToRoute("CheckoutPaymentInfo");
         }
 
@@ -1205,7 +1410,7 @@ namespace Nop.Web.Controllers
             var model = PreparePaymentInfoModel(paymentMethod);
             return View(model);
         }
-        
+
         public ActionResult Confirm()
         {
             //validation
@@ -1256,10 +1461,10 @@ namespace Nop.Web.Controllers
                     //Check whether payment workflow is required
                     if (IsPaymentWorkflowRequired(cart))
                         return RedirectToRoute("CheckoutPaymentInfo");
-                    
+
                     processPaymentRequest = new ProcessPaymentRequest();
                 }
-                
+
                 //prevent 2 orders being placed within an X seconds time frame
                 if (!IsMinimumOrderPlacementIntervalValid(_workContext.CurrentCustomer))
                     throw new Exception(_localizationService.GetResource("Checkout.MinOrderPlacementInterval"));
@@ -1285,10 +1490,10 @@ namespace Nop.Web.Controllers
                         //redirection or POST has been done in PostProcessPayment
                         return Content("Redirected");
                     }
-                    
+
                     return RedirectToRoute("CheckoutCompleted", new { orderId = placeOrderResult.PlacedOrder.Id });
                 }
-                
+
                 foreach (var error in placeOrderResult.Errors)
                     model.Warnings.Add(error);
             }
@@ -1305,7 +1510,7 @@ namespace Nop.Web.Controllers
         [ChildActionOnly]
         public ActionResult CheckoutProgress(CheckoutProgressStep step)
         {
-            var model = new CheckoutProgressModel {CheckoutProgressStep = step};
+            var model = new CheckoutProgressModel { CheckoutProgressStep = step };
             return PartialView(model);
         }
 
@@ -1381,7 +1586,7 @@ namespace Nop.Web.Controllers
 
                     return OpcLoadStepAfterPaymentMethod(paymentMethodInst, cart);
                 }
-                
+
                 //customer have to choose a payment method
                 return Json(new
                 {
@@ -1555,7 +1760,8 @@ namespace Nop.Web.Controllers
                         model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                         model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                         model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                        model.NewAddress.CountryId, customAttributes);
+                        model.NewAddress.CountryId, customAttributes,
+                        model.NewAddress.DistrictId); //NOP 3.828
                     if (address == null)
                     {
                         //address is not found. let's create a new one
@@ -1567,13 +1773,16 @@ namespace Nop.Web.Controllers
                             address.CountryId = null;
                         if (address.StateProvinceId == 0)
                             address.StateProvinceId = null;
+                        //BUGFIX 3.810
+                        if (address.DistrictId == 0)
+                            address.DistrictId = null;
                         if (address.CountryId.HasValue && address.CountryId.Value > 0)
                         {
                             address.Country = _countryService.GetCountryById(address.CountryId.Value);
                         }
                         _workContext.CurrentCustomer.Addresses.Add(address);
                     }
-                    
+
                     _workContext.CurrentCustomer.BillingAddress = address;
                     _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 }
@@ -1696,6 +1905,8 @@ namespace Nop.Web.Controllers
                     var address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == shippingAddressId);
                     if (address == null)
                         throw new Exception("Address can't be loaded");
+
+                    address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                     _workContext.CurrentCustomer.ShippingAddress = address;
                     _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 }
@@ -1738,7 +1949,8 @@ namespace Nop.Web.Controllers
                         model.NewAddress.Email, model.NewAddress.FaxNumber, model.NewAddress.Company,
                         model.NewAddress.Address1, model.NewAddress.Address2, model.NewAddress.City,
                         model.NewAddress.StateProvinceId, model.NewAddress.ZipPostalCode,
-                        model.NewAddress.CountryId, customAttributes);
+                        model.NewAddress.CountryId, customAttributes,
+                        model.NewAddress.DistrictId); //NOP 3.828
                     if (address == null)
                     {
                         address = model.NewAddress.ToEntity();
@@ -1758,9 +1970,15 @@ namespace Nop.Web.Controllers
                             address.CountryId = null;
                         if (address.StateProvinceId == 0)
                             address.StateProvinceId = null;
+                        //BUGFIX 3.810
+                        if (address.DistrictId == 0)
+                            address.DistrictId = null;
+
+                        address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                         _workContext.CurrentCustomer.Addresses.Add(address);
                     }
-                    
+
+                    address.IsLongDistance = _districtService.CheckIfLongDistance(address); //BUGFIX 3.810
                     _workContext.CurrentCustomer.ShippingAddress = address;
                     _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 }
@@ -1792,7 +2010,7 @@ namespace Nop.Web.Controllers
 
                 if (_workContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
                     throw new Exception("Anonymous checkout is not allowed");
-                
+
                 if (!cart.RequiresShipping())
                     throw new Exception("Shipping is not required");
 
@@ -1800,12 +2018,12 @@ namespace Nop.Web.Controllers
                 string shippingoption = form["shippingoption"];
                 if (String.IsNullOrEmpty(shippingoption))
                     throw new Exception("Selected shipping method can't be parsed");
-                var splittedOption = shippingoption.Split(new [] { "___" }, StringSplitOptions.RemoveEmptyEntries);
+                var splittedOption = shippingoption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
                 if (splittedOption.Length != 2)
                     throw new Exception("Selected shipping method can't be parsed");
                 string selectedName = splittedOption[0];
                 string shippingRateComputationMethodSystemName = splittedOption[1];
-                
+
                 //find it
                 //performance optimization. try cache first
                 var shippingOptions = _workContext.CurrentCustomer.GetAttribute<List<ShippingOption>>(SystemCustomerAttributeNames.OfferedShippingOptions, _storeContext.CurrentStore.Id);
@@ -1823,7 +2041,7 @@ namespace Nop.Web.Controllers
                     shippingOptions = shippingOptions.Where(so => so.ShippingRateComputationMethodSystemName.Equals(shippingRateComputationMethodSystemName, StringComparison.InvariantCultureIgnoreCase))
                         .ToList();
                 }
-                
+
                 var shippingOption = shippingOptions
                     .Find(so => !String.IsNullOrEmpty(so.Name) && so.Name.Equals(selectedName, StringComparison.InvariantCultureIgnoreCase));
                 if (shippingOption == null)
@@ -2059,14 +2277,14 @@ namespace Nop.Web.Controllers
 
                     _paymentService.PostProcessPayment(postProcessPaymentRequest);
                     //success
-                    return Json(new {success = 1});
+                    return Json(new { success = 1 });
                 }
-                
+
                 //error
                 var confirmOrderModel = new CheckoutConfirmModel();
                 foreach (var error in placeOrderResult.Errors)
-                    confirmOrderModel.Warnings.Add(error); 
-                    
+                    confirmOrderModel.Warnings.Add(error);
+
                 return Json(new
                 {
                     update_section = new UpdateSectionJsonModel
@@ -2102,7 +2320,7 @@ namespace Nop.Web.Controllers
                 if (order == null)
                     return RedirectToRoute("HomePage");
 
-                
+
                 var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
                 if (paymentMethod == null)
                     return RedirectToRoute("HomePage");
@@ -2128,7 +2346,7 @@ namespace Nop.Web.Controllers
                     //redirection or POST has been done in PostProcessPayment
                     return Content("Redirected");
                 }
-                
+
                 //if no redirection has been done (to a third-party payment page)
                 //theoretically it's not possible
                 return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
@@ -2140,6 +2358,57 @@ namespace Nop.Web.Controllers
             }
         }
 
+
+        //NOP 3.828
+        //available even when navigation is not allowed
+        [AcceptVerbs(HttpVerbs.Get)]
+        public ActionResult GetDistrictsByStateId(string stateId, bool addSelectDistrictItem)
+        {
+            //this action method gets called via an ajax request
+            if (String.IsNullOrEmpty(stateId))
+                throw new ArgumentNullException("stateId");
+
+            var state = _stateProvinceService.GetStateProvinceById(Convert.ToInt32(stateId));
+            var districts = _districtService.GetDistrictsByStateProvinceId(state != null ? state.StateProvinceId : 0, _workContext.WorkingLanguage.Id).ToList();
+            var result = (from s in districts
+                          select new { id = s.Id, name = s.Name })
+                          .ToList();
+
+
+            if (state == null)
+            {
+                //country is not selected ("choose country" item)
+                if (addSelectDistrictItem)
+                {
+                    result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.SelectDistrict") });
+                }
+                else
+                {
+                    result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.OtherNonUS") });
+                }
+            }
+            else
+            {
+                //some country is selected
+                if (!result.Any())
+                {
+                    //country does not have states
+                    result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.OtherNonUS") });
+                }
+                else
+                {
+                    //country has some states
+                    if (addSelectDistrictItem)
+                    {
+                        result.Insert(0, new { id = 0, name = _localizationService.GetResource("Address.SelectDistrict") });
+                    }
+                }
+            }
+
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }

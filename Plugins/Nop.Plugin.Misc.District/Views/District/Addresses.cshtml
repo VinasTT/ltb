@@ -1,5 +1,7 @@
 ﻿@model CustomerAddressListModel
 @using Nop.Web.Models.Customer;
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework;
 @{
     Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
 
@@ -68,7 +70,13 @@
                                     <li class="address2">
                                         @address.Address2
                                     </li>
-                                }                                
+                                }
+
+                                @*NOP 3.828*@
+                                <li class="address2">
+                                    @address.DistrictName
+                                </li>
+                                
 
                                 @if (address.CityEnabled || address.StateProvinceEnabled || address.ZipPostalCodeEnabled)
                                 {

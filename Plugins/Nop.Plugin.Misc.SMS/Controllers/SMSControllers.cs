@@ -16,6 +16,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Tax;
 using Nop.Core.Domain.Vendors;
+using Nop.Core.Infrastructure;
 using Nop.Services.Authentication;
 using Nop.Services.Authentication.External;
 using Nop.Services.Common;
@@ -208,8 +209,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
         {
 
             var model = new SMSModel();
-
-            model.LanguageId = _storeContext.CurrentStore.DefaultLanguageId;
+           
 
             //BUGFIX 3.812
             if (_workContext.WorkingLanguage.Name == "English") //English
@@ -225,29 +225,28 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                 model.AccountSid = _smsSettings.AccountSid;
                 model.AuthToken = _smsSettings.AuthToken;
                 model.MessageTemplate = _smsSettings.MessageTemplate;
-
-                return View("~/Plugins/Misc.SMS/Views/Configure.cshtml", model);
+                
             }
             else
             {
-                model.ProviderNameTr = _smsSettings.ProviderNameTr;
-                model.ActiveTr = _smsSettings.ActiveTr;
-                model.BaseURLTr = _smsSettings.BaseURLTr;
-                model.ResourceTr = _smsSettings.ResourceTr;
-                model.CountryCodeTr = _smsSettings.CountryCodeTr;
-                model.PhoneNumberTr = _smsSettings.PhoneNumberTr;
-                model.UserNameTr = _smsSettings.UserNameTr;
-                model.PasswordTr = _smsSettings.PasswordTr;
-                model.AccountSidTr = _smsSettings.AccountSidTr;
-                model.AuthTokenTr = _smsSettings.AuthTokenTr;
-                model.MessageTemplateTr = _smsSettings.MessageTemplateTr;
+                model.ProviderName = _smsSettings.ProviderNameTr;
+                model.Active = _smsSettings.ActiveTr;
+                model.BaseURL = _smsSettings.BaseURLTr;
+                model.Resource = _smsSettings.ResourceTr;
+                model.CountryCode = _smsSettings.CountryCodeTr;
+                model.PhoneNumber = _smsSettings.PhoneNumberTr;
+                model.UserName = _smsSettings.UserNameTr;
+                model.Password = _smsSettings.PasswordTr;
+                model.AccountSid = _smsSettings.AccountSidTr;
+                model.AuthToken = _smsSettings.AuthTokenTr;
+                model.MessageTemplate = _smsSettings.MessageTemplateTr;
 
-                return View("~/Plugins/Misc.SMS/Views/ConfigureTr.cshtml", model);
             }
-            
 
-            
-           
+
+            return View("~/Plugins/Misc.SMS/Views/Configure.cshtml", model);
+
+
         }
 
         [AdminAuthorize]
@@ -274,25 +273,25 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                 _smsSettings.AccountSid = _smsSettings.AccountSid;
                 _smsSettings.AuthToken = _smsSettings.AuthToken;
                 _smsSettings.MessageTemplate = _smsSettings.MessageTemplate;
-                
+
             }
             else
             {
-                _smsSettings.ActiveTr = model.ActiveTr;
-                _smsSettings.BaseURLTr = model.BaseURLTr;
-                _smsSettings.ResourceTr = model.ResourceTr;
-                _smsSettings.CountryCodeTr = model.CountryCodeTr;
-                _smsSettings.PhoneNumberTr = model.PhoneNumberTr;
-                _smsSettings.UserNameTr = model.UserNameTr;
-                _smsSettings.PasswordTr = model.PasswordTr;
-                _smsSettings.AccountSidTr = _smsSettings.AccountSidTr;
-                _smsSettings.AuthTokenTr = _smsSettings.AuthTokenTr;
-                _smsSettings.MessageTemplateTr = _smsSettings.MessageTemplateTr;
+                _smsSettings.ActiveTr = model.Active;
+                _smsSettings.BaseURLTr = model.BaseURL;
+                _smsSettings.ResourceTr = model.Resource;
+                _smsSettings.CountryCodeTr = model.CountryCode;
+                _smsSettings.PhoneNumberTr = model.PhoneNumber;
+                _smsSettings.UserNameTr = model.UserName;
+                _smsSettings.PasswordTr = model.Password;
+                _smsSettings.AccountSidTr = _smsSettings.AccountSid;
+                _smsSettings.AuthTokenTr = _smsSettings.AuthToken;
+                _smsSettings.MessageTemplateTr = _smsSettings.MessageTemplate;
             }
             _settingService.SaveSetting(_smsSettings);
 
             SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
-            
+
             return Configure();
         }
 
@@ -312,8 +311,8 @@ namespace Nop.Plugin.Misc.SMS.Controllers
             smsModel.Active = _workContext.WorkingLanguage.Name == "English" ? _smsSettings.Active : _smsSettings.ActiveTr; //BUGFIX 3.812
             var smsRecordModel = new SMSRecord();
             smsModel.SmsRecordModel = smsRecordModel;
-            
-            return View("~/Plugins/Misc.SMS/Views/Register.cshtml",smsModel);
+
+            return View("~/Plugins/Misc.SMS/Views/Register.cshtml", smsModel);
         }
 
         [HttpPost]
@@ -528,7 +527,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                             model.Password = _smsSettings.PasswordTr;
                             model.MessageTemplate = _smsSettings.MessageTemplateTr;
                         }
-                        
+
                         model.SmsRecordModel.CustomerId = _customerService.GetCustomerByEmail(model.RegisterModel.Email).Id;
                         model.SmsRecordModel.ActivationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
                         model.SmsRecordModel.Active = false; //BUGFIX 3.803
@@ -540,11 +539,11 @@ namespace Nop.Plugin.Misc.SMS.Controllers
                         else
                         {
                             //NOP 3.829
-                            ModelState.AddModelError("", _localizationService.GetResource("Account.Validatephone.Wrongnumber")); 
+                            ModelState.AddModelError("", _localizationService.GetResource("Account.Validatephone.Wrongnumber"));
                             PrepareCustomerRegisterModel(model.RegisterModel, true, customerAttributesXml);
                             return View("~/Plugins/Misc.SMS/Views/Register.cshtml", model);
                         }
-                            
+
                     }
                     switch (_customerSettings.UserRegistrationType)
                     {
@@ -588,7 +587,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
             return View("~/Plugins/Misc.SMS/Views/Register.cshtml", model);
         }
 
-        
+
         //available even when navigation is not allowed
         [PublicStoreAllowNavigation(true)]
         [HttpPost]
@@ -610,7 +609,7 @@ namespace Nop.Plugin.Misc.SMS.Controllers
 
             var smsRecord = _smsService.GetByCustomerId(customerId);
             var cToken = smsRecord.ActivationCode;
-            
+
             if (String.IsNullOrEmpty(cToken))
                 return RedirectToRoute("HomePage");
 
@@ -633,6 +632,105 @@ namespace Nop.Plugin.Misc.SMS.Controllers
             return View("~/Plugins/Misc.SMS/Views/AccountActivation.cshtml", model);
         }
 
+
+
+        public ActionResult ValidatePhone(string referrer = null)
+        {
+            var model = new SMSModel();
+            model.Referrer = referrer;
+            return View("~/Plugins/Misc.SMS/Views/ValidatePhone.cshtml", model);
+        }
+
+        [HttpPost]
+        public ActionResult ValidatePhone(SMSModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var customer = EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer;
+                var customerId = customer.Id;
+                var activationCode = Guid.NewGuid().ToString().GetHashCode().ToString("x");
+                var phoneNumber = model.SmsRecordModel.PhoneNumber;
+                var active = false;
+
+                var currentPhoneNumber = _smsService.GetPhoneNumber(_workContext.CurrentCustomer.Id);
+
+                if (currentPhoneNumber == null)
+                {
+                    var smsRecord = new SMSRecord();
+                    smsRecord.CustomerId = customerId;
+                    smsRecord.ActivationCode = activationCode;
+                    smsRecord.PhoneNumber = phoneNumber;
+                    smsRecord.Active = active;
+                    _smsService.InsertSMSRecord(smsRecord);
+                }
+                else
+                {
+                    var smsRecord = _smsService.GetByCustomerId(customerId);
+                    smsRecord.CustomerId = customerId;
+                    smsRecord.ActivationCode = activationCode;
+                    smsRecord.PhoneNumber = phoneNumber;
+                    smsRecord.Active = active;
+                    _smsService.UpdateSMSRecord(smsRecord);
+                }
+
+                if (_workContext.WorkingLanguage.Name == "English")
+                {
+                    model.BaseURL = _smsSettings.BaseURL;
+                    model.Resource = _smsSettings.Resource;
+                    model.UserName = _smsSettings.UserName;
+                    model.Password = _smsSettings.Password;
+                    model.MessageTemplate = _smsSettings.MessageTemplate;
+                }
+                else 
+                {
+                    model.BaseURL = _smsSettings.BaseURLTr;
+                    model.Resource = _smsSettings.ResourceTr;
+                    model.UserName = _smsSettings.UserNameTr;
+                    model.Password = _smsSettings.PasswordTr;
+                    model.MessageTemplate = _smsSettings.MessageTemplateTr;
+                }
+
+                if (_smsService.SendSMS(model.MessageTemplate + " " + activationCode,
+                    model.PhoneNumber,
+                    model.SmsRecordModel.PhoneNumber, null, model.UserName,
+                    model.Password, model.BaseURL,
+                    model.Resource))
+                {
+                    return View("~/Plugins/Misc.SMS/Views/ValidatePhoneResult.cshtml", model);
+                }
+                else
+                {
+                    ModelState.AddModelError("", _localizationService.GetResource("Account.Validatephone.Wrongnumber"));
+                }
+            }
+            return View("~/Plugins/Misc.SMS/Views/ValidatePhone.cshtml", model);
+        }
+
+
+        public ActionResult AccountValidation(string token, string referrer)
+        {
+            var customer = EngineContext.Current.Resolve<IWorkContext>().CurrentCustomer;
+            var customerId = customer.Id;
+
+            var cToken = _smsService.GetActivationCode(customerId);
+
+            if (String.IsNullOrEmpty(cToken))
+                return RedirectToRoute("HomePage");
+
+            if (!cToken.Equals(token, StringComparison.InvariantCultureIgnoreCase))
+                return RedirectToRoute("HomePage");
+
+            var smsRecord = _smsService.GetByCustomerId(customerId);
+            smsRecord.Active = true;
+            _smsService.UpdateSMSRecord(smsRecord);
+
+            var model = new AccountActivationModel();
+
+            model.CustomProperties.Add("Referrer", referrer);
+
+            model.Result = _localizationService.GetResource("Account.ValidatePhone.Validated");
+            return View("~/Plugins/Misc.SMS/Views/AccountValidation.cshtml", model);
+        }
         #endregion
 
         #region Utilities

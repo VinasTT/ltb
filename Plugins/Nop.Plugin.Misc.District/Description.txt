@@ -1,0 +1,9 @@
+﻿Group: Misc
+FriendlyName: District
+SystemName: Misc.District
+Version: 1.00
+SupportedVersions: 3.80
+Author: Reşit Akyüz
+DisplayOrder: 1
+FileName: Nop.Plugin.Misc.District.dll
+Description: This plugin allows you to enable district selection

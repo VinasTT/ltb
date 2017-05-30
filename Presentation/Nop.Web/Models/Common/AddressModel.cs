@@ -98,9 +98,10 @@ namespace Nop.Web.Models.Common
 
         public string FormattedCustomAddressAttributes { get; set; }
         public IList<AddressAttributeModel> CustomAddressAttributes { get; set; }
-        
+
         public IList<SelectListItem> AvailableDistricts { get; set; } //NOP 3.828
-        
+
         public int? StateProvinceMappingId { get; set; } //NOP 3.828
+
     }
 }

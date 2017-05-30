@@ -1,5 +1,7 @@
 ﻿@model CheckoutShippingAddressModel
-@using Nop.Web.Models.Checkout;
+@using Nop.Plugin.Misc.District.Models;
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework;
 @{
     Layout = "~/Views/Shared/_ColumnsOne.cshtml";
 
@@ -254,6 +256,10 @@
                                                 </li>
                                             }
 
+                                            @*NOP 3.828*@
+                                            <li class="district">
+                                                @item.DistrictName
+                                            </li>
 
                                             @if (item.CityEnabled || item.StateProvinceEnabled || item.ZipPostalCodeEnabled)
                                             {
@@ -322,7 +328,7 @@
                                 //Merge ModelState (required for validation)
                                 dataDictAddress.ModelState.Merge(ViewData.ModelState);
                                 dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
-                                @Html.Partial("_CreateOrUpdateAddress", Model.NewAddress, dataDictAddress)
+                                @Html.Partial("~/Plugins/Misc.District/Views/Shared/_CreateOrUpdateAddress.cshtml", Model.NewAddress, dataDictAddress)
                             }
                         </div>
                     </div>

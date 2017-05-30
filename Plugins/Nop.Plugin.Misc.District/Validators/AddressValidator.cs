@@ -7,13 +7,14 @@ using Nop.Services.Localization;
 using Nop.Web.Framework.Validators;
 using Nop.Web.Models.Common;
 
-namespace Nop.Web.Validators.Common
+namespace Nop.Plugin.Misc.District.Validators
 {
     public partial class AddressValidator : BaseNopValidator<AddressModel>
     {
         public AddressValidator(ILocalizationService localizationService,
             IStateProvinceService stateProvinceService,
-            AddressSettings addressSettings)
+            AddressSettings addressSettings,
+            IDistrictService districtService) //NOP 3.828
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty()
@@ -55,6 +56,25 @@ namespace Nop.Web.Validators.Common
                     return null;
                 });
             }
+
+            //NOP 3.828
+            Custom(x =>
+            {
+                //does selected country has states?
+                var stateId = x.StateProvinceId.HasValue ? x.StateProvinceId.Value : 0;
+                var stateMappingId = districtService.GetStateProvinceMappingIdByStateId(stateId);
+                var hasDistricts = districtService.GetDistrictsByStateProvinceId(stateMappingId).Any();
+
+                if (hasDistricts)
+                {
+                    //if yes, then ensure that state is selected
+                    if (!x.DistrictId.HasValue || x.DistrictId.Value == 0)
+                    {
+                        return new ValidationFailure("DistrictId", localizationService.GetResource("Address.Fields.DistrictId.Required"));
+                    }
+                }
+                return null;
+            });
 
             if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)
             {

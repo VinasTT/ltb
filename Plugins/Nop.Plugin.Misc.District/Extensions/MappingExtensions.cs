@@ -153,7 +153,7 @@ namespace Nop.Plugin.Misc.District.Extensions
                 if (localizationService == null)
                     throw new ArgumentNullException("localizationService");
 
-                model.AvailableCountries.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectCountry"), Value = "0" });
+                model.AvailableCountries.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectCountry"), Value = "" });
                 foreach (var c in loadCountries())
                 {
                     model.AvailableCountries.Add(new SelectListItem
@@ -176,7 +176,7 @@ namespace Nop.Plugin.Misc.District.Extensions
                         .ToList();
                     if (states.Any())
                     {
-                        model.AvailableStates.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectState"), Value = "0" });
+                        model.AvailableStates.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectState"), Value = "" });
                         
                         foreach (var s in states)
                         {
@@ -194,7 +194,7 @@ namespace Nop.Plugin.Misc.District.Extensions
                         model.AvailableStates.Add(new SelectListItem
                         {
                             Text = localizationService.GetResource(anyCountrySelected ? "Address.OtherNonUS" : "Address.SelectState"),
-                            Value = "0"
+                            Value = ""
                         });
                     }
 
@@ -208,7 +208,7 @@ namespace Nop.Plugin.Misc.District.Extensions
                        .ToList();
                     if (districts.Any())
                     {
-                        model.AvailableDistricts.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectDistrict"), Value = "0" });
+                        model.AvailableDistricts.Add(new SelectListItem { Text = localizationService.GetResource("Address.SelectDistrict"), Value = "" });
 
                         foreach (var s in districts)
                         {
@@ -226,7 +226,7 @@ namespace Nop.Plugin.Misc.District.Extensions
                         model.AvailableDistricts.Add(new SelectListItem
                         {
                             Text = localizationService.GetResource(anyStateSelected ? "Address.OtherNonUS" : "Address.SelectDistrict"),
-                            Value = "0"
+                            Value = ""
                         });
                     }
                 }

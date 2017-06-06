@@ -16,11 +16,11 @@ namespace Nop.Plugin.Misc.District
                             new { controller = "District", action = "GetDistrictsByStateId" },
                             new[] { "Nop.Plugin.Misc.District.Controllers" });
 
-            /*routes.MapRoute("CustomerAddressEdit",
-                            "customer/addressedit/{addressId}",
-                            new { controller = "District", action = "AddressEdit" },
-                            new { addressId = @"\d+" },
+            /*routes.MapRoute("CheckoutAddress",
+                            "district/checkoutaddress/",
+                            new { controller = "District", action = "NewCheckoutAddress" },
                             new[] { "Nop.Plugin.Misc.District.Controllers" });*/
+
         }
         public int Priority
         {

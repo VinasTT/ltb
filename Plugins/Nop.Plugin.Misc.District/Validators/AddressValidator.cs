@@ -36,7 +36,15 @@ namespace Nop.Plugin.Misc.District.Validators
                 RuleFor(x => x.CountryId)
                     .NotEqual(0)
                     .WithMessage(localizationService.GetResource("Address.Fields.Country.Required"));
+
+                RuleFor(x => x.StateProvinceId)
+                    .NotNull()
+                    .WithMessage(localizationService.GetResource("Address.Fields.State.Required"));
+                RuleFor(x => x.StateProvinceId)
+                    .NotEqual(0)
+                    .WithMessage(localizationService.GetResource("Address.Fields.State.Required"));
             }
+
             if (addressSettings.CountryEnabled && addressSettings.StateProvinceEnabled)
             {
                 Custom(x =>

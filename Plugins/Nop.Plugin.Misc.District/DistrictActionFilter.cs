@@ -7,8 +7,8 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Misc.District.Controllers;
-
 using Nop.Plugin.Misc.District.Services;
+using Nop.Plugin.Misc.District.Models;
 using Nop.Services.Catalog;
 using Nop.Web.Models.Customer;
 using Nop.Web.Models.Checkout;
@@ -30,15 +30,12 @@ namespace Nop.Plugin.Widgets.District
         {
             if (
                 controllerContext.Controller is Nop.Web.Controllers.CheckoutController && actionDescriptor.ActionName.Equals("BillingAddress", StringComparison.InvariantCultureIgnoreCase) ||
-                controllerContext.Controller is Nop.Web.Controllers.CheckoutController && actionDescriptor.ActionName.Equals("SelectBillingAddress", StringComparison.InvariantCultureIgnoreCase) ||
-                controllerContext.Controller is Nop.Web.Controllers.CheckoutController && actionDescriptor.ActionName.Equals("NewBillingAddress", StringComparison.InvariantCultureIgnoreCase) ||
                 controllerContext.Controller is Nop.Web.Controllers.CheckoutController && actionDescriptor.ActionName.Equals("ShippingAddress", StringComparison.InvariantCultureIgnoreCase) ||
-                controllerContext.Controller is Nop.Web.Controllers.CheckoutController && actionDescriptor.ActionName.Equals("SelectShippingAddress", StringComparison.InvariantCultureIgnoreCase) ||
-                controllerContext.Controller is Nop.Web.Controllers.CheckoutController && actionDescriptor.ActionName.Equals("NewShippingAddress", StringComparison.InvariantCultureIgnoreCase) ||
-
                 controllerContext.Controller is Nop.Web.Controllers.CustomerController && actionDescriptor.ActionName.Equals("Addresses", StringComparison.InvariantCultureIgnoreCase) ||
                 controllerContext.Controller is Nop.Web.Controllers.CustomerController && actionDescriptor.ActionName.Equals("AddressAdd", StringComparison.InvariantCultureIgnoreCase) ||
-                controllerContext.Controller is Nop.Web.Controllers.CustomerController && actionDescriptor.ActionName.Equals("AddressEdit", StringComparison.InvariantCultureIgnoreCase)
+                controllerContext.Controller is Nop.Web.Controllers.CustomerController && actionDescriptor.ActionName.Equals("AddressEdit", StringComparison.InvariantCultureIgnoreCase) ||
+                controllerContext.Controller is Nop.Web.Controllers.ShoppingCartController && actionDescriptor.ActionName.Equals("OrderSummary", StringComparison.InvariantCultureIgnoreCase)
+               
                 )
 
             {
@@ -52,47 +49,21 @@ namespace Nop.Plugin.Widgets.District
         {
             var districtController = EngineContext.Current.Resolve<DistrictController>(); // my plugin controller
 
+
             if (filterContext.Controller is Nop.Web.Controllers.CheckoutController && filterContext.ActionDescriptor.ActionName.Equals("BillingAddress", StringComparison.InvariantCultureIgnoreCase))
             {
                 var form = (FormCollection)filterContext.ActionParameters["form"];
-                if (filterContext.HttpContext.Request.HttpMethod == "GET")
-                {   
-                    filterContext.Result = districtController.BillingAddress(form); // my controller method
-                }
-                else
-                {
-                    var model = (CheckoutBillingAddressModel)filterContext.ActionParameters["model"];
-                    filterContext.Result = districtController.NewBillingAddress(model, form); // my controller method
-                }
-                
-            }
-            else if (filterContext.Controller is Nop.Web.Controllers.CheckoutController && filterContext.ActionDescriptor.ActionName.Equals("SelectBillingAddress", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var addressId = (int)filterContext.ActionParameters["addressId"];
-                var shipToSameAddress = Convert.ToBoolean(filterContext.ActionParameters["shiptosameaddress"]);
-                filterContext.Result = districtController.SelectBillingAddress(addressId,shipToSameAddress); // my controller method
+                filterContext.Result = districtController.CheckoutAddress(form); // my controller method
+
             }
             
             else if (filterContext.Controller is Nop.Web.Controllers.CheckoutController && filterContext.ActionDescriptor.ActionName.Equals("ShippingAddress", StringComparison.InvariantCultureIgnoreCase))
             {
-                
-                if (filterContext.HttpContext.Request.HttpMethod == "GET")
-                {
-                    filterContext.Result = districtController.ShippingAddress(); // my controller method
-                }
-                else
-                {
-                    var form = (FormCollection)filterContext.ActionParameters["form"];
-                    var model = (CheckoutShippingAddressModel)filterContext.ActionParameters["model"];
-                    filterContext.Result = districtController.NewShippingAddress(model, form); // my controller method
-                }
-                    
+                var form = (FormCollection)filterContext.ActionParameters["form"];
+                filterContext.Result = districtController.CheckoutAddress(form); // my controller method
+
             }
-            else if (filterContext.Controller is Nop.Web.Controllers.CheckoutController && filterContext.ActionDescriptor.ActionName.Equals("SelectShippingAddress", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var addressId = (int)filterContext.ActionParameters["addressId"];
-                filterContext.Result = districtController.SelectShippingAddress(addressId); // my controller method
-            }
+
             else if (filterContext.Controller is Nop.Web.Controllers.CustomerController && filterContext.ActionDescriptor.ActionName.Equals("Addresses", StringComparison.InvariantCultureIgnoreCase))
             {
                 filterContext.Result = districtController.Addresses(); // my controller method
@@ -124,6 +95,12 @@ namespace Nop.Plugin.Widgets.District
                     var model = (CustomerAddressEditModel)filterContext.ActionParameters["model"];
                     filterContext.Result = districtController.AddressEdit(model, addressId, form); // my controller method
                 }
+            }
+
+            else if (filterContext.Controller is Nop.Web.Controllers.ShoppingCartController && filterContext.ActionDescriptor.ActionName.Equals("OrderSummary", StringComparison.InvariantCultureIgnoreCase))
+            {
+                bool? prepareAndDisplayOrderReviewData = (bool?)filterContext.ActionParameters["prepareAndDisplayOrderReviewData"];
+                filterContext.Result = districtController.OrderSummary(prepareAndDisplayOrderReviewData); // my controller method
             }
 
 

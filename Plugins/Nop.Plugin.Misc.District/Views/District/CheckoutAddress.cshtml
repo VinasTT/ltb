@@ -1,0 +1,364 @@
+﻿@model CheckoutAddressModel
+@using Nop.Plugin.Misc.District.Models;
+@using Nop.Web.Models.Checkout;
+@using Nop.Web.Framework.UI;
+@using Nop.Web.Framework;
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts(T("PageTitle.Checkout").Text);
+    //page class
+    Html.AppendPageCssClassParts("html-checkout-page");
+    Html.AppendPageCssClassParts("html-billing-address-page");
+    Html.AppendCssFileParts("~/Plugins/Misc.District/Content/css/district.css");
+}
+<div class="page checkout-page billing-address-page">
+    @Html.Action("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Address })
+    <div class="page-title">
+        <h1>@T("Checkout.Address")</h1>
+    </div>
+    <div class="page-body checkout-data">
+        @using (Html.BeginForm("NewCheckoutAddress", "District", FormMethod.Post))
+        {
+            <div class="billing-addresses">
+                @Html.Widget("checkout_billing_address_top")
+                @if (Model.CheckoutBillingAddressModel.ShipToSameAddressAllowed)
+                {
+                    <div class="section ship-to-same-address">
+                        <div class="selector">
+                            @Html.CheckBoxFor(x => x.CheckoutBillingAddressModel.ShipToSameAddress)
+                            <label for="@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)">@T("Checkout.ShipToSameAddress")</label>
+                        </div>
+                    </div>
+                }
+                @if (Model.CheckoutBillingAddressModel.ExistingAddresses.Count > 0)
+                {
+                    <div class="section select-billing-address">
+                        <div class="title">
+                            <strong>@T("Checkout.SelectBillingAddress")</strong>
+                        </div>
+
+                        <select id="BillingAddressSelect">
+                            @foreach (var item in Model.CheckoutBillingAddressModel.ExistingAddresses)
+                            {
+                                <option value="@item.Id">@item.FirstName @item.LastName , @item.Address1 , @item.DistrictName @item.StateProvinceName @item.CountryName</option>
+                            }
+                        </select>
+                        <div class="select-button">
+                            <input type="button" value="@T("Checkout.BillToThisAddress")" class="button-1 select-billing-address-button" onclick="selectBillingAddress()" />
+                            <script type="text/javascript">
+                                function selectBillingAddress() {
+                                    var addressId = $("#BillingAddressSelect").val();
+                                    $.post( "/district/SelectBillingAddress",{ addressId: addressId }, function( data ) {
+                                        $( ".billing-addresses" ).html( data );
+                                        $( ".billing-addresses" ).addClass( "selected" );
+                                        $( ".billing-addresses" ).css( "text-align" , "center");
+                                        $(".checkout-address-billing-selected").css("padding-bottom","50px");
+                                    });
+
+                                    if($(".shipping-addresses").hasClass("selected")){
+                                        $("#CheckoutNewAddress").hide();
+                                        $("#ShippingMethod").show();
+                                        $( ".billing-addresses" ).css( "float" , "inherit");
+                                    }
+                                }
+                            </script>
+                        </div>
+                    </div>
+                }
+                @Html.Widget("checkout_billing_address_middle")
+                <div class="section new-billing-address">
+                    <div class="title">
+                        @if (Model.CheckoutBillingAddressModel.ExistingAddresses.Count > 0)
+                        {
+                            <strong>@T("Checkout.OrEnterNewAddress")</strong>
+                        }
+                        else
+                        {
+                            <strong>@T("Checkout.EnterBillingAddress")</strong>
+                        }
+                    </div>
+                    <div class="enter-address">
+
+                        @{
+                            var dataDictAddress = new ViewDataDictionary();
+                            //Merge ModelState (required for validation)
+                            dataDictAddress.ModelState.Merge(ViewData.ModelState);
+                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "BillingNewAddress";
+                            @Html.Partial("~/Plugins/Misc.District/Views/Shared/_CreateOrUpdateAddressBilling.cshtml", Model.CheckoutBillingAddressModel.NewAddress, dataDictAddress)
+                        }
+                    </div>
+                </div>
+                @Html.Widget("checkout_billing_address_bottom")
+            </div>
+
+                            if (Model.CheckoutShippingAddressModel.AllowPickUpInStore && !Model.CheckoutShippingAddressModel.PickUpInStoreOnly && Model.CheckoutShippingAddressModel.PickupPoints.Any())
+                            {
+                                <div class="section pickup-in-store">
+                                    <div class="selector">
+                                        @Html.CheckBoxFor(x => x.CheckoutShippingAddressModel.PickUpInStore)
+                                        <label for="@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)">@T("Checkout.PickupPoints").Text</label>
+                                    </div>
+                                    <div class="description">
+                                        @T("Checkout.PickupPoints.Description")
+                                    </div>
+                                    <script type="text/javascript">
+                        $(document).ready(function () {
+                            $("#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)").change(togglePickUpInStore);
+                            togglePickUpInStore();
+                        });
+
+                        function togglePickUpInStore() {
+                            if ($('#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)').is(':checked')) {
+                                $('#pickup-points-form').show();
+                                $('#shipping-addresses-form').hide();
+                            } else {
+                                $('#pickup-points-form').hide();
+                                $('#shipping-addresses-form').show();
+                            }
+                        }
+                                    </script>
+                                </div>
+                            }
+
+                            if (Model.CheckoutShippingAddressModel.AllowPickUpInStore)
+                            {
+                                <div class="section pickup-points" id="pickup-points-form">
+                                    @if (Model.CheckoutShippingAddressModel.PickupPoints.Any())
+                    {
+                        if (Model.CheckoutShippingAddressModel.PickUpInStoreOnly)
+                        {
+                                            @Html.HiddenFor(x => x.CheckoutShippingAddressModel.PickUpInStore)
+                                        }
+                                        <div class="select-pickup-point">
+                                            @if (Model.CheckoutShippingAddressModel.PickupPoints.Count == 1)
+                                            {
+                                                var point = Model.CheckoutShippingAddressModel.PickupPoints.First();
+                                                @Html.Hidden("pickup-points-id", string.Format("{0}___{1}", point.Id, point.ProviderSystemName))
+                                                <ul>
+                                                    <li class="single-pickup-point name">@point.Name</li>
+                                                    <li class="single-pickup-point address">@(string.Format("{0} {1} {2}", point.Address, point.City, point.CountryName))</li>
+                                                    @if (!string.IsNullOrEmpty(point.PickupFee))
+                                                    {
+                                                        <li class="single-pickup-point fee">@point.PickupFee</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <div class="title">
+                                                    <strong>@T("Checkout.PickupPoints.SelectPickupPoint")</strong>
+                                                </div>
+                                                <select name="pickup-points-id" id="pickup-points-select" class="address-select" title="">
+                                                    @foreach (var point in Model.CheckoutShippingAddressModel.PickupPoints)
+                                                    {
+                                                        var addressLine = new System.Text.StringBuilder();
+                                                        addressLine.Append(point.Name);
+                                                        if (!string.IsNullOrEmpty(point.Address))
+                                                        {
+                                                            addressLine.AppendFormat(", {0}", point.Address);
+                                                        }
+                                                        if (!string.IsNullOrEmpty(point.City))
+                                                        {
+                                                            addressLine.AppendFormat(", {0}", point.City);
+                                                        }
+                                                        if (!string.IsNullOrEmpty(point.CountryName))
+                                                        {
+                                                            addressLine.AppendFormat(", {0}", point.CountryName);
+                                                        }
+                                                        if (!string.IsNullOrEmpty(point.PickupFee))
+                                                        {
+                                                            addressLine.AppendFormat(", {0}", point.PickupFee);
+                                                        }
+                                                        <option value="@(string.Format("{0}___{1}", point.Id, point.ProviderSystemName))">@(addressLine)</option>
+                                                    }
+                                                </select>
+                                            }
+                                        </div>
+                                        if (Model.CheckoutShippingAddressModel.DisplayPickupPointsOnMap)
+                                        {
+                                            var src = string.Format("https://maps.googleapis.com/maps/api/js{0}", string.IsNullOrEmpty(Model.CheckoutShippingAddressModel.GoogleMapsApiKey) ? string.Empty : string.Format("?key={0}", Model.CheckoutShippingAddressModel.GoogleMapsApiKey));
+                                            <div class="pickup-points-map" id="map">
+                                                <script type="text/javascript">
+                                    var markers = new Map();
+                                    var googleMap = null;
+                                    $(document).ready(function () {
+                                        $.getScript("@src", function( data, textStatus, jqxhr ) {
+                                            google.maps.visualRefresh = true;
+                                            googleMap = new google.maps.Map(document.getElementById("map"), {
+                                                zoom: 15,
+                                                mapTypeId: google.maps.MapTypeId.ROADMAP
+                                            });
+                                            var geocoder = new google.maps.Geocoder();
+                                            var infowindow = new google.maps.InfoWindow();
+                                            @for (var i = 0; i < Model.CheckoutShippingAddressModel.PickupPoints.Count; i++)
+                                            {
+                                                var point = Model.CheckoutShippingAddressModel.PickupPoints[i];
+                                                var value = string.Format("{0}___{1}", point.Id, point.ProviderSystemName);
+                                                var pickupPointInfo = Html.Raw(string.Format(@"<div class='pickup-point-info'><ul><li><strong>{0}</strong></li><li>{1}</li><li>{2}</li></ul></div>",
+                                                    point.Name, point.OpeningHours, point.PickupFee));
+                                                if (point.Latitude != null && point.Longitude != null)
+                                                {
+                                                    <text>
+                                                        var marker = new google.maps.Marker({
+                                                            map: googleMap,
+                                                            title: "@point.Name",
+                                                            position: new google.maps.LatLng(@point.Latitude, @point.Longitude),
+                                                            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                                                        });
+                                                        markers.set("@value", marker);
+                                                        google.maps.event.addListener(marker, 'click', function () {
+                                                            $('#pickup-points-select').val("@value")
+                                                            infowindow.setContent("@pickupPointInfo");
+                                                            infowindow.open(googleMap, marker);
+                                                        });
+                                                        @if (i == 0)
+                                                        {
+                                                            <text>googleMap.setCenter(marker.getPosition())</text>
+                                                        }
+                                                    </text>
+                                                }
+                                                else
+                                                {
+                                                    var address = string.Format("{0} {1} {2} {3}", point.Address, point.City, point.ZipPostalCode, point.CountryName);
+                                                    <text>
+                                                        geocoder.geocode({'address': "@address"}, function(results, status) {
+                                                            if (status === google.maps.GeocoderStatus.OK) {
+                                                                var marker = new google.maps.Marker({
+                                                                    map: googleMap,
+                                                                    title: "@point.Name",
+                                                                    position: results[0].geometry.location,
+                                                                    icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                                                                });
+                                                                markers.set("@value", marker);
+                                                                google.maps.event.addListener(marker, 'click', function () {
+                                                                    $('#pickup-points-select').val("@value")
+                                                                    infowindow.setContent("@pickupPointInfo");
+                                                                    infowindow.open(googleMap, marker);
+                                                                });
+                                                                @if (i == 0)
+                                                                {
+                                                                    <text>googleMap.setCenter(marker.getPosition())</text>
+                                                                }
+                                                            };
+                                                        });
+                                                    </text>
+                                                }
+                                            }
+
+                                            $('#pickup-points-select').change(function() {
+                                                new google.maps.event.trigger(markers.get(this.value), 'click' );
+                                            });
+
+                                            $("#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)").change(function() {
+                                                if ($('#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)').is(':checked')) {
+                                                    var center = googleMap.getCenter();
+                                                    google.maps.event.trigger(googleMap, 'resize');
+                                                    googleMap.setCenter(center);
+                                                }
+                                            })
+                                        })
+                                    })
+                                                </script>
+                                            </div>
+                                        }
+                                    }
+                                    <div class="message-error">
+                                        <ul>
+                                            @foreach (var warning in Model.CheckoutShippingAddressModel.Warnings)
+                                            {
+                                                <li>@warning</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            }
+
+                            if (!Model.CheckoutShippingAddressModel.PickUpInStoreOnly)
+                            {
+                                <div class="shipping-addresses" id="shipping-addresses-form">
+                                    @Html.Widget("checkout_shipping_address_top")
+                                    @if (Model.CheckoutShippingAddressModel.ExistingAddresses.Count > 0)
+                    {
+                                        <div class="section select-shipping-address">
+                                            <div class="title">
+                                                <strong>@T("Checkout.SelectShippingAddress")</strong>
+                                            </div>
+
+                                            <select id="ShippingAddressSelect">
+                                                @foreach (var item in Model.CheckoutShippingAddressModel.ExistingAddresses)
+                                                {
+                                                    <option value="@item.Id">@item.FirstName @item.LastName , @item.Address1 , @item.DistrictName @item.StateProvinceName @item.CountryName</option>
+                                                }
+                                            </select>
+                                            <div class="select-button">
+                                                <input type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-billing-address-button" onclick="selectShippingAddress()" />
+                                                <script type="text/javascript">
+                                    function selectShippingAddress() {
+                                        var addressId = $("#ShippingAddressSelect").val();
+                                        $.post( "/district/SelectShippingAddress",{addressId : addressId}, function( data ) {
+                                            $( ".shipping-addresses" ).html( data );
+                                            $( ".shipping-addresses" ).addClass( "selected" );
+                                            $( ".shipping-addresses" ).css( "text-align" , "center");
+                                            $(".checkout-address-shipping-selected").css("padding-bottom","50px");
+
+                                        });
+
+                                        if($(".billing-addresses").hasClass("selected")){
+                                            $("#CheckoutNewAddress").hide();
+                                            $("#ShippingMethod").show();
+                                            $( ".billing-addresses" ).css( "float" , "inherit");
+                                        }
+                                    }
+                                                </script>
+                                            </div>
+                                        </div>
+                                    }
+                                    @Html.Widget("checkout_shipping_address_middle")
+                                    <div class="section new-shipping-address">
+                                        <div class="title">
+                                            @if (Model.CheckoutShippingAddressModel.ExistingAddresses.Count > 0)
+                                            {
+                                                <strong>@T("Checkout.OrEnterNewAddress")</strong>
+                                            }
+                                            else
+                                            {
+                                                <strong>@T("Checkout.EnterShippingAddress")</strong>
+                                            }
+                                        </div>
+                                        <div class="enter-address">
+
+                                            @{
+                                                dataDictAddress.ModelState.Merge(ViewData.ModelState);
+                                                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
+                                                @Html.Partial("~/Plugins/Misc.District/Views/Shared/_CreateOrUpdateAddressShipping.cshtml", Model.CheckoutShippingAddressModel.NewAddress, dataDictAddress)
+                                            }
+                                        </div>
+                                    </div>
+                                    @Html.Widget("checkout_shipping_address_bottom")
+                                </div>
+                                                }
+                                                <div class="buttons">
+
+                                                    @{
+                                                        var validationSummary = Html.ValidationSummary(true);
+                                                    }
+                                                    @if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+                {
+                                                        <div class="message-error">@validationSummary</div>
+                                                    }
+                                                    <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" id="CheckoutNewAddress" />
+                                                    <input type="button" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" id="ShippingMethod" style="display:none;" onclick="setLocation('/checkout/ShippingMethod')" />
+
+                                                </div>
+                                                        }
+
+        <div class="section order-summary">
+            <div class="title">
+                <strong>@T("Checkout.OrderSummary")</strong>
+            </div>
+            @Html.Action("OrderSummary", "ShoppingCart")
+        </div>
+    </div>
+</div>

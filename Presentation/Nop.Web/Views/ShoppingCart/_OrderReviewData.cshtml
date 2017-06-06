@@ -45,12 +45,7 @@
                             @Model.BillingAddress.Address2
                         </li>
                     }
-
-                    @*NOP 3.828*@
-                    <li class="district">
-                        @Model.BillingAddress.DistrictName
-                    </li>
-
+                    
                     @if (Model.BillingAddress.CityEnabled ||
                          Model.BillingAddress.StateProvinceEnabled ||
                          Model.BillingAddress.ZipPostalCodeEnabled)

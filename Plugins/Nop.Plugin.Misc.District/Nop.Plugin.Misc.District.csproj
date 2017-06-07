@@ -185,7 +185,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\District\PaymentMethod.cshtml" />
-    <Content Include="Views\District\CheckoutProgress.cshtml" />
     <Content Include="Views\Shared\_CreateOrUpdateAddressBilling.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

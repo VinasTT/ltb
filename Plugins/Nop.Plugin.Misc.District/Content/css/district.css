@@ -48,4 +48,10 @@
     .buttons{
         clear: both;
     }
+
+    .highlight{
+        outline: none;
+        border-color: red;
+        box-shadow: 0 0 10px #9ecaed;
+    }
 }

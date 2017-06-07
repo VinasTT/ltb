@@ -961,7 +961,7 @@ namespace Nop.Plugin.Misc.District.Controllers
                     _genericAttributeService.SaveAttribute<ShippingOption>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedShippingOption, null, _storeContext.CurrentStore.Id);
                     _genericAttributeService.SaveAttribute<PickupPoint>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedPickupPoint, null, _storeContext.CurrentStore.Id);
                     //limitation - "Ship to the same address" doesn't properly work in "pick up in store only" case (when no shipping plugins are available) 
-                    return RedirectToRoute("CheckoutShippingMethod");
+                    return RedirectToRoute("CheckoutPaymentMethod");
                 }
                 
             }
@@ -971,7 +971,7 @@ namespace Nop.Plugin.Misc.District.Controllers
             {
                 _workContext.CurrentCustomer.ShippingAddress = null;
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
-                return RedirectToRoute("CheckoutShippingMethod");
+                return RedirectToRoute("CheckoutPaymentMethod");
             }
 
             //pickup point
@@ -1041,7 +1041,7 @@ namespace Nop.Plugin.Misc.District.Controllers
                 _workContext.CurrentCustomer.ShippingAddress = address;
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
 
-                return RedirectToRoute("CheckoutShippingMethod");
+                return RedirectToRoute("CheckoutPaymentMethod");
             }
 
 
@@ -1267,8 +1267,7 @@ namespace Nop.Plugin.Misc.District.Controllers
             return View("~/Plugins/Misc.District/Views/District/ShippingMethod.cshtml",model);
         }
 
-        [HttpPost, ActionName("ShippingMethod")]
-        [FormValueRequired("nextstep")]
+        [HttpPost]
         [ValidateInput(false)]
         public ActionResult SelectShippingMethod(string shippingoption)
         {
@@ -1278,10 +1277,10 @@ namespace Nop.Plugin.Misc.District.Controllers
                 .LimitPerStore(_storeContext.CurrentStore.Id)
                 .ToList();
             if (!cart.Any())
-                return RedirectToRoute("ShoppingCart");
+                return Content("ShoppingCart");
 
             if (_orderSettings.OnePageCheckoutEnabled)
-                return RedirectToRoute("CheckoutOnePage");
+                return Content("CheckoutOnePage");
 
             if (_workContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
                 return new HttpUnauthorizedResult();
@@ -1290,15 +1289,15 @@ namespace Nop.Plugin.Misc.District.Controllers
             {
                 _genericAttributeService.SaveAttribute<ShippingOption>(_workContext.CurrentCustomer,
                     SystemCustomerAttributeNames.SelectedShippingOption, null, _storeContext.CurrentStore.Id);
-                return RedirectToRoute("CheckoutPaymentMethod");
+                return Content("CheckoutPaymentMethod");
             }
 
             //parse selected method 
             if (String.IsNullOrEmpty(shippingoption))
-                return ShippingMethod();
+                return Content("ShippingMethod");
             var splittedOption = shippingoption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
             if (splittedOption.Length != 2)
-                return ShippingMethod();
+                return Content("ShippingMethod");
             string selectedName = splittedOption[0];
             string shippingRateComputationMethodSystemName = splittedOption[1];
 
@@ -1323,12 +1322,12 @@ namespace Nop.Plugin.Misc.District.Controllers
             var shippingOption = shippingOptions
                 .Find(so => !String.IsNullOrEmpty(so.Name) && so.Name.Equals(selectedName, StringComparison.InvariantCultureIgnoreCase));
             if (shippingOption == null)
-                return ShippingMethod();
+                return Content("ShippingMethod");
 
             //save
             _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedShippingOption, shippingOption, _storeContext.CurrentStore.Id);
 
-            return RedirectToRoute("CheckoutPaymentMethod");
+            return Content("<div class='shipping-method-selected'>Shipping Method : " + shippingOption.Name + " , "  + shippingOption.Description + " , "  + shippingOption.Rate + "</div>");
         }
 
         public ActionResult PaymentMethod()

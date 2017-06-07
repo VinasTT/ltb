@@ -4,7 +4,7 @@
 @using Nop.Web.Framework.UI;
 @using Nop.Web.Framework;
 @{
-    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+    
 
     //title
     Html.AddTitleParts(T("PageTitle.Checkout").Text);
@@ -12,65 +12,76 @@
     Html.AppendPageCssClassParts("html-checkout-page");
     Html.AppendPageCssClassParts("html-shipping-method-page");
 }
-<div class="page checkout-page shipping-method-page">
-    @Html.Action("CheckoutProgress", "Checkout", new { step = CheckoutProgressStep.Shipping })
-    <div class="page-title">
-        <h1>@T("Checkout.SelectShippingMethod")</h1>
-    </div>
-    <div class="page-body checkout-data">
+
         <div class="section shipping-method">
-            @using (Html.BeginRouteForm("CheckoutShippingMethod", FormMethod.Post))
+    @using (Html.BeginRouteForm("CheckoutShippingMethod", FormMethod.Post))
             {
-                @Html.Widget("checkout_shipping_method_top")
-                if (Model.Warnings.Count == 0)
-                {
-                <ul class="method-list">
-                    @for (int i = 0; i < Model.ShippingMethods.Count; i++)
+        @Html.Widget("checkout_shipping_method_top")
+        if (Model.Warnings.Count == 0)
+        {
+            <ul class="method-list">
+                @for (int i = 0; i < Model.ShippingMethods.Count; i++)
                     {
                         var shippingMethod = Model.ShippingMethods[i];
-                        <li>
-                            <div class="method-name">
-                                <input id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
-                                <label for="shippingoption_@(i)">@T("Checkout.SelectShippingMethod.MethodAndFee", shippingMethod.Name, shippingMethod.Fee)</label>
+                    <li>
+                        <div class="method-name">
+                            <input id="shippingoption_@(i)" type="radio" name="shippingoption" value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" checked="@shippingMethod.Selected" />
+                            <label for="shippingoption_@(i)">@T("Checkout.SelectShippingMethod.MethodAndFee", shippingMethod.Name, shippingMethod.Fee)</label>
+                        </div>
+
+                        <script type="text/javascript">
+                                    function selectShippingMethod() {
+                                        var shippingOption = $('input[name=shippingoption]:checked').val();
+                                        $.post("/district/SelectShippingMethod", { shippingoption: shippingOption }, function (data) {
+                                            $(".shipping-method").html(data);
+                                            $(".shipping-method").addClass("selected");
+                                            $( ".shipping-method" ).css( "padding-top" , "50px");
+
+                                            if ($(".billing-addresses").hasClass("selected") && $(".shipping-addresses").hasClass("selected")) {
+                                                $("#CheckoutNewAddress").hide();
+                                                $("#ShippingSelect").hide();
+                                                $("#ShippingMethod").show();
+                                                $(".billing-addresses").css("float", "inherit");
+                                                $(".shipping-method").css("padding-bottom", "0px");
+                                                $(".shipping-method").css("padding-top", "0px");
+                                            }
+                                        });
+                                    }
+                        </script>
+
+                        @if (!String.IsNullOrEmpty(shippingMethod.Description))
+                        {
+                            <div class="method-description">
+                                @Html.Raw(shippingMethod.Description)
                             </div>
-                            @if (!String.IsNullOrEmpty(shippingMethod.Description))
-                            {
-                                <div class="method-description">
-                                    @Html.Raw(shippingMethod.Description)
-                                </div>
-                            }
-                        </li>
+                        }
+                    </li>
+                }
+            </ul>
+            if (Model.NotifyCustomerAboutShippingFromMultipleLocations)
+            {
+                <div class="multiple-locations">
+                    @T("Checkout.ShippingMethod.ShippingFromMultipleLocations")
+                </div>
+            }
+            <div class="buttons">
+                <input id="ShippingSelect" type="button" name="nextstep" value="@T("Checkout.SelectShipping")" class="button-1 shipping-method-next-step-button" onclick="selectShippingMethod()" />
+            </div>
+        }
+        else
+        {
+            <div class="message-error">
+                <ul>
+                    @foreach (var warning in Model.Warnings)
+                    {
+                        <li>@warning</li>
                     }
                 </ul>
-                if (Model.NotifyCustomerAboutShippingFromMultipleLocations)
-                {
-                    <div class="multiple-locations">
-                        @T("Checkout.ShippingMethod.ShippingFromMultipleLocations")
-                    </div>
-                }
-                <div class="buttons">
-                    <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 shipping-method-next-step-button" />
-                </div>
-                }
-                else
-                {
-                <div class="message-error">
-                    <ul>
-                        @foreach (var warning in Model.Warnings)
-                        {
-                            <li>@warning</li>
-                        }
-                    </ul>
-                </div>
-                }
-                @Html.Widget("checkout_shipping_method_bottom")
-            }
-        </div>
-        <div class="section order-summary">
-            <div class="title">
-                <strong>@T("Checkout.OrderSummary")</strong>
             </div>
-            @Html.Action("OrderSummary", "ShoppingCart")
-        </div>
-    </div>
+        }
+        @Html.Widget("checkout_shipping_method_bottom")
+    }
 </div>
+
+
+   

@@ -7,11 +7,13 @@
         max-width: 300px;
     }
     .billing-addresses {
-        float: left;
+        /*float: left;*/
+	display:inline-block;
     }
 
     .shipping-addresses {
-        overflow: hidden;
+        /*overflow: hidden;*/
+	display:inline-block;
     }
 
     input[type="text"], input[type="password"], textarea, select, .custom-select-text {
@@ -53,5 +55,13 @@
         outline: none;
         border-color: red;
         box-shadow: 0 0 10px #9ecaed;
+    }
+
+
+    .edit-billing{
+	float:left;
+    }
+    .checkout-page .edit-address {
+        padding:0px;
     }
 }

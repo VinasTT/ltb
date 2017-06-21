@@ -14,7 +14,7 @@ using Nop.Services.Media;
 using Nop.Services.Common;
 using Nop.Plugin.Misc.District.Models;
 
-namespace Nop.Plugin.Widgets.District
+namespace Nop.Plugin.Misc.District
 {
     public class District : BasePlugin, IWidgetPlugin
     {
@@ -44,7 +44,7 @@ namespace Nop.Plugin.Widgets.District
         {
             actionName = "Configure";
             controllerName = "District";
-            routeValues = new RouteValueDictionary { { "Namespaces", "Nop.Plugin.Widgets.District.Controllers" }, { "area", null } };
+            routeValues = new RouteValueDictionary { { "Namespaces", "Nop.Plugin.Misc.District.Controllers" }, { "area", null } };
         }
 
 
@@ -61,7 +61,7 @@ namespace Nop.Plugin.Widgets.District
             controllerName = "District";
             routeValues = new RouteValueDictionary
             {
-                {"Namespaces", "Nop.Plugin.Widgets.District.Controllers"},
+                {"Namespaces", "Nop.Plugin.Misc.District.Controllers"},
                 {"area", null},
                 {"widgetZone", widgetZone}
             };

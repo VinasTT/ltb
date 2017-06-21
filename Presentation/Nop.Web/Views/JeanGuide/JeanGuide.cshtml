@@ -15,22 +15,24 @@
     </div>
     <div class="page-body">
         <div class="jeanguide-category-main">
-    @foreach (var item in Model)
+            @foreach (var item in Model)
             {
-        <a href="JeanGuideDetail?jeanGuideId=@item.Id">
-            <div class="jeanguide-category">
-                <div class="jeanguide-header">
-                    <h3>@item.Name</h3>
+                <div class="jeanguide-category">
+                    <a href="JeanGuideDetail?jeanGuideId=@item.Id">
+
+                        <div class="jeanguide-header">
+                            <h3>@item.Name</h3>
+                        </div>
+                        <div class="jeanguide-description">
+                            <h5>@item.Description</h5>
+                        </div>
+                        <div class="jeanguide-image-wrapper">
+                            <img src="@item.ImageUrl" />
+                        </div>
+
+
+                    </a>
                 </div>
-                <div class="jeanguide-description">
-                    <h5>@item.Description</h5>
-                </div>
-                <div class="jeanguide-image-wrapper">
-                    <img src="@item.ImageUrl" />
-                </div>
-                
-            </div>
-        </a>
             }
         </div>
     </div>

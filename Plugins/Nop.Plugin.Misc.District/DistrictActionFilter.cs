@@ -14,7 +14,7 @@ using Nop.Web.Models.Customer;
 using Nop.Web.Models.Checkout;
 
 
-namespace Nop.Plugin.Widgets.District
+namespace Nop.Plugin.Misc.District
 {
     public class DistrictActionFilter : ActionFilterAttribute, IFilterProvider, IActionFilter
     {

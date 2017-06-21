@@ -1,0 +1,28 @@
+﻿@media only screen and (min-width: 1366px) {
+    form{
+        text-align:center;
+    }
+    
+    .storelist-left {
+        float: left;
+    }
+
+    .storelist-right {
+        overflow: hidden;
+    }
+
+    input[type="text"], input[type="password"], textarea, select, .custom-select-text {
+        height: 30px;
+    }
+    .custom-select-text{
+        padding: 5px 35px 12px 16px;
+    }
+
+    .inputs {
+        width: 300px;
+    }
+
+    .custom-select{
+        margin-top:25px;
+    }
+}

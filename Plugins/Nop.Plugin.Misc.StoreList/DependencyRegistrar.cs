@@ -6,11 +6,11 @@ using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
 using Nop.Web.Framework.Mvc;
-using Nop.Plugin.Misc.District.Services;
-using Nop.Plugin.Misc.District.Models;
+using Nop.Plugin.Misc.StoreList.Services;
+using Nop.Plugin.Misc.StoreList.Models;
 using System.Web.Mvc;
 
-namespace Nop.Plugin.Misc.District
+namespace Nop.Plugin.Misc.StoreList
 {
     /// <summary>
     /// Dependency registrar
@@ -25,15 +25,14 @@ namespace Nop.Plugin.Misc.District
         /// <param name="config">Config</param>
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
-            builder.RegisterType<DistrictService>().As<IDistrictService>().InstancePerLifetimeScope();
-            builder.RegisterType<DistrictActionFilter>().As<IFilterProvider>().SingleInstance();
+            builder.RegisterType<StoreListService>().As<IStoreListService>().InstancePerLifetimeScope();
             //data context
-            this.RegisterPluginDataContext<DistrictObjectContext>(builder, "nop_object_context_district");
+            this.RegisterPluginDataContext<StoreListObjectContext>(builder, "nop_object_context_storelist");
 
             //override required repository with our custom context
-            builder.RegisterType<EfRepository<DistrictRecord>>()
-                .As<IRepository<DistrictRecord>>()
-                .WithParameter(ResolvedParameter.ForNamed<IDbContext>("nop_object_context_district"))
+            builder.RegisterType<EfRepository<StoreListRecord>>()
+                .As<IRepository<StoreListRecord>>()
+                .WithParameter(ResolvedParameter.ForNamed<IDbContext>("nop_object_context_storelist"))
                 .InstancePerLifetimeScope();
         }
 

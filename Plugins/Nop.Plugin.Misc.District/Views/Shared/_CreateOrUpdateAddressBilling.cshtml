@@ -8,7 +8,7 @@
         $(document).ready(function () {
             $("#BillingCountries").change(function () {
                 var selectedItem = $(this).val();
-                
+
                 if (selectedItem == "") {
                     selectedItem = 0;
                 }
@@ -72,7 +72,7 @@
     </script>
 }
 @Html.HiddenFor(model => model.Id)
-<div class="edit-address">
+<div class="edit-billing">
     <div class="row">
         <div class="col-md-4">
             <div class="inputs">
@@ -112,7 +112,7 @@
             {
                 <div class="inputs">
                     @Html.LabelFor(model => model.CountryId, new { }, ":")
-                    @Html.DropDownListFor(model => model.CountryId, Model.AvailableCountries, new { @id = "BillingCountries" , @class = "required" })
+                    @Html.DropDownListFor(model => model.CountryId, Model.AvailableCountries, new { @id = "BillingCountries", @class = "required" })
                     @Html.RequiredHint()
                     @Html.ValidationMessageFor(model => model.CountryId)
                 </div>
@@ -123,7 +123,7 @@
             {
                 <div class="inputs">
                     @Html.LabelFor(model => model.StateProvinceId, new { }, ":")
-                    @Html.DropDownListFor(model => model.StateProvinceId, Model.AvailableStates, new { @id = "BillingStates" , @class = "required" })
+                    @Html.DropDownListFor(model => model.StateProvinceId, Model.AvailableStates, new { @id = "BillingStates", @class = "required" })
                     <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
                     @Html.RequiredHint()
                     @Html.ValidationMessageFor(model => model.StateProvinceId)
@@ -133,7 +133,7 @@
             @*NOP 3.828*@
             <div class="inputs">
                 @Html.LabelFor(model => model.DistrictId, new { }, ":")
-                @Html.DropDownListFor(model => model.DistrictId, Model.AvailableDistricts, new { @id = "BillingDistricts" , @class = "required" })
+                @Html.DropDownListFor(model => model.DistrictId, Model.AvailableDistricts, new { @id = "BillingDistricts", @class = "required" })
                 <span id="district-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
                 @Html.RequiredHint()
                 @Html.ValidationMessageFor(model => model.DistrictId)
@@ -194,6 +194,7 @@
                 <div class="inputs">
                     @Html.LabelFor(model => model.ZipPostalCode, new { }, ":")
                     @Html.EditorFor(model => model.ZipPostalCode)
+                    <span class="required" style="visibility:hidden;">*</span>
                     @if (Model.ZipPostalCodeRequired)
                 {
                         @Html.RequiredHint()
@@ -201,7 +202,7 @@
                     @Html.ValidationMessageFor(model => model.ZipPostalCode)
                 </div>
             }
-            
+
             @if (Model.FaxEnabled)
             {
                 <div class="inputs">

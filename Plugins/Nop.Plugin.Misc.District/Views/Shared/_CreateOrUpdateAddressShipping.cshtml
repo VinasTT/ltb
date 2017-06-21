@@ -195,6 +195,7 @@
                 <div class="inputs">
                     @Html.LabelFor(model => model.ZipPostalCode, new { }, ":")
                     @Html.EditorFor(model => model.ZipPostalCode)
+                    <span class="required" style="visibility:hidden;">*</span>
                     @if (Model.ZipPostalCodeRequired)
                 {
                         @Html.RequiredHint()

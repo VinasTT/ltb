@@ -15,34 +15,34 @@
 
 @helper RenderFooterLower(int storeId, ISettingService settingService)
 {
-    var removeCopyright = settingService.GetSettingByKey("uptownthemesettings.removecopyright", false, storeId, true);
-    var removeDesignedBy = settingService.GetSettingByKey("uptownthemesettings.removedesignedby", false, storeId, true);
+var removeCopyright = settingService.GetSettingByKey("uptownthemesettings.removecopyright", false, storeId, true);
+var removeDesignedBy = settingService.GetSettingByKey("uptownthemesettings.removedesignedby", false, storeId, true);
 
     <div class="footer-disclaimer">
         @T("Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName)
     </div>
-    if (Model.DisplayTaxShippingInfoFooter)
-    {
-        var inclTax = EngineContext.Current.Resolve<IWorkContext>().TaxDisplayType == TaxDisplayType.IncludingTax;
+if (Model.DisplayTaxShippingInfoFooter)
+{
+    var inclTax = EngineContext.Current.Resolve<IWorkContext>().TaxDisplayType == TaxDisplayType.IncludingTax;
         <div class="footer-tax-shipping">
             @T(inclTax ? "Footer.TaxShipping.InclTax" : "Footer.TaxShipping.ExclTax", Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("shippinginfo") }))
         </div>
-    }
-    if (!removeCopyright)
-    {
+}
+if (!removeCopyright)
+{
         <div class="footer-powered-by">
             Powered by <a href="http://www.nopcommerce.com/">nopCommerce</a>
             @*Would you like to remove the "Powered by nopCommerce" link in the bottom of the footer?
                 Find more info here http://www.nopcommerce.com/copyrightremoval.aspx*@
         </div>
 
-    }
-    if (!removeDesignedBy)
-    {
+}
+if (!removeDesignedBy)
+{
         <div class="footer-designed-by">
             Designed by <a href="http://www.nop-templates.com/" target="_blank">Nop-Templates.com</a>
         </div>
-    }
+}
     <div class="footer-store-theme">
         @Html.Action("StoreThemeSelector", "Common")
     </div>
@@ -50,8 +50,8 @@
 
 @helper RenderFooterBlocks(bool isFooter1, int storeId, ISettingService settingService)
 {
-    if (isFooter1)
-    {
+if (isFooter1)
+{
 
         <div class="footer-block first">
             <h3 class="title">
@@ -68,11 +68,11 @@
                     <span>@T("SevenSpikes.Themes.Uptown.Common.EmailName")@T("SevenSpikes.Themes.Uptown.Common.EmailAt")@T("SevenSpikes.Themes.Uptown.Common.EmailDomain")</span>
                 </li>
             </ul>
-            @Html.Action("Social", "Common")            
+            @Html.Action("Social", "Common")
         </div>
-    }
-    else
-    {
+}
+else
+{
         <div class="footer-block first">
             <a href="@Url.RouteUrl("HomePage")" class="logo">
                 @Html.Widget("uptown_theme_footer_logo")
@@ -83,7 +83,42 @@
             <p class="footer-about-us footer-collapse">@T("SevenSpikes.Themes.Uptown.AboutUs")</p>
             @Html.Action("NewsletterBox", "Newsletter")
         </div>
-    }
+}
+
+
+    <div class="footer-block">
+        <h3 class="title">
+            <span>@T("SevenSpikes.Themes.Uptown.Category")</span>
+        </h3>
+        <ul class="footer-menu footer-collapse">
+
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "t-shirt-atlet" })">@T("Category.T-Shirt&Atlet")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "jeans" })">@T("Category.Jeans")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "yeni-sezon-2" })">@T("Category.YeniSezon")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "ceket-mont" })">@T("Category.Ceket&Mont")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "elbise-tunik" })">@T("Category.Elbise&Tunik")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "eşofman-şort" })">@T("Category.Eşofman&Şort")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "etek" })">@T("Category.Etek")</a></li>
+
+
+        </ul>
+    </div>
+
+    <div class="footer-block">
+        <h3 class="title">
+            <span style="visibility:hidden;">*</span>
+        </h3>
+        <ul class="footer-menu footer-collapse">
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "triko-hırka-2" })">@T("Category.Triko&Hırka")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "pantolon-tayt" })">@T("Category.Pantolon&Tayt")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "gömlek-bluz" })">@T("Category.Gömlek&Bluz")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "sweatshirt-2" })">@T("Category.Sweatshirt")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "çocuk" })">@T("Category.Çocuk")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "bebek" })">@T("Category.Bebek")</a></li>
+            <li><a href="@Url.RouteUrl("Category",new { SeName = "aksesuar" })">@T("Category.Aksesuar")</a></li>
+        </ul>
+    </div>
+
 
     <div class="footer-block">
         <h3 class="title">
@@ -98,36 +133,36 @@
             <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>
         </ul>
     </div>
-
-    <div class="footer-block">
-        <h3 class="title">
-            <span>@T("Footer.MyAccount")</span>
-        </h3>
-        <ul class="footer-menu footer-collapse">
-            <li><a href="@Url.RouteUrl("CustomerInfo")">@T("Account.CustomerInfo")</a></li>
-            <li><a href="@Url.RouteUrl("CustomerAddresses")">@T("Account.CustomerAddresses")</a></li>
-            <li><a href="@Url.RouteUrl("CustomerOrders")">@T("Account.CustomerOrders")</a></li>
-            @if (Model.ShoppingCartEnabled)
-            {
-                <li><a href="@Url.RouteUrl("ShoppingCart")">@T("ShoppingCart")</a></li>
-            }
-            @if (Model.WishlistEnabled)
-            {
-                <li><a href="@Url.RouteUrl("Wishlist")">@T("Wishlist")</a></li>
-            }
-            @if (Model.AllowCustomersToApplyForVendorAccount)
-            {
-                <li><a href="@Url.RouteUrl("ApplyVendorAccount")">@T("Vendors.ApplyAccount")</a></li>
-            }
-            @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn2).ToList())
-            {
-                <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
-            }
-        </ul>
-    </div>
-
-    if (isFooter1)
-    {
+/*
+<div class="footer-block">
+    <h3 class="title">
+        <span>@T("Footer.MyAccount")</span>
+    </h3>
+    <ul class="footer-menu footer-collapse">
+        <li><a href="@Url.RouteUrl("CustomerInfo")">@T("Account.CustomerInfo")</a></li>
+        <li><a href="@Url.RouteUrl("CustomerAddresses")">@T("Account.CustomerAddresses")</a></li>
+        <li><a href="@Url.RouteUrl("CustomerOrders")">@T("Account.CustomerOrders")</a></li>
+        @if (Model.ShoppingCartEnabled)
+        {
+            <li><a href="@Url.RouteUrl("ShoppingCart")">@T("ShoppingCart")</a></li>
+        }
+        @if (Model.WishlistEnabled)
+        {
+            <li><a href="@Url.RouteUrl("Wishlist")">@T("Wishlist")</a></li>
+        }
+        @if (Model.AllowCustomersToApplyForVendorAccount)
+        {
+            <li><a href="@Url.RouteUrl("ApplyVendorAccount")">@T("Vendors.ApplyAccount")</a></li>
+        }
+        @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn2).ToList())
+        {
+            <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
+        }
+    </ul>
+</div>
+*/
+if (isFooter1)
+{
         <div class="footer-block last">
             <h3 class="title">
                 <span>@T("SevenSpikes.Themes.Uptown.AboutUs.Title")</span>
@@ -135,9 +170,9 @@
             <p class="footer-about-us footer-collapse">@T("SevenSpikes.Themes.Uptown.AboutUs")</p>
             @RenderPayments()
         </div>
-    }
-    else
-    {
+}
+else
+{
         <div class="footer-block last">
             <h3 class="title">
                 <span>@T("SevenSpikes.Themes.Uptown.ContactInfo")</span>
@@ -154,7 +189,7 @@
                 </li>
             </ul>
         </div>
-    }
+}
 }
 
 @helper RenderPayments()

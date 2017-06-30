@@ -11,7 +11,8 @@ namespace Nop.Plugin.Misc.StoreList.Models
         {
             AvailableCountries = new List<SelectListItem>();
             AvailableStates = new List<SelectListItem>();
-            AvailableDistricts = new List<SelectListItem>(); 
+            AvailableDistricts = new List<SelectListItem>();
+            AvailableStoreTypes = new List<SelectListItem>();
         }
 
         public int Id { get; set; }
@@ -25,7 +26,9 @@ namespace Nop.Plugin.Misc.StoreList.Models
         public string District { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+        public string StoreDealer { get; set; }
 
+        public IList<SelectListItem> AvailableStoreTypes { get; set; }
         public IList<SelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; }
         public IList<SelectListItem> AvailableDistricts { get; set; }

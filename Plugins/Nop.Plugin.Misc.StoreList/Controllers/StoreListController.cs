@@ -31,10 +31,11 @@ namespace Nop.Plugin.Misc.District.Controllers
         #region Methods
         public ActionResult Index()
         {
-            var storeList = _storeListService.GetStoreList();
+            //var storeList = _storeListService.GetStoreList();
             
-            var model = new List<StoreListModel>();
+            var model = new StoreListModel();
 
+            /*
             foreach (var item in storeList)
             {
                 var storeListModel = new StoreListModel();
@@ -49,19 +50,24 @@ namespace Nop.Plugin.Misc.District.Controllers
 
                 model.Add(storeListModel);
             }
-
-            model.FirstOrDefault().AvailableCountries.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectCountry"), Value = "0" });
+            */
+            model.AvailableCountries.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectAll"), Value = "" });
             foreach (var c in _storeListService.GetCountryList())
             {
-                model.FirstOrDefault().AvailableCountries.Add(new SelectListItem
+                var d = _localizationService.GetResource(c);
+                model.AvailableCountries.Add(new SelectListItem
                 {
-                    Text = c,
+                    Text = d,
                     Value = c,
                     Selected = c == "0"
                 });
             }
-            model.FirstOrDefault().AvailableStates.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectState"), Value = "0" });
-            model.FirstOrDefault().AvailableDistricts.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectDistrict"), Value = "0" });
+            model.AvailableStates.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectAll"), Value = "" });
+            model.AvailableDistricts.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectAll"), Value = "" });
+
+            model.AvailableStoreTypes.Add(new SelectListItem { Text = _localizationService.GetResource("Address.SelectAll"), Value = "" });
+            model.AvailableStoreTypes.Add(new SelectListItem { Text = _localizationService.GetResource("StoreList.Store"), Value = "Mağaza" });
+            model.AvailableStoreTypes.Add(new SelectListItem { Text = _localizationService.GetResource("StoreList.Dealer"), Value = "Bayi" });
 
             return View("~/Plugins/Misc.StoreList/Views/Index.cshtml", model);
         }
@@ -85,7 +91,7 @@ namespace Nop.Plugin.Misc.District.Controllers
                 //country is not selected ("choose country" item)
                 if (addSelectStateItem)
                 {
-                    result.Insert(0, new { id = "0", name = _localizationService.GetResource("Address.SelectState") });
+                    result.Insert(0, new { id = "0", name = _localizationService.GetResource("Address.SelectAll") });
                 }
                 else
                 {
@@ -105,7 +111,7 @@ namespace Nop.Plugin.Misc.District.Controllers
                     //country has some states
                     if (addSelectStateItem)
                     {
-                        result.Insert(0, new { id = "0", name = _localizationService.GetResource("Address.SelectState") });
+                        result.Insert(0, new { id = "0", name = _localizationService.GetResource("Address.SelectAll") });
                     }
                 }
             }

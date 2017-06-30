@@ -21,6 +21,7 @@ namespace Nop.Plugin.Misc.StoreList.Models
             Property(m => m.District);
             Property(m => m.Latitude);
             Property(m => m.Longitude);
+            Property(m => m.StoreDealer);
            
         }
     }

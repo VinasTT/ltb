@@ -16,6 +16,7 @@ namespace Nop.Plugin.Misc.StoreList.Models
         public string District { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+        public string StoreDealer { get; set; }
 
     }
 }

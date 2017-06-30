@@ -1,4 +1,4 @@
-﻿@model List<StoreListModel>
+﻿@model StoreListModel
 @using Nop.Plugin.Misc.StoreList.Models;
 @using Nop.Web.Framework.UI;
 @using Nop.Web.Framework;
@@ -23,24 +23,50 @@
                <script type="text/javascript">
                    $(document).ready(function () {
 
-                       /*
-            $("#countryList").change(function () {
+                       $("#storeTypeList").change(function () {
 
-                var selectedItem = $(this).val();
+                           var selectedItem = $(this).val();
+                           var selectedCountry = $("#countryList").val();
 
-                if (selectedItem == "") {
-                    selectedItem = 0;
-                }
-                var ddlStates = $("#stateList");
-                var statesProgress = $("#states-loading-progress");
-                statesProgress.show();
-                $.ajax({
-                    cache: false,
-                    type: "GET",
-                    url: "getStatesByCountry",
-                    data: { "country": selectedItem, "addSelectStateItem": "true" },
-                    success: function (data) {
-                        ddlStates.html('');
+                           var selectedState = $("#stateList").val();
+
+                           var selectedDistrict = $("#districtList").val();
+
+                           $("#storelist-grid").jsGrid("loadData", { StoreDealer: selectedItem, Country: selectedCountry, StateProvince: selectedState, District: selectedDistrict }).done(function () {
+
+                           });
+
+
+                       });
+
+
+
+                       $("#countryList").change(function () {
+
+                           var selectedItem = $(this).val();
+                           var storeDealer = $("#storeTypeList").val();
+
+                           var ddlStates = $("#stateList");
+                           var statesProgress = $("#states-loading-progress");
+                           statesProgress.show();
+
+                           $("#storelist-grid").jsGrid("loadData", { Country: selectedItem, StoreDealer: storeDealer }).done(function () {
+
+                           });
+
+                           if (selectedItem == "") {
+                               selectedItem = 0;
+                           }
+
+                           $.ajax({
+                               cache: false,
+                               type: "GET",
+                               url: "getStatesByCountry",
+                               data: { "country": selectedItem, "addSelectStateItem": "true" },
+                               success: function (data) {
+                                   ddlStates.html('');
+                                   $(".states .custom-select-text").html('@T("Address.SelectAll")');
+                        $(".districts .custom-select-text").html('@T("Address.SelectAll")');
                         $.each(data, function (id, option) {
                             if (option.id == 0) {
                                 option.id = null;
@@ -48,7 +74,7 @@
                             ddlStates.append($('<option></option>').val(option.id).html(option.name));
                         });
                         statesProgress.hide();
-                      
+
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert('Failed to retrieve states.');
@@ -61,12 +87,20 @@
             $("#stateList").change(function () {
                 var selectedItem = $(this).val();
                 var selectedCountry = $("#countryList").val();
-                if (selectedItem == "") {
-                    selectedItem = 0;
-                }
+                var storeDealer = $("#storeTypeList").val();
+
                     var ddlStates = $("#districtList");
                     var districtProgress = $("#district-loading-progress");
                     districtProgress.show();
+
+                    $("#storelist-grid").jsGrid("loadData", { Country: selectedCountry, StateProvince: selectedItem, StoreDealer: storeDealer }).done(function () {
+
+                    });
+
+                    if (selectedItem == "") {
+                        selectedItem = 0;
+                    }
+
                     $.ajax({
                         cache: false,
                         type: "GET",
@@ -74,91 +108,117 @@
                         data: { "country" : selectedCountry, "state": selectedItem, "addSelectDistrictItem": "true" },
                         success: function (data) {
                             ddlStates.html('');
+                            $(".districts .custom-select-text").html('@T("Address.SelectAll")');
+                                   $.each(data, function (id, option) {
+                                       if (option.id == 0) {
+                                           option.id = null;
+                                       }
+                                       ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                                   });
+                                   districtProgress.hide();
+                               },
+                               error: function (xhr, ajaxOptions, thrownError) {
+                                   alert('Failed to retrieve districts.');
+                                   statesProgress.hide();
+                               }
+                           });
+                       });
 
-                            $.each(data, function (id, option) {
-                                if (option.id == 0) {
-                                    option.id = null;
-                                }
-                                ddlStates.append($('<option></option>').val(option.id).html(option.name));
-                            });
-                            districtProgress.hide();
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            alert('Failed to retrieve districts.');
-                            statesProgress.hide();
-                        }
-                    });
-            });
-            */
-    $("#storelist-grid").jsGrid({
-        width: "100%",
-        height: "400px",
-        sorting: true,
-        paging: true,
-        filtering: true,
-        autoload: true,
- 
-        controller: { 
-            loadData: function (filter) {
-                var d = $.Deferred();
+                       $("#districtList").change(function () {
+                           var selectedItem = $(this).val();
 
-                // server-side filtering
-                $.ajax({
-                    type: "GET",
-                    url: "GetStoreList",
-                    data: filter,
-                    dataType: "json"
-                }).done(function (result) {
-                    // client-side filtering
-                    result = $.grep(result, function (item) {
-                        var predicate = 1 === 1;
-                        if (filter.Country.length > 0) {
-                            predicate = item.Country.toLowerCase().match(filter.Country.toLowerCase());
-                        }
-                        if (filter.StateProvince.length > 0) {
-                            predicate = predicate && (item.StateProvince.toLowerCase().match(filter.StateProvince.toLowerCase()));
-                        }
-                        if (filter.District.length > 0) {
-                            predicate = predicate && (item.District.toLowerCase().match(filter.District.toLowerCase()));
-                        }
-                        if (filter.Name.length > 0) {
-                            predicate = predicate && (item.Name.toLowerCase().match(filter.Name.toLowerCase()));
-                        }
-                        if (filter.Address.length > 0) {
-                            predicate = predicate && (item.Address.toLowerCase().match(filter.Address.toLowerCase()));
-                        }
-                            
-                        return predicate;
-                    });
+                           var selectedCountry = $("#countryList").val();
 
-                    d.resolve(result);
-                })
+                           var selectedState = $("#stateList").val();
 
-                return d.promise();
-            }
-        },
- 
-        fields: [
-            { name: "Name", type: "text", title: "@T("StoreList.Name")", width: 150 },
-            {
-                name: "Country", type: "text", title: "@T("StoreList.Country")", width: 100,
-            },
-            { name: "StateProvince", type: "text", title: "@T("StoreList.State")", width: 100 },
-            { name: "District", type: "text", title: "@T("StoreList.District")", width: 100 },
-            { name: "Address", type: "text", title: "@T("StoreList.Address")", width: 200},
-            { name: "Contact", type: "text", title: "@T("StoreList.Contact")", width: 125, filtering:false },
-            { type: "control", editButton: false, deleteButton: false, modeSwitchButton: false }
-        ]
-    });
-           
-        });
+                           var storeDealer = $("#storeTypeList").val();
+
+                           $("#storelist-grid").jsGrid("loadData", { Country: selectedCountry, StateProvince: selectedState, District: selectedItem, StoreDealer: storeDealer }).done(function () {
+
+                           });
+                       });
+
+                       $("#storelist-grid").jsGrid({
+                           width: "100%",
+                           height: "400px",
+                           sorting: true,
+                           paging: true,
+                           autoload: true,
+                           noDataContent: "@T("StoreList.NoDataFound")",
+
+                           controller: {
+                               loadData: function (filter) {
+                                   var d = $.Deferred();
+
+                                   // server-side filtering
+                                   $.ajax({
+                                       type: "GET",
+                                       url: "GetStoreList",
+                                       data: filter,
+                                       dataType: "json"
+                                   }).done(function (result) {
+                                       // client-side filtering
+                                       result = $.grep(result, function (item) {
+                                           var predicate = 1 === 1;
+                                           if (typeof filter.Country !== "undefined") {
+                                               predicate = item.Country.toLowerCase().match(filter.Country.toLowerCase());
+                                           }
+                                           if (typeof filter.StateProvince !== "undefined") {
+                                               predicate = predicate && (item.StateProvince.toLowerCase().match(filter.StateProvince.toLowerCase()));
+                                           }
+                                           if (typeof filter.District !== "undefined") {
+                                               predicate = predicate && (item.District.toLowerCase().match(filter.District.toLowerCase()));
+                                           }
+                                           if (typeof filter.StoreDealer !== "undefined") {
+                                               predicate = predicate && (item.StoreDealer.toLowerCase().match(filter.StoreDealer.toLowerCase()));
+                                           }
+
+                                           return predicate;
+                                       });
+
+                                       d.resolve(result);
+                                   })
+
+                                   return d.promise();
+                               }
+                           },
+
+                           fields: [
+                               { name: "Name", type: "text", title: "@T("StoreList.Name")", width: 150 },
+
+                               { name: "Address", type: "text", title: "@T("StoreList.Address")", width: 200 },
+                               { name: "Contact", type: "text", title: "@T("StoreList.Contact")", width: 125 },
+                               { type: "control", editButton: false, deleteButton: false, modeSwitchButton: false }
+                           ]
+                       });
+
+                   });
                </script>
     <div class="page contact-page">
         <div class="page-title">
             <h1>@T("PageTitle.StoreList")</h1>
         </div>
         <div class="page-body">
-            
+            <div class="storelist-left">
+                <div class="inputs countries">
+                    @Html.DropDownListFor(model => model.StoreDealer, Model.AvailableStoreTypes, new { @id = "storeTypeList" })
+
+                </div>
+
+                <div class="inputs countries">
+                    @Html.DropDownListFor(model => model.Country, Model.AvailableCountries, new { @id = "countryList"})
+
+                </div>
+                <div class="inputs states">
+                    @Html.DropDownListFor(model => model.StateProvince, Model.AvailableStates, new { @id = "stateList" })
+
+                </div>
+                <div class="inputs districts">
+                    @Html.DropDownListFor(model => model.District, Model.AvailableDistricts, new { @id = "districtList" })
+
+                </div>
+
+            </div>
             <div class="storelist-right">
                 <div id="storelist-grid"></div>
             </div>

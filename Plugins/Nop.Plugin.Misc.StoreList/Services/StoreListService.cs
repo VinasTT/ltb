@@ -163,6 +163,17 @@ namespace Nop.Plugin.Misc.StoreList.Services
 
         }
 
+        public virtual IList<StoreListRecord> GetStoreListByStoreDealer(string storeDealer)
+        {
+            var query = from sp in _storeListRepository.Table
+                        orderby sp.Country, sp.StateProvince, sp.District
+                        where sp.Published && sp.StoreDealer == storeDealer
+                        select sp;
+            var StoreList = query.ToList();
+            return StoreList;
+
+        }
+
         public virtual StoreListRecord GetStoreByDistrict(string district)
         {
             var query = from sp in _storeListRepository.Table

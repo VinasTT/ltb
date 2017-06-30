@@ -42,6 +42,8 @@ namespace Nop.Plugin.Misc.StoreList.Services
 
         IList<StoreListRecord> GetStoreListByStateProvince(string stateProvince);
 
+        IList<StoreListRecord> GetStoreListByStoreDealer(string storeDealer);
+
         StoreListRecord GetStoreByDistrict(string district);
 
         /// <summary>

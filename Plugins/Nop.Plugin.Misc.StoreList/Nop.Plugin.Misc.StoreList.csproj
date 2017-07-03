@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="Controllers\StoreListController.cs" />
     <Compile Include="DependencyRegistrar.cs" />
+    <Compile Include="EfStartUpTask.cs" />
     <Compile Include="Models\StoreListModel.cs" />
     <Compile Include="Models\StoreListRecord.cs" />
     <Compile Include="Models\StoreListMap.cs" />

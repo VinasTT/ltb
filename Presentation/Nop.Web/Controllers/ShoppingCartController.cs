@@ -1031,6 +1031,17 @@ namespace Nop.Web.Controllers
                         orderTotalAppliedDiscounts.Any(d => d.RequiresCouponCode && !String.IsNullOrEmpty(d.CouponCode));
                 }
 
+                var trueDiscounts = new List<Discount>();
+                var trueDiscountAmount = "0.00";
+                foreach (var ad in orderTotalAppliedDiscounts)
+                {
+                    trueDiscountAmount = _priceFormatter.FormatPrice(-(ad.GetDiscountAmount(subTotalWithoutDiscountBase)), true, false);
+                    ad.CouponCode = trueDiscountAmount;
+                    trueDiscounts.Add(ad);
+                }
+
+                model.AppliedDiscounts = trueDiscounts;
+
                 //gift cards
                 if (appliedGiftCards != null && appliedGiftCards.Any())
                 {

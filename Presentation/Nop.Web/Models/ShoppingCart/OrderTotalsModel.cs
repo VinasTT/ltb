@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Nop.Web.Framework.Mvc;
+using Nop.Core.Domain.Discounts;
 
 namespace Nop.Web.Models.ShoppingCart
 {
@@ -39,6 +40,8 @@ namespace Nop.Web.Models.ShoppingCart
         public int WillEarnRewardPoints { get; set; }
 
         public string OrderTotal { get; set; }
+
+        public List<Discount> AppliedDiscounts { get; set; }
 
         #region Nested classes
 

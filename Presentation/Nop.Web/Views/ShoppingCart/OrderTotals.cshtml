@@ -91,19 +91,23 @@
             }
             @if (!String.IsNullOrEmpty(Model.OrderTotalDiscount))
             {
-                <tr class="discount-total">
-                    <td class="cart-total-left">
-                        <label>@T("ShoppingCart.Totals.OrderTotalDiscount"):</label>
-                        @if (Model.AllowRemovingOrderTotalDiscount)
-                        {
-                            /*empty value (little hack for FormValueExistsAttribute)*/
-                            <input type="submit" name="removeordertotaldiscount" value=" " title="@T("Common.Remove")" class="remove-discount-button" />
-                        }
-                    </td>
-                    <td class="cart-total-right">
-                        <span class="value-summary">@Model.OrderTotalDiscount</span>
-                    </td>
-                </tr>
+                foreach (var ad in Model.AppliedDiscounts)
+                {
+                    <tr class="discount-total">
+                        <td class="cart-total-left">
+                            <label>@ad.Name</label>
+                            @if (Model.AllowRemovingOrderTotalDiscount)
+                            {
+                                /*empty value (little hack for FormValueExistsAttribute)*/
+                                <input type="submit" name="removeordertotaldiscount" value=" " title="@T("Common.Remove")" class="remove-discount-button" />
+                            }
+                        </td>
+                        <td class="cart-total-right">
+                            <span class="value-summary">@ad.CouponCode</span>
+                        </td>
+                    </tr>
+                }
+
             }
             @if (Model.GiftCards.Count > 0)
             {

@@ -35,12 +35,22 @@
                                         $.post("/district/SelectShippingMethod", { shippingoption: shippingOption }, function (data) {
                                             $(".shipping-method").html(data);
                                             $(".shipping-method").addClass("selected");
-                                            $( ".shipping-method" ).css( "padding-top" , "50px");
+                                            $(".shipping-method").css("padding-top", "50px");
+                                            $('.pickup-in-store').hide();
 
                                             if ($(".billing-addresses").hasClass("selected") && $(".shipping-addresses").hasClass("selected")) {
                                                 $("#CheckoutNewAddress").hide();
                                                 $("#ShippingSelect").hide();
                                                 $("#ShippingMethod").show();
+                                                $(".billing-addresses").css("float", "inherit");
+                                                $(".shipping-method").css("padding-bottom", "0px");
+                                                $(".shipping-method").css("padding-top", "0px");
+                                            }
+
+                                            if ($(".billing-addresses").hasClass("selected") && ($('#CheckoutShippingAddressModel_PickUpInStore').is(':checked') || $('#CheckoutBillingAddressModel_ShipToSameAddress').is(':checked'))){
+                                                $("#CheckoutNewAddress").hide();
+                                                $("#ShippingSelect").hide();
+                                                $("#PickUpNext").show();
                                                 $(".billing-addresses").css("float", "inherit");
                                                 $(".shipping-method").css("padding-bottom", "0px");
                                                 $(".shipping-method").css("padding-top", "0px");

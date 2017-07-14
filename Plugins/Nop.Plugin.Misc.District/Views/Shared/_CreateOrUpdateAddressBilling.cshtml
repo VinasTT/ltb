@@ -49,7 +49,7 @@
                     $.ajax({
                         cache: false,
                         type: "GET",
-                        url: "district/GetDistrictsByStateId",
+                        url: "/district/GetDistrictsByStateId",
                         data: { "stateId": selectedItem, "addSelectDistrictItem": "true" },
                         success: function (data) {
                             ddlStates.html('');
@@ -220,5 +220,7 @@
                 @Html.Partial("_AddressAttributes", Model.CustomAddressAttributes)
             }
         </div>
+        
     </div>
+  
 </div>

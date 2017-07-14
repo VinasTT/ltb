@@ -21,76 +21,6 @@
     <div class="page-body checkout-data">
         @using (Html.BeginForm("NewCheckoutAddress", "District", FormMethod.Post, new { id = "saveaddress" }))
         {
-            <div class="billing-addresses">
-                @Html.Widget("checkout_billing_address_top")
-                @if (Model.CheckoutBillingAddressModel.ShipToSameAddressAllowed)
-                {
-                    <div class="section ship-to-same-address">
-                        <div class="selector">
-                            @Html.CheckBoxFor(x => x.CheckoutBillingAddressModel.ShipToSameAddress)
-                            <label for="@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)">@T("Checkout.ShipToSameAddress")</label>
-                        </div>
-                    </div>
-                }
-                @if (Model.CheckoutBillingAddressModel.ExistingAddresses.Count > 0)
-                {
-                    <div class="section select-billing-address">
-                        <div class="title">
-                            <strong>@T("Checkout.SelectBillingAddress")</strong>
-                        </div>
-
-                        <select id="BillingAddressSelect">
-                            @foreach (var item in Model.CheckoutBillingAddressModel.ExistingAddresses)
-                            {
-                                <option value="@item.Id">@item.FirstName @item.LastName , @item.Address1 , @item.DistrictName @item.StateProvinceName @item.CountryName</option>
-                            }
-                        </select>
-                        <div class="select-button">
-                            <input type="button" value="@T("Checkout.BillToThisAddress")" class="button-1 select-billing-address-button" onclick="selectBillingAddress()" />
-                            <script type="text/javascript">
-                                function selectBillingAddress() {
-                                    var addressId = $("#BillingAddressSelect").val();
-                                    $.post( "/district/SelectBillingAddress",{ addressId: addressId }, function( data ) {
-                                        $( ".billing-addresses" ).html( data );
-                                        $( ".billing-addresses" ).addClass( "selected" );
-                                        $( ".billing-addresses" ).css( "text-align" , "center");
-					$( ".billing-addresses" ).css( "display" , "inherit");
-                                        $(".checkout-address-billing-selected").css("padding-bottom","50px");
-					$(".enter-address").html(" ");
-                                    });
-
-                                    if($(".shipping-addresses").hasClass("selected")){
-                                        $("#CheckoutNewAddress").hide();
-                                        if ($(".shipping-method").hasClass("selected")){
-                                            $("#ShippingSelect").hide();
-                                            $("#ShippingMethod").show();
-                                            $( ".billing-addresses" ).css( "float" , "inherit");
-                                            $(".shipping-method").css("padding-bottom","0px");
-                                            $(".shipping-method").css("padding-top", "0px");
-                                        }
-                                    }
-                                }
-                            </script>
-                        </div>
-                    </div>
-                }
-                @Html.Widget("checkout_billing_address_middle")
-                <div class="section new-billing-address">
-                    <div class="title">
-                        @if (Model.CheckoutBillingAddressModel.ExistingAddresses.Count > 0)
-                        {
-                            <strong>@T("Checkout.OrEnterNewAddress")</strong>
-                        }
-                        else
-                        {
-                            <strong>@T("Checkout.EnterBillingAddress")</strong>
-                        }
-                    </div>
-
-                </div>
-                @Html.Widget("checkout_billing_address_bottom")
-            </div>
-
             if (Model.CheckoutShippingAddressModel.AllowPickUpInStore && !Model.CheckoutShippingAddressModel.PickUpInStoreOnly && Model.CheckoutShippingAddressModel.PickupPoints.Any())
             {
                 <div class="section pickup-in-store">
@@ -111,9 +41,28 @@
                             if ($('#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)').is(':checked')) {
                                 $('#pickup-points-form').show();
                                 $('#shipping-addresses-form').hide();
+                                $('#shipping-address-new').hide();
+                                $('#billing-address-new').css( "margin-left" , "30%");
+                                $('.shipping-method').hide();
+                                $('.ship-to-same-address').hide();
+                                //var checkBoxes = $("input[name=CheckoutBillingAddressModel_ShipToSameAddress\\[\\]]");
+                                //checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+                                if($(".billing-addresses").hasClass("selected")){
+                                    $("#CheckoutNewAddress").hide();
+                                    $("#PickUpNext").show();
+                                }
+
                             } else {
                                 $('#pickup-points-form').hide();
-                                $('#shipping-addresses-form').show();
+                                if (!$('#@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)').is(':checked')){
+                                    $('#shipping-addresses-form').show();
+                                    $('#shipping-address-new').show();
+                                }
+                                
+                                $('#billing-address-new').css( "margin-left" , "0");
+                                $('.shipping-method').show();
+                                $('.ship-to-same-address').show();
+                                $("#PickUpNext").hide();
                             }
                         }
                     </script>
@@ -148,30 +97,30 @@
                                 <div class="title">
                                     <strong>@T("Checkout.PickupPoints.SelectPickupPoint")</strong>
                                 </div>
-                                                <select name="pickup-points-id" id="pickup-points-select" class="address-select" title="">
-                                                    @foreach (var point in Model.CheckoutShippingAddressModel.PickupPoints)
-                                                    {
-                                                        var addressLine = new System.Text.StringBuilder();
-                                                        addressLine.Append(point.Name);
-                                                        if (!string.IsNullOrEmpty(point.Address))
-                                                        {
-                                                            addressLine.AppendFormat(", {0}", point.Address);
-                                                        }
-                                                        if (!string.IsNullOrEmpty(point.City))
-                                                        {
-                                                            addressLine.AppendFormat(", {0}", point.City);
-                                                        }
-                                                        if (!string.IsNullOrEmpty(point.CountryName))
-                                                        {
-                                                            addressLine.AppendFormat(", {0}", point.CountryName);
-                                                        }
-                                                        if (!string.IsNullOrEmpty(point.PickupFee))
-                                                        {
-                                                            addressLine.AppendFormat(", {0}", point.PickupFee);
-                                                        }
-                                                        <option value="@(string.Format("{0}___{1}", point.Id, point.ProviderSystemName))">@(addressLine)</option>
-                                                    }
-                                                </select>
+                                <select name="pickup-points-id" id="pickup-points-select" class="address-select" title="">
+                                    @foreach (var point in Model.CheckoutShippingAddressModel.PickupPoints)
+                                    {
+                                        var addressLine = new System.Text.StringBuilder();
+                                        addressLine.Append(point.Name);
+                                        if (!string.IsNullOrEmpty(point.Address))
+                                        {
+                                            addressLine.AppendFormat(", {0}", point.Address);
+                                        }
+                                        if (!string.IsNullOrEmpty(point.City))
+                                        {
+                                            addressLine.AppendFormat(", {0}", point.City);
+                                        }
+                                        if (!string.IsNullOrEmpty(point.CountryName))
+                                        {
+                                            addressLine.AppendFormat(", {0}", point.CountryName);
+                                        }
+                                        if (!string.IsNullOrEmpty(point.PickupFee))
+                                        {
+                                            addressLine.AppendFormat(", {0}", point.PickupFee);
+                                        }
+                                        <option value="@(string.Format("{0}___{1}", point.Id, point.ProviderSystemName))">@(addressLine)</option>
+                                    }
+                                </select>
                             }
                         </div>
                         if (Model.CheckoutShippingAddressModel.DisplayPickupPointsOnMap)
@@ -273,6 +222,133 @@
                 </div>
             }
 
+            if (Model.CheckoutBillingAddressModel.ShipToSameAddressAllowed)
+                {
+                <div class="section ship-to-same-address">
+                    <div class="selector">
+                        @Html.CheckBoxFor(x => x.CheckoutBillingAddressModel.ShipToSameAddress)
+                        <label for="@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)">@T("Checkout.ShipToSameAddress")</label>
+                    </div>
+                </div>
+            }
+            <script type="text/javascript">
+                        $(document).ready(function () {
+                            $("#@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)").change(toggleShipToSameAddress);
+                            toggleShipToSameAddress();
+                        });
+
+                        function toggleShipToSameAddress() {
+                            if ($('#@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)').is(':checked')) {
+
+                                $('#shipping-addresses-form').hide();
+                                $('#shipping-address-new').hide();
+                                $('#billing-address-new').css( "margin-left" , "30%");
+                                $('.pickup-in-store').hide();
+                                if($(".billing-addresses").hasClass("selected")){
+                                    $("#CheckoutNewAddress").hide();
+
+                                    if ($(".shipping-method").hasClass("selected")){
+                                        $("#PickUpNext").show();
+                                    }
+                                }
+
+                            } else {
+
+                                $('#shipping-addresses-form').show();
+                                $('#shipping-address-new').show();
+                                $('#billing-address-new').css( "margin-left" , "0");
+                                $('.shipping-method').show();
+                                $('.pickup-in-store').show();
+                                $("#PickUpNext").hide();
+                                $("#ShippingMethod").hide();
+                            }
+                        }
+            </script>
+            <div class="billing-addresses">
+                @Html.Widget("checkout_billing_address_top")
+                
+
+                @if (Model.CheckoutBillingAddressModel.ExistingAddresses.Count > 0)
+                {
+                    <div class="section select-billing-address">
+                        <div class="title">
+                            <strong>@T("Checkout.SelectBillingAddress")</strong>
+                        </div>
+
+                        <select id="BillingAddressSelect">
+                            @foreach (var item in Model.CheckoutBillingAddressModel.ExistingAddresses)
+                            {
+                                <option value="@item.Id">@item.FirstName @item.LastName , @item.Address1 , @item.DistrictName @item.StateProvinceName @item.CountryName</option>
+                            }
+                        </select>
+                        <div class="select-button">
+                            <input type="button" value="@T("Checkout.BillToThisAddress")" class="button-1 select-billing-address-button" onclick="selectBillingAddress()" />
+                            <script type="text/javascript">
+                                function selectBillingAddress() {
+                                    var addressId = $("#BillingAddressSelect").val();
+                                    $.post( "/district/SelectBillingAddress",{ addressId: addressId }, function( data ) {
+                                        $( ".billing-addresses" ).html( data );
+                                        $( ".billing-addresses" ).addClass( "selected" );
+                                        $( ".billing-addresses" ).css( "text-align" , "center");
+					                    $( ".billing-addresses" ).css( "display" , "inherit");
+                                        $(".checkout-address-billing-selected").css("padding-bottom","50px");
+                                        $("#billing-address-new").html(" ");
+                                        $( "#shipping-address-new" ).css( "margin-right" , "22%");
+                                    });
+                                    if($('#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)').is(':checked')){
+                                        $("#CheckoutNewAddress").hide();
+                                        $("#PickUpNext").show();
+                                    }
+
+                                    if($('#@Html.FieldIdFor(model => model.CheckoutBillingAddressModel.ShipToSameAddress)').is(':checked')){
+                                        $(".shipping-addresses").hide();
+                                        $("#CheckoutNewAddress").hide();
+
+                                        if ($(".shipping-method").hasClass("selected")){
+                                            $("#ShippingSelect").hide();
+                                            $("#PickUpNext").show();
+                                            $( ".billing-addresses" ).css( "float" , "inherit");
+                                            $(".shipping-method").css("padding-bottom","0px");
+                                            $(".shipping-method").css("padding-top", "0px");
+                                        }
+                                    }
+
+                                    if($(".shipping-addresses").hasClass("selected")){
+                                        $("#CheckoutNewAddress").hide();
+
+
+                                        if ($(".shipping-method").hasClass("selected")){
+                                            $("#ShippingSelect").hide();
+                                            $("#ShippingMethod").show();
+                                            $( ".billing-addresses" ).css( "float" , "inherit");
+                                            $(".shipping-method").css("padding-bottom","0px");
+                                            $(".shipping-method").css("padding-top", "0px");
+                                        }
+                                    }
+                                }
+                            </script>
+                        </div>
+                    </div>
+                }
+                @Html.Widget("checkout_billing_address_middle")
+                <div class="section new-billing-address">
+                    <div class="title">
+                        @if (Model.CheckoutBillingAddressModel.ExistingAddresses.Count > 0)
+                        {
+                            <strong>@T("Checkout.OrEnterNewAddress")</strong>
+                        }
+                        else
+                        {
+                            <strong>@T("Checkout.EnterBillingAddress")</strong>
+                        }
+                    </div>
+
+                </div>
+                @Html.Widget("checkout_billing_address_bottom")
+            </div>
+
+
+
             if (!Model.CheckoutShippingAddressModel.PickUpInStoreOnly)
             {
                 <div class="shipping-addresses" id="shipping-addresses-form">
@@ -300,9 +376,13 @@
                                             $( ".shipping-addresses" ).addClass( "selected" );
                                             $( ".shipping-addresses" ).css( "text-align" , "center");
 
-					    $( ".shipping-addresses" ).css( "display" , "inherit");
+					                        $( ".shipping-addresses" ).css( "display" , "inherit");
                                             $(".checkout-address-shipping-selected").css("padding-bottom","50px");
-					    $(".enter-address").html(" ");
+                                            $("#shipping-address-new").html(" ");
+
+                                            $( "#billing-address-new" ).css( "margin-left" , "30%");
+                                            $(".pickup-in-store").html(" ");
+                                            $(".ship-to-same-address").html(" ");
 
                                         });
 
@@ -340,7 +420,7 @@
                     @Html.Widget("checkout_shipping_address_bottom")
                 </div>
             }
-            <div class="enter-address">
+            <div class="enter-address" id="billing-address-new">
 
                 @{
                     var dataDictAddress = new ViewDataDictionary();
@@ -350,31 +430,32 @@
                     @Html.Partial("~/Plugins/Misc.District/Views/Shared/_CreateOrUpdateAddressBilling.cshtml", Model.CheckoutBillingAddressModel.NewAddress, dataDictAddress)
                 }
             </div>
-                        <div class="enter-address">
+            <div class="enter-address" id="shipping-address-new">
 
-                            @{
-                                dataDictAddress.ModelState.Merge(ViewData.ModelState);
-                                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
-                                @Html.Partial("~/Plugins/Misc.District/Views/Shared/_CreateOrUpdateAddressShipping.cshtml", Model.CheckoutShippingAddressModel.NewAddress, dataDictAddress)
-                            }
-                        </div>
-                                            <div class="buttons">
+                @{
+                    dataDictAddress.ModelState.Merge(ViewData.ModelState);
+                    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
+                    @Html.Partial("~/Plugins/Misc.District/Views/Shared/_CreateOrUpdateAddressShipping.cshtml", Model.CheckoutShippingAddressModel.NewAddress, dataDictAddress)
+                }
+            </div>
+            <div class="buttons">
 
-                                                @{
-                                                    var validationSummary = Html.ValidationSummary(true);
-                                                }
-                                                @if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+                @{
+                    var validationSummary = Html.ValidationSummary(true);
+                }
+                @if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
                 {
-                                                    <div class="message-error">@validationSummary</div>
-                                                }
-                                                <input type="submit" name="nextstep" value="@T("Checkout.NewAddress")" class="button-1 new-address-next-step-button" id="CheckoutNewAddress" />
-                                                <script type="text/javascript">
+                    <div class="message-error">@validationSummary</div>
+                }
+                <input type="submit" name="nextstep" value="@T("Checkout.NewAddress")" class="button-1 new-address-next-step-button" id="CheckoutNewAddress" />
+                
+                <script type="text/javascript">
 
                                                         $("#saveaddress").submit(function(){
                                                             var isFormValid = true;
 
 
-                                                            if (!$(".shipping-method").hasClass("selected"))
+                                                            if (!$(".shipping-method").hasClass("selected") && !$('#@Html.FieldIdFor(model => model.CheckoutShippingAddressModel.PickUpInStore)').is(':checked'))
                                                             {
                                                                 $(".method-list").addClass("highlight");
                                                                 isFormValid = false;
@@ -394,18 +475,18 @@
 
                                                             return isFormValid;
                                                         });
-                                                </script>
+                </script>
 
 
 
-                                                @Html.Action("ShippingMethod", "District")
+                @Html.Action("ShippingMethod", "District")
 
 
 
-                                                <input type="button" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" id="ShippingMethod" style="display:none;" onclick="setLocation('/checkout/PaymentMethod')" />
-
-                                            </div>
-                                                    }
+                <input type="button" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" id="ShippingMethod" style="display:none;" onclick="setLocation('/checkout/PaymentMethod')" />
+                <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" id="PickUpNext" style="display:none;" />
+            </div>
+                    }
 
 
         <div class="section order-summary">

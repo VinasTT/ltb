@@ -229,7 +229,7 @@ namespace Nop.Plugin.Misc.District.Controllers
         {
             var billingModel = new CheckoutBillingAddressModel();
             billingModel.ShipToSameAddressAllowed = _shippingSettings.ShipToSameAddress && cart.RequiresShipping();
-            billingModel.ShipToSameAddress = true;
+            billingModel.ShipToSameAddress = false;
 
             //existing addresses
             var addresses = _workContext.CurrentCustomer.Addresses
@@ -382,7 +382,7 @@ namespace Nop.Plugin.Misc.District.Controllers
         {
             var model = new CheckoutBillingAddressModel();
             model.ShipToSameAddressAllowed = _shippingSettings.ShipToSameAddress && cart.RequiresShipping();
-            model.ShipToSameAddress = true;
+            model.ShipToSameAddress = false;
 
             //existing addresses
             var addresses = _workContext.CurrentCustomer.Addresses
@@ -902,16 +902,27 @@ namespace Nop.Plugin.Misc.District.Controllers
             model.CheckoutBillingAddressModel.NewAddress.ZipPostalCode = form["BillingNewAddress.ZipPostalCode"];
 
             model.CheckoutShippingAddressModel.NewAddress.Address1 = form["ShippingNewAddress.Address1"];
-            model.CheckoutShippingAddressModel.NewAddress.CountryId = Convert.ToInt32(form["ShippingNewAddress.CountryId"]);
+            var outParameter = 0;
+            int.TryParse(form["ShippingNewAddress.CountryId"],out outParameter);
+            model.CheckoutShippingAddressModel.NewAddress.CountryId = outParameter;
+
             model.CheckoutShippingAddressModel.NewAddress.CountryName = form["ShippingNewAddress.CountryName"];
-            model.CheckoutShippingAddressModel.NewAddress.DistrictId = Convert.ToInt32(form["ShippingNewAddress.DistrictId"]);
+
+            int.TryParse(form["ShippingNewAddress.DistrictId"], out outParameter);
+            model.CheckoutShippingAddressModel.NewAddress.DistrictId = outParameter;
+
             model.CheckoutShippingAddressModel.NewAddress.DistrictName = form["ShippingNewAddress.DistrictName"];
             model.CheckoutShippingAddressModel.NewAddress.Email = form["ShippingNewAddress.Email"];
             model.CheckoutShippingAddressModel.NewAddress.FirstName = form["ShippingNewAddress.FirstName"];
             model.CheckoutShippingAddressModel.NewAddress.LastName = form["ShippingNewAddress.LastName"];
             model.CheckoutShippingAddressModel.NewAddress.PhoneNumber = form["ShippingNewAddress.PhoneNumber"];
-            model.CheckoutShippingAddressModel.NewAddress.StateProvinceId = Convert.ToInt32(form["ShippingNewAddress.StateProvinceId"]);
-            model.CheckoutShippingAddressModel.NewAddress.StateProvinceMappingId = Convert.ToInt32(form["ShippingNewAddress.StateProvinceMappingId"]);
+
+            int.TryParse(form["ShippingNewAddress.StateProvinceId"], out outParameter);
+            model.CheckoutShippingAddressModel.NewAddress.StateProvinceId = outParameter;
+
+            int.TryParse(form["ShippingNewAddress.StateProvinceMappingId"], out outParameter);
+            model.CheckoutShippingAddressModel.NewAddress.StateProvinceMappingId = outParameter;
+
             model.CheckoutShippingAddressModel.NewAddress.StateProvinceName = form["ShippingNewAddress.StateProvinceName"];
             model.CheckoutShippingAddressModel.NewAddress.ZipPostalCode = form["ShippingNewAddress.ZipPostalCode"];
 
@@ -923,7 +934,7 @@ namespace Nop.Plugin.Misc.District.Controllers
                 ModelState.AddModelError("", error);
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && model.CheckoutBillingAddressModel.NewAddress.CountryId != 0 )
             {
                 //try to find an address with the same values (don't duplicate records)
                 var address = _workContext.CurrentCustomer.Addresses.ToList().FindAddress(
@@ -952,18 +963,20 @@ namespace Nop.Plugin.Misc.District.Controllers
                 _workContext.CurrentCustomer.BillingAddress = address;
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
 
-                //ship to the same address?
-                if (_shippingSettings.ShipToSameAddress && model.CheckoutBillingAddressModel.ShipToSameAddress && cart.RequiresShipping())
-                {
-                    _workContext.CurrentCustomer.ShippingAddress = _workContext.CurrentCustomer.BillingAddress;
-                    _customerService.UpdateCustomer(_workContext.CurrentCustomer);
-                    //reset selected shipping method (in case if "pick up in store" was selected)
-                    _genericAttributeService.SaveAttribute<ShippingOption>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedShippingOption, null, _storeContext.CurrentStore.Id);
-                    _genericAttributeService.SaveAttribute<PickupPoint>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedPickupPoint, null, _storeContext.CurrentStore.Id);
-                    //limitation - "Ship to the same address" doesn't properly work in "pick up in store only" case (when no shipping plugins are available) 
-                    return RedirectToRoute("CheckoutPaymentMethod");
-                }
                 
+                
+            }
+
+            //ship to the same address?
+            if (_shippingSettings.ShipToSameAddress && model.CheckoutBillingAddressModel.ShipToSameAddress && cart.RequiresShipping())
+            {
+                _workContext.CurrentCustomer.ShippingAddress = _workContext.CurrentCustomer.BillingAddress;
+                _customerService.UpdateCustomer(_workContext.CurrentCustomer);
+                //reset selected shipping method (in case if "pick up in store" was selected)
+                _genericAttributeService.SaveAttribute<ShippingOption>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedShippingOption, null, _storeContext.CurrentStore.Id);
+                _genericAttributeService.SaveAttribute<PickupPoint>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedPickupPoint, null, _storeContext.CurrentStore.Id);
+                //limitation - "Ship to the same address" doesn't properly work in "pick up in store only" case (when no shipping plugins are available) 
+                return RedirectToRoute("CheckoutPaymentMethod");
             }
 
 
@@ -1008,7 +1021,7 @@ namespace Nop.Plugin.Misc.District.Controllers
                 _genericAttributeService.SaveAttribute<PickupPoint>(_workContext.CurrentCustomer, SystemCustomerAttributeNames.SelectedPickupPoint, null, _storeContext.CurrentStore.Id);
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && model.CheckoutBillingAddressModel.ShipToSameAddress)
             {
                 //try to find an address with the same values (don't duplicate records)
                 var address = _workContext.CurrentCustomer.Addresses.ToList().FindAddress(
@@ -1173,7 +1186,6 @@ namespace Nop.Plugin.Misc.District.Controllers
                 overrideAttributesXml: customAttributes);
             return View(model);
         }
-
 
         [AcceptVerbs(HttpVerbs.Post)]
         public ActionResult SelectBillingAddress(int addressId)

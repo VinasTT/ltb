@@ -46,3 +46,4 @@ SevenSpikes.Nop.Plugins.RealOnePageCheckout
 Misc.District
 Misc.StoreList
 Shipping.UPSTr
+Widgets.ProductInStore

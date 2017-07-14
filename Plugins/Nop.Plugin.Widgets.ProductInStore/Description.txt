@@ -1,0 +1,9 @@
+﻿Group: Misc
+FriendlyName: ProductInStore
+SystemName: Widgets.ProductInStore
+Version: 1.00
+SupportedVersions: 3.80
+Author: Reşit Akyüz
+DisplayOrder: 1
+FileName: Nop.Plugin.Widgets.ProductInStore.dll
+Description: This plugin allows you to display product availability in shops
